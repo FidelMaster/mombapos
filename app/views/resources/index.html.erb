@@ -1,0 +1,33 @@
+<% content_for :title, "Recursos" %>
+
+<%= render "shared/resource_table", 
+      title: "Recursos", 
+      collection: @resources,
+      new_path: new_resource_path, 
+      headers: [ "Nombre", "Tipo", "Nivel", "Activo" ] do |resource| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <%# Dynamic fields %>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= resource.name %></div>
+      </td>
+       <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= resource.resource_type %></div>
+      </td>
+       <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= resource.level&.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= resource.is_active ? "Sí" : "No" %></div>
+      </td>
+
+      <%# Actions %>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to "Ver", resource, class: "text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= link_to "Editar", edit_resource_path(resource), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= button_to "Eliminar", resource, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "¿Estás seguro de eliminar este recurso?" } %>
+        </div>
+      </td>
+    </tr>
+<% end %>

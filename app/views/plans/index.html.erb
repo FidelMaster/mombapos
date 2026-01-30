@@ -1,0 +1,40 @@
+<% content_for :title, "Planes" %>
+
+<%= render "shared/resource_table", 
+      title: "Planes", 
+      collection: @plans,
+      new_path: new_plan_path, 
+      headers: [ "Nombre", "Instructor", "Estudiante", "Activo" ] do |plan| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <%# Dynamic fields %>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= plan.name %></div>
+        <div class="text-xs text-gray-500"><%= plan.total_duration_in_days %> días</div>
+      </td>
+       <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= plan.trainer&.name %></div>
+      </td>
+       <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= plan.student&.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= plan.is_active ? "Sí" : "No" %></div>
+      </td>
+
+      <%# Actions %>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to manage_plan_path(plan), class: "text-slate-600 hover:text-white hover:bg-slate-800 bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            </svg>
+            Gestionar
+          <% end %>
+          <%= link_to "Ver", plan, class: "text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= link_to "Editar", edit_plan_path(plan), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= button_to "Eliminar", plan, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "¿Estás seguro de eliminar este plan?" } %>
+        </div>
+      </td>
+    </tr>
+<% end %>

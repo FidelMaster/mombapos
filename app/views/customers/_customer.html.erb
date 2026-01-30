@@ -1,0 +1,46 @@
+<div id="<%= dom_id customer %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Inquilino:</strong>
+    <%= customer.tenant_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Nombre:</strong>
+    <%= customer.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">RFC/Tax ID:</strong>
+    <%= customer.tax_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Dirección:</strong>
+    <%= customer.address %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Municipio:</strong>
+    <%= customer.municipality_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Nombre de contacto:</strong>
+    <%= customer.contact_name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Correo de contacto:</strong>
+    <%= customer.contact_email %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Teléfono de contacto:</strong>
+    <%= customer.contact_phone %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Límite de crédito:</strong>
+    <%= customer.credit_limit %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Exento de impuestos:</strong>
+    <%= customer.is_tax_exempt? ? "Sí" : "No" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= customer.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

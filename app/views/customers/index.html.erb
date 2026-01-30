@@ -1,0 +1,38 @@
+<% content_for :title, "Customers" %>
+ 
+<%= render "shared/resource_table", 
+      title: "Clientes", 
+      collection: @customers,
+      new_path: new_customer_path, 
+      headers: [ "Departamento", "Municipio", ["Nombre", "name"], ["Correo", "contact_email"], "Telefono", "Activo", "Acciones"] do |customer| %>
+
+    <tr class="hover:bg-gray-50 transition-colors duration-200">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-800"><%= customer.department.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-800"><%= customer.municipality.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-800"><%= customer.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-800"><%= customer.contact_email %></div>
+      </td> 
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-800"><%= customer.contact_phone %></div>
+      </td>
+
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-800"><%= customer.is_active? ? "Sí" : "No" %></div>
+      </td>
+      <td>
+        <div class="w-full sm:w-auto flex flex-col sm:flex-row space-x-2 space-y-2">
+            <%= link_to "Ver", customer, class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+            <%= link_to "Editar", edit_customer_path(customer), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+            <%= button_to "Eliminar", customer, method: :delete, class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "¿Estás seguro?" } %>
+         </div>
+      </td>
+    </tr>
+<% end %>
+ 

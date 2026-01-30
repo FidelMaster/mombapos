@@ -1,0 +1,111 @@
+<%= form_with(model: student, class: "block max-w-6xl mx-auto bg-white rounded-2xl shadow-sm ring-1 ring-gray-900/5 p-6 md:p-8") do |form| %>
+  <% if student.errors.any? %>
+    <div id="error_explanation" class="rounded-xl bg-red-50 p-4 border border-red-100 mb-6">
+      <h2><%= pluralize(student.errors.count, "error") %> prohibited this student from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% student.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Section: Personal Information %>
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4 border-b pb-2">Información Personal</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="md:col-span-2">
+        <%= form.label :name, "Nombre completo", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :name, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:name].none?, "ring-red-300 focus:ring-red-500": student.errors[:name].any?}] %>
+      </div>
+
+       <div>
+        <%= form.label :date_of_birth, "Fecha de nacimiento", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.date_field :date_of_birth, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:date_of_birth].none?, "ring-red-300 focus:ring-red-500": student.errors[:date_of_birth].any?}] %>
+      </div>
+
+      <div class="md:col-span-3">
+        <%= form.label :address, "Dirección", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :address, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:address].none?, "ring-red-300 focus:ring-red-500": student.errors[:address].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :country_id, "País", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :country_id, @countries, :id, :name, { prompt: "Seleccione un país" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:country_id].none?, "ring-red-300 focus:ring-red-500": student.errors[:country_id].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :department_id, "Departamento/Estado", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :department_id, @departments, :id, :name, { prompt: "Seleccione un departamento" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:department_id].none?, "ring-red-300 focus:ring-red-500": student.errors[:department_id].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :municipality_id, "Municipio/Ciudad", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :municipality_id, @municipalities, :id, :name, { prompt: "Seleccione un municipio" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:municipality_id].none?, "ring-red-300 focus:ring-red-500": student.errors[:municipality_id].any?}] %>
+      </div>
+    </div>
+  </div>
+
+  <%# Section: Contact Information %>
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4 border-b pb-2">Información de Contacto</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :contact_name, "Nombre de contacto (Tutor/Padre)", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :contact_name, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:contact_name].none?, "ring-red-300 focus:ring-red-500": student.errors[:contact_name].any?}] %>
+      </div>
+
+       <div>
+        <%= form.label :contact_dni, "DNI/Identificación de contacto", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :contact_dni, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:contact_dni].none?, "ring-red-300 focus:ring-red-500": student.errors[:contact_dni].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :contact_email, "Correo electrónico", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.email_field :contact_email, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:contact_email].none?, "ring-red-300 focus:ring-red-500": student.errors[:contact_email].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :contact_phone, "Teléfono", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.telephone_field :contact_phone, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:contact_phone].none?, "ring-red-300 focus:ring-red-500": student.errors[:contact_phone].any?}] %>
+      </div>
+    </div>
+  </div>
+
+  <%# Section: Academic Information %>
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4 border-b pb-2">Información Académica</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div>
+        <%= form.label :code, "Código de estudiante (FIDE)", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :code, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:code].none?, "ring-red-300 focus:ring-red-500": student.errors[:code].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :level_id, "Nivel", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :level_id, @levels, :id, :name, { prompt: "Seleccione un nivel" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:level_id].none?, "ring-red-300 focus:ring-red-500": student.errors[:level_id].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :title, "Título/Grado", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :title, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:title].none?, "ring-red-300 focus:ring-red-500": student.errors[:title].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :official_average_score, "ELO oficial", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.number_field :official_average_score, step: "0.01", class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:official_average_score].none?, "ring-red-300 focus:ring-red-500": student.errors[:official_average_score].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :online_average_score, "ELO online", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.number_field :online_average_score, step: "0.01", class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": student.errors[:online_average_score].none?, "ring-red-300 focus:ring-red-500": student.errors[:online_average_score].any?}] %>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="inline">
+    <%= form.submit "Guardar", class: "flex w-full sm:w-auto justify-center rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" %>
+  </div>
+<% end %>

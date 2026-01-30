@@ -1,0 +1,36 @@
+<%= form_with(model: area, class: "space-y-6") do |f| %>
+  <% if area.errors.any? %>
+    <div class="bg-red-50 p-4 rounded-2xl border border-red-100 mb-6 animate-shake">
+      <h3 class="text-sm font-bold text-red-800 mb-2">Por favor corrige los siguientes errores:</h3>
+      <ul class="text-xs text-red-700 list-disc list-inside">
+        <% area.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-6">
+    <div>
+      <%= f.label :name, "Nombre del Área / Ambiente", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+      <%= f.text_field :name, placeholder: "Ej. Terraza, VIP, Salón Principal", class: "block w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:ring-primary focus:border-primary font-bold text-slate-700 transition-all shadow-inner" %>
+    </div>
+
+    <div>
+      <%= f.label :color, "Color Identificador", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+      <div class="flex items-center gap-4">
+        <%= f.color_field :color, class: "h-12 w-20 p-1 bg-slate-50 border-transparent rounded-xl cursor-pointer shadow-inner" %>
+        <span class="text-sm text-slate-400 font-medium italic">Este color se usará en el mapa de mesas del POS</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+      <%= f.check_box :is_active, class: "w-5 h-5 rounded text-primary focus:ring-primary border-slate-300" %>
+      <%= f.label :is_active, "Área Activa", class: "text-sm font-bold text-slate-700 cursor-pointer" %>
+    </div>
+
+    <div class="pt-4">
+      <%= f.submit area.new_record? ? "Crear Área" : "Actualizar Área", class: "w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all cursor-pointer" %>
+    </div>
+  </div>
+<% end %>

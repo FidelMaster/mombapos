@@ -1,0 +1,2 @@
+class AppModule < ApplicationRecord
+end

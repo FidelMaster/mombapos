@@ -1,0 +1,44 @@
+<% content_for :title, "Estudiantes" %>
+
+<%= render "shared/resource_table", 
+      title: "Estudiantes", 
+      collection: @students,
+      new_path: new_student_path, 
+      headers: [ "País", "Departamento", "Municipio", "Nombre", "Código", "Nivel", "Contacto" ] do |student| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <%# Dynamic fields %>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= student.country&.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= student.department&.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= student.municipality&.name %></div>
+      </td> 
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= student.name %></div>
+        <div class="text-xs text-gray-500"><%= student.address %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= student.code %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= student.level&.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= student.contact_name %></div>
+        <div class="text-xs text-gray-500"><%= student.contact_phone %></div>
+      </td>
+
+      <%# Actions %>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to "Ver", student, class: "text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= link_to "Editar", edit_student_path(student), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= button_to "Eliminar", student, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "¿Estás seguro de eliminar este estudiante?" } %>
+        </div>
+      </td>
+    </tr>
+<% end %>

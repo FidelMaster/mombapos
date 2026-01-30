@@ -1,0 +1,54 @@
+<div id="<%= dom_id trainer %>" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+  
+  <div class="col-span-full border-b pb-2 mb-2">
+    <h3 class="text-lg font-semibold text-gray-900">Información Personal</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Nombre</strong>
+    <span class="text-gray-900 text-lg"><%= trainer.name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Email</strong>
+    <span class="text-gray-900"><%= trainer.email %></span>
+  </div>
+  
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Teléfono</strong>
+    <span class="text-gray-900"><%= trainer.phone %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Usuario Asociado</strong>
+    <span class="text-gray-900"><%= trainer.user&.email || "N/A" %></span>
+  </div>
+
+  <div class="col-span-full border-b pb-2 mb-2 mt-4">
+    <h3 class="text-lg font-semibold text-gray-900">Información Profesional</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Tarifa por hora</strong>
+    <span class="text-gray-900"><%= number_to_currency(trainer.rate_per_hour) %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Fecha de contratación</strong>
+    <span class="text-gray-900"><%= trainer.hire_date %></span>
+  </div>
+
+  <div class="col-span-full border-b pb-2 mb-2 mt-4">
+    <h3 class="text-lg font-semibold text-gray-900">Ubicación</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Departamento</strong>
+    <span class="text-gray-900"><%= trainer.department&.name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Municipio</strong>
+    <span class="text-gray-900"><%= trainer.municipality&.name %></span>
+  </div>
+</div>

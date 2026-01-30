@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Salón de Mesas</h1>
+        <p class="text-gray-500">Seleccione una mesa para comenzar o gestionar una orden</p>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-green-500"></span>
+          <span class="text-sm text-gray-600">Libre</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-500"></span>
+          <span class="text-sm text-gray-600">Ocupada</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+          <span class="text-sm text-gray-600">Reservada</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-12">
+      <% 
+        tables_by_area = @dining_tables.group_by(&:area)
+        # Sort areas by name, with nil (unassigned) at the end
+        sorted_areas = tables_by_area.keys.compact.sort_by(&:name)
+        sorted_areas << nil if tables_by_area.has_key?(nil)
+      %>
+
+      <% sorted_areas.each do |area| %>
+        <% tables = tables_by_area[area] %>
+        <section class="animate-fade-in-down">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-8 w-1.5 rounded-full" style="background-color: <%= area&.color || '#CBD5E1' %>"></div>
+            <h2 class="text-xl font-extrabold text-slate-800 uppercase tracking-tight">
+              <%= area&.name || "Sin Área Asignada" %>
+              <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-400 text-xs rounded-lg font-bold"><%= tables.count %> mesas</span>
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+            <% tables.each do |table| %>
+              <%= link_to pos_table_path(table), class: "group block h-full focus:outline-none", data: { turbo: false } do %>
+                  <div class="relative h-full flex flex-col bg-white rounded-2xl shadow-sm border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 
+                  <%= if table.free? then 'border-green-200 bg-green-50/20'
+                      elsif table.occupied? then 'border-red-200 bg-red-50/10'
+                      elsif table.reserved? then 'border-yellow-200 bg-yellow-50/10'
+                      else 'border-gray-200'
+                      end %>">
+                  
+                    <!-- Badge Indicador de Orden Activa -->
+                    <% if table.occupied? %>
+                      <div class="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 bg-red-100 rounded-lg">
+                        <span class="flex h-2 w-2 relative">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <span class="text-[10px] font-bold text-red-600 uppercase tracking-tighter">Ocupada</span>
+                      </div>
+                    <% end %>
+
+                    <div class="p-8 flex-1 flex flex-col items-center text-center">
+                      <!-- Icono de Mesa -->
+                      <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-sm transition-colors duration-300
+                        <%= if table.free? then 'bg-green-500 text-white'
+                            elsif table.occupied? then 'bg-red-500 text-white'
+                            elsif table.reserved? then 'bg-yellow-500 text-white'
+                            else 'bg-gray-400 text-white'
+                            end %>">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+
+                      <h3 class="text-xl font-bold text-gray-800 mb-1">Mesa <%= table.code %></h3>
+                      <p class="text-sm text-gray-400 mb-4 font-medium">Capacidad: <%= table.capacity %> pers.</p>
+
+                      <!-- Información de la Orden -->
+                      <% if table.occupied? && (active_order = table.orders.find_by(status: :open)) %>
+                        <!-- Nombre del Cliente -->
+                        <div class="mb-4 p-2 bg-blue-50 rounded-xl border border-blue-100 w-full animate-fade-in-down">
+                          <span class="block text-[10px] text-blue-400 uppercase font-black tracking-widest">Cliente</span>
+                          <span class="text-lg font-black text-blue-700 truncate w-full block px-1"><%= active_order.customer_name %></span>
+                        </div>
+                        <!-- Total de la orden -->
+                        <div class="mb-4 p-2 bg-emerald-50 rounded-xl border border-emerald-100 w-full animate-fade-in-down">
+                          <span class="block text-[10px] text-emerald-400 uppercase font-black tracking-widest">Total</span>
+                          <span class="text-lg font-black text-emerald-700"><%= number_to_currency active_order.total %></span>
+                        </div>
+                      <% end %>
+
+                      <span class="mt-auto px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm
+                        <%= if table.free? then 'bg-green-100 text-green-700'
+                            elsif table.occupied? then 'bg-red-100 text-red-700'
+                            elsif table.reserved? then 'bg-yellow-100 text-yellow-700'
+                            else 'bg-gray-100 text-gray-400'
+                            end %>">
+                        <%= case table.status
+                            when 'free' then 'Libre'
+                            when 'occupied' then 'En Servicio'
+                            when 'reserved' then 'Reservada'
+                            else 'Desconocido'
+                            end %>
+                      </span>
+                    </div>
+                  </div>
+              <% end %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </div>
+  </div>
+</div>

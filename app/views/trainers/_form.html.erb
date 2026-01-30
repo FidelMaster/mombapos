@@ -1,0 +1,72 @@
+<%= form_with(model: trainer, class: "block max-w-4xl mx-auto bg-white rounded-2xl shadow-sm ring-1 ring-gray-900/5 p-6 md:p-8") do |form| %>
+  <% if trainer.errors.any? %>
+    <div id="error_explanation" class="rounded-xl bg-red-50 p-4 border border-red-100 mb-6">
+      <h2><%= pluralize(trainer.errors.count, "error") %> prohibited this trainer from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% trainer.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4 border-b pb-2">Información Personal</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="md:col-span-2">
+        <%= form.label :name, "Nombre completo", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.text_field :name, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:name].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:name].any?}] %>
+      </div>
+
+       <div>
+        <%= form.label :user_id, "Usuario asociado", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :user_id, @users, :id, :email, { prompt: "Seleccione usuario (si aplica)" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:user_id].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:user_id].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :email, "Correo electrónico", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.email_field :email, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:email].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:email].any?}] %>
+      </div>
+
+      <div>
+        <%= form.label :phone, "Teléfono", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.telephone_field :phone, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:phone].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:phone].any?}] %>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4 border-b pb-2">Información Profesional</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :rate_per_hour, "Tarifa por hora", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.number_field :rate_per_hour, step: "0.01", class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:rate_per_hour].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:rate_per_hour].any?}] %>
+      </div>
+
+       <div>
+        <%= form.label :hire_date, "Fecha de contratación", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.date_field :hire_date, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:hire_date].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:hire_date].any?}] %>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4 border-b pb-2">Ubicación</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :department_id, "Departamento", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :department_id, @departments, :id, :name, { prompt: "Seleccione un departamento" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:department_id].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:department_id].any?}] %>
+      </div>
+
+       <div>
+        <%= form.label :municipality_id, "Municipio", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+        <%= form.collection_select :municipality_id, @municipalities, :id, :name, { prompt: "Seleccione un municipio" }, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": trainer.errors[:municipality_id].none?, "ring-red-300 focus:ring-red-500": trainer.errors[:municipality_id].any?}] %>
+      </div>
+    </div>
+  </div>
+
+  <div class="inline">
+    <%= form.submit "Guardar", class: "flex w-full sm:w-auto justify-center rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" %>
+  </div>
+<% end %>

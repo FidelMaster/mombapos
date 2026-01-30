@@ -1,0 +1,35 @@
+<% content_for :title, "Facturas" %>
+
+<%= render "shared/resource_table", 
+      title: "Facturas", 
+      collection: @invoices,
+      new_path: new_invoice_path, 
+      headers: ["Cliente", ["Número", "invoice_number"], ["Fecha", "invoice_date"], "Sucursal", ["Total", "total_local_amount"], "Acciones"] do |invoice| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <%# Dynamic fields %>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= invoice.customer.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= invoice.invoice_number %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= invoice.invoice_date %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= invoice.branch.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= invoice.total_local_amount %></div>
+      </td>
+      <%# Actions %>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to "Ver", invoice, class: "text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= link_to "Editar", edit_invoice_path(invoice), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= button_to "Eliminar", invoice, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
+        </div>
+      </td>
+    </tr>
+<% end %>

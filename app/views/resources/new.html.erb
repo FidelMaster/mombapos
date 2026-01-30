@@ -1,0 +1,10 @@
+<% content_for :title, "Nuevo Recurso" %>
+
+<div class="w-full">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="font-bold text-4xl">Nuevo recurso</h1>
+    <%= link_to "Regresar", resources_path, class: "rounded-lg py-2 px-4 bg-gray-100 hover:bg-gray-200 font-medium" %>
+  </div>
+
+  <%= render "form", resource: @resource %>
+</div>

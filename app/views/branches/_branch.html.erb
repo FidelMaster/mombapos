@@ -1,0 +1,18 @@
+<div id="<%= dom_id branch %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Inquilino:</strong>
+    <%= branch.tenant_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Nombre:</strong>
+    <%= branch.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Por defecto:</strong>
+    <%= branch.is_default? ? "Sí" : "No" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= branch.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

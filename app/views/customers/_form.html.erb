@@ -1,0 +1,119 @@
+<%= form_with(model: customer, class: "max-w-4xl mx-auto space-y-8") do |form| %>
+  <% if customer.errors.any? %>
+    <div class="rounded-xl bg-red-50 p-4 border border-red-200 mb-6 flex gap-3 animate-shake">
+      <svg class="h-5 w-5 text-red-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+      </svg>
+      <div>
+        <h3 class="text-sm font-bold text-red-800"><%= pluralize(customer.errors.count, "error") %> impidieron guardar este cliente:</h3>
+        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+          <% customer.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Section: Customer Profile %>
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+      <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+      </div>
+      <h2 class="text-base font-bold text-slate-800">Perfil del Cliente</h2>
+    </div>
+
+    <div class="p-6 md:p-8 space-y-6">
+      <div>
+        <%= form.label :name, "Nombre Completo / Razón Social", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+        <%= form.text_field :name, placeholder: "Ej: Juan Pérez o Distribuidora S.A.", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400" %>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <%= form.label :contact_name, "Nombre de Contacto", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.text_field :contact_name, placeholder: "Persona encargada...", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400" %>
+        </div>
+
+        <div>
+          <%= form.label :contact_email, "Correo Electrónico", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.email_field :contact_email, placeholder: "ejemplo@correo.com", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400" %>
+        </div>
+
+        <div>
+          <%= form.label :contact_phone, "Teléfono / Móvil", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.text_field :contact_phone, placeholder: "+505 0000-0000", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Section: Location & Credit %>
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+      <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1115 0z" />
+        </svg>
+      </div>
+      <h2 class="text-base font-bold text-slate-800">Ubicación y Crédito</h2>
+    </div>
+
+    <div class="p-6 md:p-8 space-y-6">
+      <div>
+        <%= form.label :address, "Dirección Completa", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+        <%= form.text_area :address, rows: 2, placeholder: "Barrio, de la iglesia 2c abajo...", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all placeholder:text-slate-400 resize-none" %>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <%= form.label :department_id, "Departamento / Estado", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.collection_select :department_id, @departments, :id, :name, { prompt: "Seleccionar..." }, class: "block w-full rounded-xl border-slate-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all appearance-none cursor-pointer shadow-sm" %>
+        </div>
+
+        <div>
+          <%= form.label :municipality_id, "Municipio", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.collection_select :municipality_id, @municipalities, :id, :name, { prompt: "Seleccionar..." }, class: "block w-full rounded-xl border-slate-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all appearance-none cursor-pointer shadow-sm" %>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100">
+        <%= form.label :credit_limit, "Límite de Crédito Autorizado", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+        <div class="relative max-w-xs">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-black">C$</span>
+          <%= form.number_field :credit_limit, step: "0.01", placeholder: "0.00", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-black py-3 pl-10 pr-4 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Section: Settings %>
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-6 space-y-6">
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="flex-1 flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group">
+        <%= form.check_box :is_tax_exempt, class: "h-6 w-6 rounded-lg border-slate-200 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer" %>
+        <div>
+          <span class="block text-sm font-bold text-slate-800">Exento de Impuestos</span>
+          <span class="block text-xs text-slate-500">No aplica IVA en facturación</span>
+        </div>
+      </div>
+
+      <div class="flex-1 flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group">
+        <%= form.check_box :is_active, class: "h-6 w-6 rounded-lg border-slate-200 text-emerald-600 focus:ring-emerald-500 transition-all cursor-pointer" %>
+        <div>
+          <span class="block text-sm font-bold text-slate-800">Cliente Activo</span>
+          <span class="block text-xs text-slate-500">Habilitado para transacciones</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 justify-end pt-4 border-t border-slate-100">
+      <%= link_to "Cancelar", customers_path, class: "px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all" %>
+      <%= form.submit "Guardar Cliente", class: "px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-500 active:scale-95 transition-all cursor-pointer" %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,102 @@
+<div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center mb-6">
+      <div class="h-16 w-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center transform rotate-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+      </div>
+    </div>
+    <h2 class="mt-2 text-center text-3xl font-black text-slate-900 tracking-tight">
+      Nueva Orden Pickup
+    </h2>
+    <p class="mt-2 text-center text-sm text-slate-600">
+      Crea una nueva orden para llevar rápidamente
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:px-10 border border-slate-100 relative overflow-hidden">
+      <!-- Decorative background element -->
+      <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-gradient-to-br from-green-50 to-green-100 rounded-full opacity-50 blur-2xl"></div>
+      
+      <%= form_with(model: @order, local: true, class: "space-y-6 relative") do |f| %>
+        <%= f.hidden_field :order_type, value: "pickup" %>
+        
+        <% if @order.errors.any? %>
+          <div class="rounded-xl bg-red-50 p-4 mb-6 border border-red-100">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-bold text-red-800">
+                  <%= pluralize(@order.errors.count, "error") %> impidieron guardar esta orden:
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc pl-5 space-y-1">
+                    <% @order.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div>
+          <%= f.label :customer_id, "Cliente", class: "block text-sm font-bold text-slate-700 mb-2" %>
+          <div class="relative rounded-xl shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <%= f.collection_select :customer_id, Customer.where(is_active: true), :id, :name, { prompt: "Seleccionar cliente..." }, { class: "block w-full pl-10 pr-10 py-3 sm:text-sm border-slate-200 rounded-xl focus:ring-green-500 focus:border-green-500 transition-colors bg-slate-50 hover:bg-white" } %>
+          </div>
+          <div class="flex justify-end mt-2">
+            <%= link_to new_customer_path, class: "text-xs font-bold text-green-600 hover:text-green-500 flex items-center gap-1" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Nuevo Cliente
+            <% end %>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :dining_table_id, "Asignar Mesa (Opcional)", class: "block text-sm font-bold text-slate-700 mb-2" %>
+          <div class="relative rounded-xl shadow-sm">
+             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <%= f.collection_select :dining_table_id, DiningTable.all, :id, :code, { include_blank: "Sin mesa (Solo Barra)" }, { class: "block w-full pl-10 pr-10 py-3 sm:text-sm border-slate-200 rounded-xl focus:ring-green-500 focus:border-green-500 transition-colors bg-slate-50 hover:bg-white" } %>
+          </div>
+          <p class="mt-2 text-xs text-slate-500">
+            Deja en blanco si es una orden directa a barra o cocina sin mesa asignada.
+          </p>
+        </div>
+
+        <div>
+          <%= f.label :notes, "Notas de la orden", class: "block text-sm font-bold text-slate-700 mb-2" %>
+          <div class="mt-1">
+            <%= f.text_area :notes, rows: 3, class: "shadow-sm border-slate-200 block w-full sm:text-sm rounded-xl focus:ring-green-500 focus:border-green-500 bg-slate-50 hover:bg-white transition-colors", placeholder: "Instrucciones especiales para entrega..." %>
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <%= f.submit "Crear Orden Pickup", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-green-500/30 text-sm font-black text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all transform active:scale-[0.98]" %>
+        </div>
+        
+        <div class="text-center mt-4">
+          <%= link_to "Cancelar", orders_path, class: "text-sm font-bold text-slate-500 hover:text-slate-700" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

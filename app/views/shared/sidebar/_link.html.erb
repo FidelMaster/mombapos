@@ -1,0 +1,9 @@
+<% active = sidebar_active?(item) %>
+
+<%= link_to send(item[:path]),
+  class: sidebar_link_classes(active) do %>
+
+  <%= render "shared/sidebar/icons/#{item[:icon]}" %>
+  <%= item[:label] %>
+
+<% end %>

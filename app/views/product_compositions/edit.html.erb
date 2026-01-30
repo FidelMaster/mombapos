@@ -1,0 +1,135 @@
+<div class="min-h-screen bg-slate-50 p-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-10">
+      <%= link_to products_path, class: "group inline-flex items-center gap-2 text-slate-400 hover:text-slate-900 font-bold text-sm mb-4 transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Regresar a Productos
+      <% end %>
+      
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl font-black text-slate-900 tracking-tight">Configurar Receta (Kit)</h1>
+          <p class="text-slate-500 font-medium tracking-tight">Producto: <span class="text-slate-900 font-bold"><%= @product.name %></span></p>
+        </div>
+      </div>
+    </div>
+
+    <%= form_with(model: [@product, @product_composition], url: product_product_composition_path(@product), method: :patch, data: { controller: "recipe" }) do |f| %>
+      <% if @product_composition.errors.any? %>
+        <div class="bg-red-50 p-4 rounded-2xl border border-red-100 mb-6 animate-shake">
+          <h3 class="text-sm font-bold text-red-800 mb-2">Por favor corrige los siguientes errores:</h3>
+          <ul class="text-xs text-red-700 list-disc list-inside">
+            <% @product_composition.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <!-- Recipe Title Field -->
+        <div class="p-8 border-b border-slate-50">
+          <div class="max-w-md">
+            <%= f.label :name, "Nombre de la Composición", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+            <%= f.text_field :name, class: "block w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:ring-purple-500 focus:border-purple-500 font-bold text-slate-700 transition-all", placeholder: "Ej. Receta Base de Hamburguesa" %>
+          </div>
+        </div>
+
+        <!-- Ingredients Table -->
+        <div class="p-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-6">Ingredientes / Sub-productos</h3>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-4">
+                  <th class="pb-4 w-1/2">Producto</th>
+                  <th class="pb-4">Cantidad</th>
+                  <th class="pb-4">U. Medida</th>
+                  <th class="pb-4 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody data-recipe-target="container">
+                <%= f.fields_for :product_composition_items do |item_f| %>
+                  <tr class="group border-b border-slate-50 last:border-0" data-recipe-target="row">
+                    <td class="py-4 pr-4">
+                      <%= item_f.collection_select :product_id, @products, :id, :name, { prompt: "Seleccionar ingrediente..." }, class: "block w-full px-4 py-2 bg-slate-50 border-transparent rounded-lg focus:bg-white focus:ring-purple-500 focus:border-purple-500 text-sm font-medium transition-all" %>
+                    </td>
+                    <td class="py-4 pr-4">
+                      <%= item_f.number_field :quantity, step: "0.01", class: "block w-full px-4 py-2 bg-slate-50 border-transparent rounded-lg focus:bg-white focus:ring-purple-500 focus:border-purple-500 text-sm font-medium transition-all" %>
+                    </td>
+                    <td class="py-4 pr-4">
+                      <%= item_f.collection_select :unit_measure_id, @unit_measures, :id, :name, { prompt: "U.M." }, class: "block w-full px-4 py-2 bg-slate-50 border-transparent rounded-lg focus:bg-white focus:ring-purple-500 focus:border-purple-500 text-sm font-medium transition-all" %>
+                    </td>
+                    <td class="py-4 text-right">
+                      <button type="button" data-action="recipe#removeItem" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                      <%= item_f.hidden_field :_destroy %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <button type="button" data-action="recipe#addItem" class="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 font-bold rounded-xl hover:bg-purple-100 transition-all text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Agregar Ingrediente
+          </button>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-8 bg-slate-50 flex justify-end gap-3">
+          <%= link_to "Cancelar", products_path, class: "px-6 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition-all" %>
+          <%= f.submit "Guardar Receta", class: "px-8 py-3 bg-purple-600 text-white font-black rounded-xl shadow-lg shadow-purple-200 hover:scale-105 transition-all cursor-pointer" %>
+        </div>
+      </div>
+
+      <!-- Template for new rows (Inside the form but invisible) -->
+      <template data-recipe-target="template">
+        <tr class="group border-b border-slate-50 last:border-0" data-recipe-target="row">
+          <td class="py-4 pr-4">
+            <select name="product_composition[product_composition_items_attributes][NEW_RECORD][product_id]" class="block w-full px-4 py-2 bg-slate-50 border-transparent rounded-lg focus:bg-white focus:ring-purple-500 focus:border-purple-500 text-sm font-medium transition-all">
+              <option value="">Seleccionar ingrediente...</option>
+              <% @products.each do |p| %>
+                <option value="<%= p.id %>"><%= p.name %></option>
+              <% end %>
+            </select>
+          </td>
+          <td class="py-4 pr-4">
+            <input type="number" step="0.01" name="product_composition[product_composition_items_attributes][NEW_RECORD][quantity]" class="block w-full px-4 py-2 bg-slate-50 border-transparent rounded-lg focus:bg-white focus:ring-purple-500 focus:border-purple-500 text-sm font-medium transition-all">
+          </td>
+          <td class="py-4 pr-4">
+            <select name="product_composition[product_composition_items_attributes][NEW_RECORD][unit_measure_id]" class="block w-full px-4 py-2 bg-slate-50 border-transparent rounded-lg focus:bg-white focus:ring-purple-500 focus:border-purple-500 text-sm font-medium transition-all">
+              <option value="">U.M.</option>
+              <% @unit_measures.each do |um| %>
+                <option value="<%= um.id %>"><%= um.name %></option>
+              <% end %>
+            </select>
+          </td>
+          <td class="py-4 text-right">
+            <button type="button" data-action="recipe#removeItem" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            <input type="hidden" name="product_composition[product_composition_items_attributes][NEW_RECORD][_destroy]">
+          </td>
+        </tr>
+      </template>
+    <% end %>
+  </div>
+</div>

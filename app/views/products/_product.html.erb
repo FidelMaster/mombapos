@@ -1,0 +1,35 @@
+<div id="<%= dom_id product %>" class="w-full sm:w-auto my-5 space-y-5">
+ 
+  <div>
+    <strong class="block font-medium mb-1">Código del producto:</strong>
+    <%= product.product_code %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Nombre del producto:</strong>
+    <%= product.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Descripción del producto:</strong>
+    <%= product.description %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Tipo de producto:</strong>
+    <%= product.product_type %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Categoría:</strong>
+    <%= product.product_category_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Costo:</strong>
+    <%= number_to_currency product.cost %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Precio:</strong>
+    <%= number_to_currency product.price %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= product.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

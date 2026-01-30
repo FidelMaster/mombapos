@@ -1,0 +1,19 @@
+<% content_for :title, "Detalle del Recurso" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="font-bold text-4xl">Detalle del Recurso</h1>
+    <div class="flex gap-2">
+      <%= link_to "Editar", edit_resource_path(@resource), class: "rounded-lg py-2 px-4 bg-indigo-600 text-white hover:bg-indigo-500 font-medium" %>
+      <%= link_to "Regresar", resources_path, class: "rounded-lg py-2 px-4 bg-gray-100 hover:bg-gray-200 font-medium" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-gray-900/5 p-6 md:p-8">
+    <%= render @resource %>
+  </div>
+</div>

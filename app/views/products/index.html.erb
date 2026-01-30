@@ -1,0 +1,49 @@
+<% content_for :title, "Productos" %>
+
+<%= render "shared/resource_table", 
+      title: "Productos", 
+      collection: @products,
+      new_path: new_product_path, 
+      headers: [["Codigo", "product_code"], ["Nombre", "name"], ["Tipo", "product_type"], ["Precio", "price"], "Receta", "Acciones"] do |product| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <%# Dynamic fields %>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= product.product_code %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= product.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900">
+          <span class="px-2 py-1 rounded text-xs font-bold <%= product.kit? ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600' %>">
+            <%= product.product_type_before_type_cast %>
+          </span>
+        </div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-semibold text-gray-900"><%= number_to_currency product.price %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">
+        <% if product.kit? %>
+          <%= link_to edit_product_product_composition_path(product), class: "inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-600 bg-orange-50 px-3 py-1.5 rounded-lg transition-all" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            Configurar
+          <% end %>
+        <% else %>
+          <span class="text-xs text-slate-300 italic">No aplica</span>
+        <% end %>
+      </td>
+
+      <%# Actions %>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to "Mostrar", product, class: "text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= link_to "Editar", edit_product_path(product), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= button_to "Eliminar", product, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "¿Estás seguro de eliminar este producto?" } %>
+        </div>
+      </td>
+    </tr>
+<% end %>

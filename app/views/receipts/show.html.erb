@@ -1,0 +1,69 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      <%# Receipt Header %>
+      <div class="bg-slate-900 p-8 text-white relative">
+        <div class="flex justify-between items-start mb-8">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Comprobante de Pago</span>
+            <h1 class="text-4xl font-black tracking-tighter">Recibo #<%= @receipt.id %></h1>
+          </div>
+          <div class="bg-emerald-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+            Pagado
+          </div>
+        </div>
+
+        <div class="flex justify-between items-end">
+          <div>
+            <p class="text-xs font-bold opacity-60">Fecha de Pago</p>
+            <p class="text-sm font-black"><%= @receipt.receipt_date.strftime("%d %B, %Y") rescue @receipt.receipt_date %></p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs font-bold opacity-60">Monto Total</p>
+            <p class="text-3xl font-black"><%= number_to_currency(@receipt.total_amount) %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-8 space-y-8">
+        <%# Customer Info %>
+        <div class="flex gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+          <div class="w-12 h-12 bg-slate-200 rounded-xl flex items-center justify-center text-slate-500 font-black">
+            <%= @receipt.customer.name[0] %>
+          </div>
+          <div>
+            <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pagado por</span>
+            <span class="text-lg font-black text-slate-900"><%= @receipt.customer.name %></span>
+          </div>
+        </div>
+
+        <%# Details %>
+        <div class="grid grid-cols-2 gap-8 px-2">
+          <div>
+            <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 text-left">Método de Pago</span>
+            <span class="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <%= @receipt.payment_method %>
+            </span>
+          </div>
+          <div>
+            <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 text-left">Referencia</span>
+            <span class="text-sm font-bold text-slate-700"><%= @receipt.reference.presence || 'Sin referencia' %></span>
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-100"></div>
+
+        <%# Footer Actions %>
+        <div class="flex gap-4">
+          <button class="flex-1 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
+            Imprimir Recibo
+          </button>
+          <%= link_to receipts_path, class: "px-6 py-4 bg-white border border-slate-200 text-slate-700 font-black rounded-2xl hover:bg-slate-50 transition-all" do %>
+            Cerrar
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

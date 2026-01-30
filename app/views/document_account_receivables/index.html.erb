@@ -1,0 +1,33 @@
+<% content_for :title, "Cuentas por Cobrar" %>
+
+<%= render "shared/resource_table", 
+      title: "Cuentas por Cobrar", 
+      collection: @customers,
+      headers: ["Cliente", "Total Facturado", "Total Abonado", "Saldo", "Acciones"] do |customer| %>
+    
+    <% 
+      total_debit = customer.attributes['total_debit'] || 0
+      total_credit = customer.attributes['total_credit'] || 0
+      balance = total_debit - total_credit
+    %>
+
+    <tr class="hover:bg-gray-50 transition-colors duration-200">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= customer.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right">
+        <div class="text-sm text-gray-800"><%= number_to_currency(total_debit) %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right">
+        <div class="text-sm text-gray-800"><%= number_to_currency(total_credit) %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right">
+        <div class="text-sm font-semibold <%= balance > 0 ? 'text-red-600' : 'text-green-600' %>">
+          <%= number_to_currency(balance) %>
+        </div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">
+        <%= link_to "Ver Detalle", document_account_receivable_path(customer), class: "inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+      </td>
+    </tr>
+<% end %>

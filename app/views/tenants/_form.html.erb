@@ -1,0 +1,82 @@
+<%= form_with(model: tenant, class: "block max-w-3xl mx-auto bg-white rounded-2xl shadow-sm ring-1 ring-gray-900/5 p-6 md:p-8") do |form| %>
+  <% if tenant.errors.any? %>
+    <div id="error_explanation" class="rounded-xl bg-red-50 p-4 border border-red-100 mb-6">
+      <h2><%= pluralize(tenant.errors.count, "error") %> prohibited this tenant from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% tenant.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-6">
+    <%= form.label :license_id, "Licencia", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.collection_select :license_id, License.all, :id, :name, { prompt: "Seleccione una licencia" }, class: "block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :uuid, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.text_field :uuid, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:uuid].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:uuid].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :name, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.text_field :name, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:name].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:name].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :subdomain, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.text_field :subdomain, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:subdomain].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:subdomain].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :logo_url, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.text_field :logo_url, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:logo_url].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:logo_url].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :max_users, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.number_field :max_users, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:max_users].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:max_users].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :max_invoices, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.number_field :max_invoices, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:max_invoices].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:max_invoices].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :max_branches, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.number_field :max_branches, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:max_branches].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:max_branches].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :max_products, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.number_field :max_products, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:max_products].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:max_products].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :default_currency, "Moneda por Defecto", class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.select :default_currency, Tenant.default_currencies.keys, {}, class: "block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :timezone, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.text_field :timezone, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:timezone].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:timezone].any?}] %>
+  </div>
+
+  <div class="mb-6 flex items-center gap-3">
+    <%= form.label :is_active, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.check_box :is_active, class: ["h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:is_active].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:is_active].any?}] %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :email, class: "block text-sm font-medium leading-6 text-gray-900 mb-2" %>
+    <%= form.text_field :email, class: ["block w-full rounded-lg border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:email].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:email].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "flex w-full sm:w-auto justify-center rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" %>
+  </div>
+<% end %>

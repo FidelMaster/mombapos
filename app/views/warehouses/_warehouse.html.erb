@@ -1,0 +1,15 @@
+<div id="<%= dom_id warehouse %>" class="w-full sm:w-auto my-5 space-y-5">
+
+  <div>
+    <strong class="block font-medium mb-1">Nombre:</strong>
+    <%= warehouse.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Por defecto:</strong>
+    <%= warehouse.is_default? ? "Sí" : "No" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= warehouse.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

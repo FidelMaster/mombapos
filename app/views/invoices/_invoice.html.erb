@@ -1,0 +1,150 @@
+<div id="<%= dom_id invoice %>" class="p-8 sm:p-12 space-y-12">
+  <%# 1. Branding and Invoice Metadata %>
+  <div class="flex flex-col md:flex-row justify-between gap-8">
+    <div class="space-y-2">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <span class="text-2xl font-black text-gray-900 tracking-tight">MombaPOS</span>
+      </div>
+      <p class="text-sm text-gray-500 max-w-xs">
+        Managua, Nicaragua<br>
+        +505 8581-7060
+      </p>
+    </div>
+
+    <div class="text-left md:text-right space-y-1">
+      <h2 class="text-3xl font-bold text-gray-900 uppercase">Factura</h2>
+      <p class="text-lg font-mono text-indigo-600 font-bold">#<%= invoice.invoice_number %></p>
+      <div class="pt-2">
+        <% status_class = case invoice.status
+           when 'issued' then 'bg-green-100 text-green-700'
+           when 'annulled' then 'bg-red-100 text-red-700'
+           else 'bg-gray-100 text-gray-700'
+           end %>
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest <%= status_class %>">
+          <%= invoice.status %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <%# 2. Informational Grid %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-b border-gray-100 py-8">
+    <div>
+      <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Facturado a:</h4>
+      <div class="space-y-1">
+        <p class="text-lg font-bold text-gray-900"><%= invoice.customer&.name || invoice.customer_name_snapshot %></p>
+        <p class="text-sm text-gray-600"><%= invoice.customer&.tax_id || invoice.customer_tax_id_snapshot %></p>
+        <% if invoice.customer&.contact_email.present? %>
+          <p class="text-sm text-gray-500"><%= invoice.customer.email %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="md:text-right">
+      <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Detalles de Factura:</h4>
+      <div class="space-y-2">
+        <div class="flex justify-between md:justify-end gap-x-8">
+          <span class="text-sm text-gray-500">Fecha de Emisión:</span>
+          <span class="text-sm font-semibold text-gray-900"><%= l invoice.invoice_date, format: :long rescue invoice.invoice_date %></span>
+        </div>
+        <div class="flex justify-between md:justify-end gap-x-8">
+          <span class="text-sm text-gray-500">Tipo de Pago:</span>
+          <span class="text-sm font-semibold text-gray-900"><%= invoice.invoice_type %></span>
+        </div>
+        <% if invoice.branch.present? %>
+          <div class="flex justify-between md:justify-end gap-x-8">
+            <span class="text-sm text-gray-500">Sucursal:</span>
+            <span class="text-sm font-semibold text-gray-900"><%= invoice.branch.name %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# 3. Items Table %>
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead>
+        <tr>
+          <th scope="col" class="py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Descripción</th>
+          <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-widest w-24">Cant.</th>
+          <th scope="col" class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-widest w-32">Precio Unit.</th>
+          <th scope="col" class="py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-widest w-32">Total</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% invoice.invoice_items.each do |item| %>
+          <tr>
+            <td class="py-5">
+              <p class="text-sm font-bold text-gray-900"><%= item.product&.name %></p>
+              <p class="text-xs text-gray-500 font-mono"><%= item.product&.product_code %></p>
+            </td>
+            <td class="px-4 py-5 text-center text-sm text-gray-600">
+              <%= item.quantity %>
+            </td>
+            <td class="px-4 py-5 text-right text-sm text-gray-600">
+              <%= number_to_currency item.unit_price %>
+            </td>
+            <td class="py-5 text-right text-sm font-bold text-gray-900">
+              <%= number_to_currency item.total %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# 4. Totals Block %>
+  <div class="flex flex-col md:flex-row justify-between gap-8 pt-8">
+    <div class="flex-1 space-y-4">
+      <% if invoice.annulment_reason.present? %>
+        <div>
+          <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Observaciones:</h4>
+          <p class="text-sm text-gray-600 italic bg-gray-50 p-4 rounded-lg">"<%= invoice.annulment_reason %>"</p>
+        </div>
+      <% end %>
+      
+      <% if invoice.invoice_payments.any? %>
+        <div>
+          <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Información de Pago:</h4>
+          <div class="space-y-1">
+            <% invoice.invoice_payments.each do |payment| %>
+               <p class="text-sm text-gray-700">
+                 <span class="font-bold"><%= payment.payment_method&.name %>:</span>
+                 <%= number_to_currency payment.amount %>
+                 <% if payment.bank_account.present? %>
+                   <span class="text-xs text-gray-500">(Cta: <%= payment.bank_account.account_number %>)</span>
+                 <% end %>
+               </p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="w-full md:w-80 space-y-4">
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">Subtotal</span>
+        <span class="text-sm font-bold text-gray-900"><%= number_to_currency invoice.subtotal_amount %></span>
+      </div>
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">IVA (15%)</span>
+        <span class="text-sm font-bold text-gray-900"><%= number_to_currency invoice.tax_amount %></span>
+      </div>
+      <div class="flex justify-between py-4 bg-orange-600 px-4 rounded-xl shadow-lg shadow-orange-200">
+        <span class="text-base font-bold text-orange-50-white text-white">TOTAL</span>
+        <span class="text-xl font-black text-white"><%= number_to_currency invoice.total_local_amount %></span>
+      </div>
+    </div>
+  </div>
+
+  <%# Footer Text %>
+  <div class="pt-12 border-t border-gray-100 text-center">
+    <p class="text-sm text-gray-400 font-medium">Gracias por su preferencia. Esta es una representación digital de su factura.</p>
+  </div>
+</div>

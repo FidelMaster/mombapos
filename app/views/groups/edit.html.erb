@@ -1,0 +1,36 @@
+<% content_for :title, "Editar Grupo" %>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="mb-8 flex justify-between items-start">
+    <div>
+      <nav class="flex mb-4" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+          <li class="inline-flex items-center">
+            <%= link_to "Grupos", groups_path, class: "text-sm text-slate-500 hover:text-indigo-600 transition-colors" %>
+          </li>
+          <li>
+            <div class="flex items-center">
+              <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 11H3a1 1 0 110-2h7.586l-3.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+              <span class="ml-1 text-sm font-medium text-slate-400 md:ml-2">Editar</span>
+            </div>
+          </li>
+        </ol>
+      </nav>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Editar Grupo: <%= @group.name %></h1>
+      <p class="mt-2 text-slate-500">Realiza cambios en la configuración del grupo actual.</p>
+    </div>
+    
+    <div class="flex gap-2">
+      <%= link_to @group, class: "p-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm", title: "Ver detalles" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-slate-50 border border-slate-100 rounded-2xl p-2 sm:p-4">
+    <%= render "form", group: @group %>
+  </div>
+</div>

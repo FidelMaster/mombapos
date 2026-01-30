@@ -1,0 +1,18 @@
+<div id="<%= dom_id price_list %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Inquilino:</strong>
+    <%= price_list.tenant_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Nombre:</strong>
+    <%= price_list.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Moneda:</strong>
+    <%= price_list.currency %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= price_list.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

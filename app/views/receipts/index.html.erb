@@ -1,0 +1,34 @@
+<% content_for :title, "Recibos de Caja" %>
+
+<%= render "shared/resource_table", 
+      title: "Recibos de Caja", 
+      collection: @receipts,
+      new_path: new_receipt_path,
+      headers: ["ID", "Fecha", "Cliente", "Método", "Referencia", "Monto", "Acciones"] do |receipt| %>
+    
+    <tr class="hover:bg-gray-50 transition-colors duration-200">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-bold text-slate-900">#<%= receipt.id %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-slate-600"><%= receipt.receipt_date.strftime("%d/%m/%Y") rescue receipt.receipt_date %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-semibold text-slate-800"><%= receipt.customer.name %></div>
+      </td>
+       <td class="px-6 py-4 whitespace-nowrap">
+        <span class="inline-flex items-center rounded-md bg-slate-50 px-2.25 py-1 text-xs font-bold text-slate-600 ring-1 ring-inset ring-slate-500/10">
+          <%= receipt.payment_method %>
+        </span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-slate-500"><%= receipt.reference.presence || '-' %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right">
+        <div class="text-sm font-black text-emerald-600"><%= number_to_currency(receipt.total_amount) %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">
+        <%= link_to "Ver", receipt, class: "text-slate-400 hover:text-slate-900 transition-colors" %>
+      </td>
+    </tr>
+<% end %>

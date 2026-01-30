@@ -1,0 +1,51 @@
+<div id="<%= dom_id plan %>" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+  
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Nombre</strong>
+    <span class="text-gray-900 text-lg"><%= plan.name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Duración</strong>
+    <span class="text-gray-900"><%= plan.total_duration_in_days %> días</span>
+  </div>
+  
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Instructor</strong>
+    <span class="text-gray-900"><%= plan.trainer&.name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Estudiante</strong>
+    <span class="text-gray-900"><%= plan.student&.name %></span>
+  </div>
+
+  <div class="col-span-full">
+    <strong class="block text-sm font-medium text-gray-500">Descripción</strong>
+    <p class="text-gray-900 mt-1"><%= plan.description %></p>
+  </div>
+
+   <div class="col-span-full">
+    <strong class="block text-sm font-medium text-gray-500">Observaciones</strong>
+     <p class="text-gray-900 mt-1"><%= plan.observation %></p>
+  </div>
+
+  <div class="col-span-full border-b pb-2 mb-2 mt-4">
+    <h3 class="text-lg font-semibold text-gray-900">Evento</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Torneo</strong>
+    <span class="text-gray-900"><%= plan.tournament %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Evento</strong>
+    <span class="text-gray-900"><%= plan.event %></span>
+  </div>
+
+   <div>
+    <strong class="block text-sm font-medium text-gray-500">Fecha del evento</strong>
+    <span class="text-gray-900"><%= plan.event_date %></span>
+  </div>
+</div>

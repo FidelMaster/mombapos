@@ -1,0 +1,39 @@
+<%= form_with(model: dining_table, class: "space-y-6") do |f| %>
+  <% if dining_table.errors.any? %>
+    <div class="bg-red-50 p-4 rounded-2xl border border-red-100 mb-6 animate-shake">
+      <h3 class="text-sm font-bold text-red-800 mb-2">Por favor corrige los siguientes errores:</h3>
+      <ul class="text-xs text-red-700 list-disc list-inside">
+        <% dining_table.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-6">
+    
+    <div>
+      <%= f.label :area_id, "Ambiente / Área", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+      <%= f.collection_select :area_id, Area.all, :id, :name, { prompt: "Seleccione un área" }, class: "block w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:ring-primary focus:border-primary font-bold text-slate-700 transition-all shadow-inner" %>
+    </div>
+
+    <div>
+      <%= f.label :code, "Código o Nombre de Mesa", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+      <%= f.text_field :code, placeholder: "Ej. Mesa 5 o Terraza 1", class: "block w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:ring-primary focus:border-primary font-bold text-slate-700 transition-all shadow-inner" %>
+    </div>
+
+    <div>
+      <%= f.label :capacity, "Capacidad (Personas)", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+      <%= f.number_field :capacity, class: "block w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:ring-primary focus:border-primary font-bold text-slate-700 transition-all shadow-inner" %>
+    </div>
+
+    <div>
+      <%= f.label :status, "Estado Inicial", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+      <%= f.select :status, DiningTable.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "block w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:ring-primary focus:border-primary font-bold text-slate-700 transition-all shadow-inner" %>
+    </div>
+
+    <div class="pt-4">
+      <%= f.submit dining_table.new_record? ? "Crear Nueva Mesa" : "Actualizar Mesa", class: "w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all cursor-pointer" %>
+    </div>
+  </div>
+<% end %>

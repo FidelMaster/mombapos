@@ -1,0 +1,23 @@
+<div id="<%= dom_id supplier %>" class="w-full sm:w-auto my-5 space-y-5">
+
+  <div>
+    <strong class="block font-medium mb-1">Nombre:</strong>
+    <%= supplier.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Nombre de Contacto:</strong>
+    <%= supplier.contact_name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Email de Contacto:</strong>
+    <%= supplier.contact_email %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Telefono de Contacto:</strong>
+    <%= supplier.contact_phone %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= supplier.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

@@ -1,0 +1,233 @@
+<div class="h-screen flex flex-col bg-gray-100 overflow-hidden font-sans" 
+     data-controller="pos" 
+     data-pos-table-id-value="<%= @dining_table&.id %>"
+     data-pos-customer-id-value="<%= @default_customer.id %>"
+     data-pos-order-type-value="<%= @order&.order_type %>"
+     data-pos-order-id-value="<%= @order&.id %>">
+  
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm z-10">
+    <div class="flex items-center gap-4">
+      <%= link_to pos_index_path, class: "p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      <% end %>
+      <div>
+        <% if @dining_table %>
+          <h1 class="text-xl font-bold text-gray-900">Mesa <%= @dining_table.code %></h1>
+          <p class="text-xs text-gray-500">Capacidad: <%= @dining_table.capacity %> personas</p>
+        <% else %>
+          <h1 class="text-xl font-bold text-gray-900">Pickup / Delivery</h1>
+          <p class="text-xs text-gray-500"><%= @order.order_type&.humanize %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-6">
+      <div class="hidden md:flex flex-col items-end">
+        <input type="text" 
+               data-pos-target="customerName"
+               data-action="input->pos#syncCustomerName"
+               placeholder="Nombre del Cliente"
+               class="text-sm font-bold text-gray-700 bg-transparent border-b border-gray-200 focus:border-primary focus:outline-none text-right px-2 py-1 w-48 transition-all"
+               value="<%= @order&.customer_name || @default_customer.name %>">
+        <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">Nombre del Cliente</span>
+      </div>
+      <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+        <%= @dining_table&.code || "PK" %>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+    <!-- Categories Sidebar - Horizontal on Mobile, Vertical on Desktop -->
+    <aside class="flex-none bg-white border-b lg:border-r border-gray-200 flex lg:flex-col overflow-x-auto lg:overflow-y-auto py-3 lg:py-4 gap-3 lg:gap-4 px-4 lg:px-2 no-scrollbar">
+      <button data-action="click->pos#filterCategory" 
+              data-category-id="all"
+              data-pos-target="categoryButton"
+              class="flex-none flex lg:flex-col items-center gap-2 lg:gap-0 p-3 lg:p-3 rounded-2xl transition-all duration-200 bg-primary text-white shadow-lg shadow-primary/20 group min-w-[100px] lg:min-w-0">
+        <div class="w-8 h-8 lg:w-12 lg:h-12 rounded-xl bg-white/20 flex items-center justify-center lg:mb-2 group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 lg:h-6 lg:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </div>
+        <span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-center shrink-0">Todos</span>
+      </button>
+
+      <% @categories.each do |category| %>
+        <button data-action="click->pos#filterCategory" 
+                data-category-id="<%= category.id %>"
+                data-pos-target="categoryButton"
+                class="flex-none flex lg:flex-col items-center gap-2 lg:gap-0 p-3 lg:p-3 rounded-2xl transition-all duration-200 bg-white text-gray-600 hover:bg-gray-50 group min-w-[100px] lg:min-w-0">
+          <div class="w-8 h-8 lg:w-12 lg:h-12 rounded-xl bg-gray-100 flex items-center justify-center lg:mb-2 group-hover:bg-gray-200 transition-colors">
+            <span class="text-xs lg:text-lg font-bold"><%= category.name[0...2].upcase %></span>
+          </div>
+          <span class="text-[10px] md:text-xs font-medium text-center line-clamp-1 shrink-0"><%= category.name %></span>
+        </button>
+      <% end %>
+    </aside>
+
+    <!-- Product Grid -->
+    <section class="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+      <!-- Search Bar -->
+      <div class="p-4 bg-white/50 backdrop-blur-md border-b border-gray-200">
+        <div class="relative w-full">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </span>
+          <input type="text" 
+                 data-action="input->pos#search"
+                 placeholder="Buscar producto..." 
+                 class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm transition-all">
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 no-scrollbar" data-pos-target="productGrid">
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 lg:gap-4">
+          <% @products.each do |product| %>
+            <button data-action="click->pos#addItem" 
+                    data-product-id="<%= product.id %>"
+                    data-product-name="<%= product.name %>"
+                    data-product-price="<%= product.price %>"
+                    data-product-category-id="<%= product.product_category_id %>"
+                    class="group relative bg-white rounded-2xl p-3 lg:p-4 shadow-sm border border-transparent hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col items-start text-left overflow-hidden">
+              
+              <div class="mb-2 lg:mb-3 w-full aspect-square bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 group-hover:scale-105 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 lg:h-12 lg:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+
+              <span class="text-[8px] lg:text-[10px] font-bold text-primary mb-1 uppercase tracking-wider"><%= product.product_category.name %></span>
+              <h4 class="text-xs lg:text-sm font-bold text-gray-800 line-clamp-2 mb-2"><%= product.name %></h4>
+              
+              <div class="mt-auto w-full flex justify-between items-center">
+                <span class="text-sm lg:text-base font-black text-gray-900"><%= number_to_currency product.price %></span>
+                <div class="bg-gray-100 group-hover:bg-primary group-hover:text-white p-1.5 lg:p-2 rounded-lg transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 lg:h-5 lg:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Mobile Order Button -->
+      <div class="lg:hidden p-4 bg-white border-t border-gray-200 flex justify-between items-center shadow-lg">
+        <div class="flex flex-col">
+          <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">Total</span>
+          <span class="text-xl font-black text-primary" data-pos-target="totalAmountMobile">$0.00</span>
+        </div>
+        <button data-action="click->pos#toggleOrder" class="px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-orange-200 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          Ver Orden (<span data-pos-target="itemCountMobile">0</span>)
+        </button>
+      </div>
+    </section>
+
+    <!-- Order Summary (Receipt) -->
+    <aside data-pos-target="orderSidebar" class="fixed lg:static inset-y-0 right-0 w-full sm:w-80 md:w-96 bg-white border-l border-gray-200 flex flex-col shadow-2xl lg:shadow-none z-50 transform transition-transform duration-300 translate-x-full lg:translate-x-0 overflow-hidden">
+      <!-- Header (Fixed Height) -->
+      <div class="p-6 border-b border-gray-100 flex-none bg-white">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <h2 class="text-xl font-bold text-gray-900">Orden Actual</h2>
+              <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold uppercase tracking-tighter">Borrador</span>
+            </div>
+            <p class="text-sm text-gray-400" data-pos-target="itemCount">0 ítems</p>
+          </div>
+          <button data-action="click->pos#toggleOrder" class="lg:hidden p-2 text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="relative">
+          <input type="text" 
+                 data-pos-target="customerName"
+                 data-action="input->pos#syncCustomerName"
+                 placeholder="Nombre del Cliente"
+                 class="w-full text-sm font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all"
+                 value="<%= @order&.customer_name || @default_customer.name %>">
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 bg-white px-1 font-bold uppercase">Cliente</span>
+        </div>
+      </div>
+
+      <!-- Items (Scrollable Area) -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50 no-scrollbar" data-pos-target="receiptItems">
+        <!-- Items inyectados por Stimulus -->
+        <div class="h-full flex flex-col items-center justify-center text-center p-8 opacity-20">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <p class="text-lg font-bold">Carrito vacío</p>
+        </div>
+      </div>
+
+      <!-- Totals & Actions (Fixed at Bottom) -->
+      <div class="p-6 bg-white border-t-2 border-dashed border-gray-100 flex-none shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
+        <div class="space-y-2 mb-6">
+          <div class="flex justify-between text-gray-500">
+            <span>Subtotal</span>
+            <span id="subtotal-display-receipt">C$0.00</span>
+          </div>
+          <div class="flex justify-between items-end pt-2">
+            <span class="text-lg font-bold text-gray-900">Total</span>
+            <span class="text-3xl font-black text-primary" data-pos-target="totalAmount">C$0.00</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="grid grid-cols-2 gap-3">
+            <button data-action="click->pos#cancel" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all active:scale-95">
+              Cancelar
+            </button>
+            <button data-action="click->pos#saveOrder" 
+                    style="background-color: #fd6b12 !important; color: white !important;"
+                    class="py-3 text-white font-black rounded-xl shadow-lg shadow-orange-200 transition-all active:scale-95">
+              Guardar
+            </button>
+          </div>
+          
+          <button data-action="click->pos#checkout" 
+                  style="background-color: #16a34a !important; color: white !important; display: flex !important;"
+                  class="w-full py-4 text-white font-black rounded-xl shadow-lg shadow-green-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white" style="stroke: white !important;">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+             </svg>
+             <span style="color: white !important;">PAGAR Y FACTURAR</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<style>
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  :root {
+      --color-primary: #fd6b12;
+  }
+  
+  .bg-primary { background-color: var(--color-primary); }
+  .text-primary { color: var(--color-primary); }
+  .border-primary { border-color: var(--color-primary); }
+  .shadow-primary\/20 { shadow-color: rgba(253, 107, 18, 0.2); }
+  .shadow-primary\/30 { shadow-color: rgba(253, 107, 18, 0.3); }
+</style>

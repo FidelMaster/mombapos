@@ -1,0 +1,61 @@
+
+
+
+<% content_for :title, "Grupos" %>
+
+<%= render "shared/resource_table", 
+      title: "Grupos", 
+      collection: @groups,
+      new_path: new_group_path, 
+      headers: [ "Nombre", "Duaracion (min)", "Fecha Inicio", "Fecha Finalizacion","Hora",  "Instructor", "Max Estudiantes",  "Ingresos Estimado", "Estado", "Configurar" ] do |group| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <%# Dynamic fields %>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900"><%= group.name %></div>
+      </td>
+
+      <td>
+        <div class="text-xs text-gray-500"><%= group.duration_in_minutes %> minutos</div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.execution_date %></div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.end_date %></div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.execution_hour %></div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.trainer.name %></div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.max_students %></div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.total_incomes %></div>
+      </td>
+      <td>
+        <div class="text-xs text-gray-500"><%= group.status %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <%= link_to manage_group_path(group), class: "inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-indigo-600 text-slate-700 hover:text-white rounded-lg text-xs font-semibold transition-all duration-200" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Configurar
+        <% end %>
+      </td>
+
+      <%# Actions %>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to "Ver", group, class: "text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= link_to "Editar", edit_group_path(group), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <%= button_to "Eliminar", group, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "¿Estás seguro de eliminar este grupo?" } %>
+        </div>
+      </td>
+    </tr>
+<% end %>

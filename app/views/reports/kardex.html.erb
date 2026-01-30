@@ -1,0 +1,92 @@
+<div class="min-h-screen bg-slate-50 p-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Kardex de Inventario</h1>
+        <p class="text-slate-500 font-medium">Historial detallado de movimientos de productos</p>
+      </div>
+
+      <%= form_with url: reports_kardex_path, method: :get, class: "flex flex-wrap gap-3 bg-white p-4 rounded-3xl shadow-sm border border-slate-100" do |f| %>
+        <div class="flex flex-col">
+          <label class="text-[10px] font-black text-slate-400 uppercase mb-1">Desde</label>
+          <%= f.date_field :date_from, value: @date_from.to_date, class: "text-sm font-bold text-slate-700 bg-slate-50 border-transparent rounded-xl focus:ring-primary focus:border-primary" %>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-[10px] font-black text-slate-400 uppercase mb-1">Hasta</label>
+          <%= f.date_field :date_to, value: @date_to.to_date, class: "text-sm font-bold text-slate-700 bg-slate-50 border-transparent rounded-xl focus:ring-primary focus:border-primary" %>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-[10px] font-black text-slate-400 uppercase mb-1">Producto</label>
+          <%= f.collection_select :product_id, @products, :id, :name, { include_blank: "Todos los productos", selected: @product_id }, class: "text-sm font-bold text-slate-700 bg-slate-50 border-transparent rounded-xl focus:ring-primary focus:border-primary min-w-[200px]" %>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-[10px] font-black text-slate-400 uppercase mb-1">Bodega</label>
+          <%= f.collection_select :warehouse_id, @warehouses, :id, :name, { include_blank: "Todas", selected: @warehouse_id }, class: "text-sm font-bold text-slate-700 bg-slate-50 border-transparent rounded-xl focus:ring-primary focus:border-primary" %>
+        </div>
+        <div class="flex items-end">
+          <%= f.submit "Filtrar", class: "px-6 py-2 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-all cursor-pointer text-sm" %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Movements Table -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100">
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha y Hora</th>
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Producto</th>
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Bodega</th>
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipo</th>
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Anterior</th>
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Movido</th>
+              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50 text-sm font-medium">
+            <% if @movements.any? %>
+              <% @movements.each do |mov| %>
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                  <td class="px-6 py-4 whitespace-nowrap text-slate-500">
+                    <%= mov.created_at.strftime("%d/%m/%Y %H:%M") %>
+                  </td>
+                  <td class="px-6 py-4 truncate max-w-[200px]">
+                    <span class="text-slate-900 font-bold block truncate"><%= mov.product&.name %></span>
+                    <span class="text-[10px] text-slate-400 font-black uppercase"><%= mov.product&.product_code %></span>
+                  </td>
+                  <td class="px-6 py-4 text-slate-600">
+                    <%= mov.warehouse&.name %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter
+                      <%= mov.movement_type == "in" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700" %>">
+                      <%= mov.movement_type == "in" ? "ENTRADA" : "SALIDA" %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-right font-mono text-slate-400">
+                    <%= number_with_precision mov.quantity_before, precision: 2 %>
+                  </td>
+                  <td class="px-6 py-4 text-right font-black <%= mov.movement_type == "in" ? 'text-emerald-600' : 'text-red-600' %>">
+                    <%= mov.movement_type == "in" ? "+" : "-" %> <%= number_with_precision mov.quantity, precision: 2 %>
+                  </td>
+                  <td class="px-6 py-4 text-right font-black text-slate-900 font-mono">
+                    <% final_qty = mov.movement_type == "in" ? (mov.quantity_before + mov.quantity) : (mov.quantity_before - mov.quantity) %>
+                    <%= number_with_precision final_qty, precision: 2 %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="7" class="px-6 py-12 text-center text-slate-400 font-medium">
+                  No se encontraron movimientos en este rango de fechas.
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

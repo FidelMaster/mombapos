@@ -1,0 +1,103 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4" data-controller="receipt">
+  <div class="max-w-4xl mx-auto">
+    <%# Header %>
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Nuevo Recibo de Caja</h1>
+        <p class="text-slate-500 font-medium">Registra un abono a la cuenta de un cliente.</p>
+      </div>
+      <%= link_to receipts_path, class: "px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all" do %>
+        Volver
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <%# Main Form %>
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+          <%= form_with(model: @receipt) do |f| %>
+            <%= f.hidden_field :document_account_receivable_id %>
+
+            <div class="space-y-6">
+              <%# Customer Selection %>
+              <div>
+                <%= f.label :customer_id, "Cliente", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+                <%= f.collection_select :customer_id, @customers, :id, :name, 
+                    { prompt: "Seleccionar cliente..." }, 
+                    { class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all",
+                      data: { "receipt-target": "customerSelect", action: "change->receipt#loadAccounts" } } %>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <%# Amount %>
+                <div>
+                  <%= f.label :total_amount, "Cantidad a Abonar", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                      <span class="text-slate-400 font-bold">C$</span>
+                    </div>
+                    <%= f.number_field :total_amount, step: :any, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 pl-12 pr-4 text-lg font-black text-slate-900 focus:ring-2 focus:ring-slate-900 transition-all", placeholder: "0.00", data: { "receipt-target": "amountInput" } %>
+                  </div>
+                </div>
+
+                <%# Date %>
+                <div>
+                  <%= f.label :receipt_date, "Fecha", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+                  <%= f.date_field :receipt_date, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all" %>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <%# Payment Method %>
+                <div>
+                  <%= f.label :payment_method, "Método de Pago", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+                  <%= f.select :payment_method, ["Efectivo", "Transferencia", "Tarjeta", "Cheque"], {}, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all" %>
+                </div>
+
+                <%# Reference %>
+                <div>
+                  <%= f.label :reference, "Referencia / No. Comprobante", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
+                  <%= f.text_field :reference, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all", placeholder: "Ej: Transf #12345" %>
+                </div>
+              </div>
+
+              <div class="pt-4">
+                <%= f.submit "Procesar Abono", class: "w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-xl shadow-slate-200" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Sidebar: Debt Info %>
+      <div class="space-y-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+          <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Cartera del Cliente</h3>
+          
+          <div class="space-y-4">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo Total Pendiente</span>
+              <span class="text-2xl font-black text-slate-900" data-receipt-target="totalBalance">C$ 0.00</span>
+            </div>
+
+            <div class="space-y-2">
+              <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Detalle de Facturas</span>
+              <div id="accounts-list" data-receipt-target="accountsList">
+                <div class="text-slate-400 text-sm text-center py-8 italic">Seleccione un cliente</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 rounded-3xl p-6 border border-amber-100">
+          <div class="flex gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-amber-600 shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+            <p class="text-xs font-bold text-amber-900 leading-relaxed"> Al procesar este abono, se creará automáticamente un registro de crédito en el estado de cuenta del cliente disminuyendo su deuda pendiente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

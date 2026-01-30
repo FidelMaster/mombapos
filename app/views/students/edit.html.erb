@@ -1,0 +1,13 @@
+<% content_for :title, "Editar estudiante" %>
+
+<div class="w-full">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="font-bold text-4xl">Editar estudiante</h1>
+    <div class="flex gap-2">
+      <%= link_to "Mostrar", @student, class: "rounded-lg py-2 px-4 bg-gray-100 hover:bg-gray-200 font-medium" %>
+      <%= link_to "Regresar", students_path, class: "rounded-lg py-2 px-4 bg-gray-100 hover:bg-gray-200 font-medium" %>
+    </div>
+  </div>
+
+  <%= render "form", student: @student %>
+</div>

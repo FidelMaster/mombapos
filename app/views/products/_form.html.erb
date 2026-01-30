@@ -1,0 +1,153 @@
+<%= form_with(model: product, data: { controller: "product-form" }, class: "max-w-4xl mx-auto space-y-8") do |form| %>
+  <% if product.errors.any? %>
+    <div class="rounded-xl bg-red-50 p-4 border border-red-200 mb-6 flex gap-3 animate-shake">
+      <svg class="h-5 w-5 text-red-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+      </svg>
+      <div>
+        <h3 class="text-sm font-bold text-red-800"><%= pluralize(product.errors.count, "error") %> impidieron guardar este producto:</h3>
+        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+          <% product.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Section: General Information %>
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+      <div class="p-2 bg-orange-100 rounded-lg text-orange-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        </svg>
+      </div>
+      <h2 class="text-base font-bold text-slate-800">Información General</h2>
+    </div>
+
+    <div class="p-6 md:p-8 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <%= form.label :name, "Nombre del producto", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.text_field :name, placeholder: "Ej: Café Molido 500g", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-slate-400" %>
+        </div>
+        
+        <div>
+          <%= form.label :product_code, "Código / SKU", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.text_field :product_code, placeholder: "SKU-001", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-slate-400" %>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :description, "Descripción detallada", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+        <%= form.text_area :description, rows: 3, placeholder: "Características y detalles del producto...", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-slate-400 resize-none" %>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <%= form.label :product_category_id, "Categoría", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.collection_select :product_category_id, @categories, :id, :name, { prompt: "Seleccionar..." }, class: "block w-full rounded-xl border-slate-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all appearance-none cursor-pointer shadow-sm" %>
+        </div>
+
+        <div>
+          <%= form.label :product_type, "Tipo de producto", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.select :product_type, [["Servicio", "service"], ["Materia Prima", "raw_material"], ["Kit", "kit"], ["Producto Terminado", "finished_product"]], { prompt: "Seleccionar..." }, data: { product_form_target: "typeSelect", action: "change->product-form#toggleFields" }, class: "block w-full rounded-xl border-slate-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all appearance-none cursor-pointer shadow-sm" %>
+        </div>
+
+        <div data-product-form-target="supplierContainer">
+          <%= form.label :supplier_id, "Proveedor", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <%= form.collection_select :supplier_id, @suppliers, :id, :name, { prompt: "Seleccionar..." }, class: "block w-full rounded-xl border-slate-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all appearance-none cursor-pointer shadow-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Section: Inventory & Pricing %>
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+      <div class="p-2 bg-green-100 rounded-lg text-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.214.172c1.1.884 2.85 1.05 3.834.217a10.407 10.407 0 00.965-.914c.667-.717.991-1.602 1.01-2.518.014-.798-.127-1.579-.444-2.29-.33-.74-.864-1.404-1.532-1.921-.757-.585-1.744-.859-2.736-.774-1.018.087-1.977.592-2.33 1.594-.358.981-.132 2.062.518 2.896.221.283.479.544.76.782l.214.172zM12 3v3m0 15v3" />
+        </svg>
+      </div>
+      <h2 class="text-base font-bold text-slate-800">Inventario y Precios</h2>
+    </div>
+
+    <div class="p-6 md:p-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div data-product-form-target="costContainer">
+          <%= form.label :cost, "Costo", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+            <%= form.number_field :cost, step: "0.01", placeholder: "0.00", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-black py-3 pl-8 pr-4 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all" %>
+          </div>
+        </div>
+
+        <div data-product-form-target="priceContainer" class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :price, "Precio Base (NIO)", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">C$</span>
+              <%= form.number_field :price, step: "0.01", placeholder: "0.00", data: { product_form_target: "basePrice", action: "input->product-form#updatePriceList" }, class: "block w-full rounded-xl border-slate-200 bg-orange-50 text-orange-700 font-black py-3 pl-10 pr-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-orange-200" %>
+            </div>
+          </div>
+
+          <%= form.fields_for :price_list_items do |price_form| %>
+            <%= price_form.hidden_field :price_list_id %>
+            <div>
+              <%= price_form.label :price, "Precio en Lista", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">C$</span>
+                <%= price_form.number_field :price, step: "0.01", placeholder: "0.00", data: { product_form_target: "priceListItem" }, class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-black py-3 pl-10 pr-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div data-product-form-target="warehouseStockContainer">
+          <%= form.fields_for :warehouse_stocks do |stock_form| %>
+            <%= stock_form.hidden_field :warehouse_id %>
+            <div>
+              <%= stock_form.label :stock_available, "Stock Inicial", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2" %>
+              <div class="relative">
+                <%= stock_form.number_field :stock_available, step: "0.01", placeholder: "0", class: "block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-900 font-black py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" %>
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold uppercase tracking-tighter">UNID</span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-blue-50 rounded-2xl border border-blue-100" data-product-form-target="stockContainer">
+        <div>
+          <%= form.label :stock_unit_measure_id, "U/M Stock", class: "block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2" %>
+          <%= form.collection_select :stock_unit_measure_id, @unit_measures, :id, :name, { prompt: "Seleccionar..." }, class: "block w-full rounded-xl border-blue-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm" %>
+        </div>
+
+        <div>
+          <%= form.label :sale_unit_measure_id, "U/M Venta", class: "block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2" %>
+          <%= form.collection_select :sale_unit_measure_id, @unit_measures, :id, :name, { prompt: "Seleccionar..." }, class: "block w-full rounded-xl border-blue-200 bg-white text-slate-900 font-medium py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Section: Settings %>
+  <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3 group cursor-pointer">
+        <%= form.check_box :is_active, class: "h-6 w-6 rounded-lg border-slate-200 text-orange-600 focus:ring-orange-500 transition-all cursor-pointer" %>
+        <div>
+          <span class="block text-sm font-bold text-slate-800">Producto Activo</span>
+          <span class="block text-xs text-slate-500">Disponible para la venta y facturación</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 w-full md:w-auto">
+      <%= link_to "Cancelar", products_path, class: "flex-1 md:flex-none text-center px-6 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all" %>
+      <%= form.submit "Guardar Producto", class: "flex-1 md:flex-none px-10 py-3.5 bg-orange-600 text-white rounded-xl font-bold shadow-lg shadow-orange-200 hover:bg-orange-500 active:scale-95 transition-all cursor-pointer" %>
+    </div>
+  </div>
+<% end %>

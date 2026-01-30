@@ -1,0 +1,81 @@
+<div id="<%= dom_id student %>" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+  
+  <div class="col-span-full border-b pb-2 mb-2">
+    <h3 class="text-lg font-semibold text-gray-900">Información Personal</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Nombre</strong>
+    <span class="text-gray-900 text-lg"><%= student.name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Fecha de nacimiento</strong>
+    <span class="text-gray-900"><%= student.date_of_birth %></span>
+  </div>
+
+  <div class="col-span-full">
+    <strong class="block text-sm font-medium text-gray-500">Dirección</strong>
+    <span class="text-gray-900"><%= student.address %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Ubicación</strong>
+    <span class="text-gray-900">
+      <%= [student.municipality&.name, student.department&.name, student.country&.name].compact.join(", ") %>
+    </span>
+  </div>
+
+  <div class="col-span-full border-b pb-2 mb-2 mt-4">
+    <h3 class="text-lg font-semibold text-gray-900">Contacto</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Nombre de contacto</strong>
+    <span class="text-gray-900"><%= student.contact_name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">DNI Contacto</strong>
+    <span class="text-gray-900"><%= student.contact_dni %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Email</strong>
+    <span class="text-gray-900"><%= student.contact_email %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Teléfono</strong>
+    <span class="text-gray-900"><%= student.contact_phone %></span>
+  </div>
+
+  <div class="col-span-full border-b pb-2 mb-2 mt-4">
+    <h3 class="text-lg font-semibold text-gray-900">Información Académica</h3>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Código</strong>
+    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded"><%= student.code %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Nivel</strong>
+    <span class="text-gray-900"><%= student.level&.name %></span>
+  </div>
+
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Promedio Oficial</strong>
+    <span class="text-gray-900"><%= student.official_average_score %></span>
+  </div>
+  
+  <div>
+    <strong class="block text-sm font-medium text-gray-500">Promedio Online</strong>
+    <span class="text-gray-900"><%= student.online_average_score %></span>
+  </div>
+
+   <div>
+    <strong class="block text-sm font-medium text-gray-500">Título</strong>
+    <span class="text-gray-900"><%= student.title %></span>
+  </div>
+</div>

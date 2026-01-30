@@ -1,0 +1,83 @@
+<div class="space-y-6 animate-fade-in-down">
+  <%# Header with Filter %>
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Control de Precios</h1>
+      <p class="text-slate-500 mt-1 font-medium">Gestión y ajuste de listas de precios</p>
+    </div>
+    
+    <div class="w-full md:w-auto bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
+      <%= form_with url: price_list_items_path, method: :get, class: "flex items-center" do |f| %>
+        <%= f.select :price_list_id, 
+            options_from_collection_for_select(@price_lists, :id, :name, @price_list&.id),
+            { prompt: false },
+            { onchange: "this.form.submit()", class: "border-none bg-transparent py-2 pl-4 pr-10 text-sm font-bold text-slate-700 focus:ring-0 cursor-pointer" } 
+        %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @price_list %>
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+      <div class="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+        <h2 class="font-bold text-slate-800 flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          <%= @price_list.name %>
+        </h2>
+        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-black uppercase tracking-wider">
+          <%= @price_list.currency %>
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-slate-50/30">
+            <tr>
+              <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Producto</th>
+              <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Unidad</th>
+              <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Precio Actual</th>
+              <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-48 text-center">Ajustar Precio</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <% @items.each do |item| %>
+              <tr class="hover:bg-slate-50/50 transition-colors group">
+                <td class="px-8 py-5">
+                  <div class="font-bold text-slate-800"><%= item.product.name %></div>
+                  <div class="text-xs font-medium text-slate-400 mt-0.5">SKU: <%= item.product.product_code %></div>
+                </td>
+                <td class="px-6 py-5 text-center text-xs font-bold text-slate-500">
+                  <%= item.product.sale_unit_measure&.name || "-" %>
+                </td>
+                <td class="px-6 py-5 text-right font-black text-slate-800">
+                  <%= number_to_currency(item.price, unit: @price_list.currency == 'MXN' ? '$' : 'USD ') %>
+                </td>
+                <td class="px-6 py-5">
+                    <%= form_with model: item, data: { controller: "auto-save" }, class: "flex items-center justify-end" do |f| %>
+                        <div class="relative group/input">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs pointer-events-none">$</span>
+                            <%= f.number_field :price, step: "0.01", 
+                                class: "w-32 rounded-xl bg-slate-50 border-none py-2 pl-7 pr-3 text-right text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all shadow-sm hover:bg-white",
+                                onchange: "this.form.requestSubmit()" 
+                            %>
+                        </div>
+                    <% end %>
+                </td>
+              </tr>
+            <% end %>
+            
+            <% if @items.empty? %>
+               <tr>
+                 <td colspan="4" class="px-8 py-16 text-center text-slate-400 italic font-medium">No hay productos asignados a esta lista</td>
+               </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% else %>
+    <div class="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+      <p class="text-slate-400 font-medium">No hay listas de precios activas disponibles.</p>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-slate-50 p-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-10">
+      <%= link_to tenants_path, class: "group inline-flex items-center gap-2 text-slate-400 hover:text-slate-900 font-bold text-sm mb-4 transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Regresar a Tenants
+      <% end %>
+      
+      <div class="flex items-center gap-4">
+        <% if @tenant.logo_url.present? %>
+          <img src="<%= @tenant.logo_url %>" class="w-16 h-16 rounded-2xl object-cover shadow-sm border border-slate-100" />
+        <% else %>
+          <div class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+        <% end %>
+        <div>
+          <h1 class="text-3xl font-black text-slate-900 tracking-tight">Activar Módulos del Tenant</h1>
+          <p class="text-slate-500 font-medium tracking-tight">Tenant: <span class="text-slate-900 font-bold"><%= @tenant.name %></span></p>
+        </div>
+      </div>
+    </div>
+
+    <%= form_with url: update_modules_tenant_path(@tenant), method: :post do |f| %>
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+        <h3 class="text-lg font-bold text-slate-900 mb-6">Selector de Módulos</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% @app_modules.each do |app_module| %>
+            <label class="relative flex items-center p-4 rounded-2xl border-2 transition-all cursor-pointer group hover:bg-slate-50 <%= @tenant_module_ids.include?(app_module.id) ? 'border-green-500 bg-green-50/30' : 'border-slate-100' %>">
+              <div class="flex-1">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 group-hover:text-green-500 transition-colors"><%= app_module.code.first(2).upcase %></span>
+                  </div>
+                  <div>
+                    <span class="block text-sm font-bold text-slate-700"><%= app_module.name %></span>
+                    <span class="block text-xs text-slate-400 group-hover:text-green-600 transition-colors"><%= app_module.code %></span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="ml-4 flex items-center gap-2">
+                <div class="text-[10px] font-black uppercase tracking-tighter <%= @tenant_module_ids.include?(app_module.id) ? 'text-green-600' : 'text-slate-300' %>">
+                  <%= @tenant_module_ids.include?(app_module.id) ? 'Activo' : 'Inactivo' %>
+                </div>
+                <%= check_box_tag "module_ids[]", app_module.id, @tenant_module_ids.include?(app_module.id), 
+                    class: "w-6 h-6 rounded-lg border-2 border-slate-200 text-green-600 focus:ring-green-500 transition-all cursor-pointer",
+                    onchange: "this.closest('label').classList.toggle('border-green-500'); this.closest('label').classList.toggle('bg-green-50/30'); this.closest('label').classList.toggle('border-slate-100');" %>
+              </div>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="mt-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 mb-8 font-medium text-slate-600 text-sm">
+          <div class="flex items-start gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>Los módulos activados aquí estarán disponibles para todos los usuarios de este tenant de forma inmediata.</p>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <%= link_to "Cancelar", tenants_path, class: "px-6 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition-all" %>
+          <%= f.submit "Actualizar", class: "px-8 py-3  bg-indigo-600  text-white font-black rounded-xl shadow-lg shadow-green-200 hover:scale-105 transition-all cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

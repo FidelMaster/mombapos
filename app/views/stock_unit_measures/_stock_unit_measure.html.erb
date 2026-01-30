@@ -1,0 +1,11 @@
+<div id="<%= dom_id stock_unit_measure %>" class="w-full sm:w-auto my-5 space-y-5">
+
+  <div>
+    <strong class="block font-medium mb-1">Nombre:</strong>
+    <%= stock_unit_measure.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Activo:</strong>
+    <%= stock_unit_measure.is_active? ? "Sí" : "No" %>
+  </div>
+</div>

@@ -1,0 +1,284 @@
+<% content_for :title, "Configurar Plan: #{@plan.name}" %>
+
+<div class="mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <nav class="flex mb-4" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+          <li class="inline-flex items-center">
+            <%= link_to "Planes", plans_path, class: "text-sm text-slate-500 hover:text-indigo-600 transition-colors" %>
+          </li>
+          <li>
+            <div class="flex items-center">
+              <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 11H3a1 1 0 110-2h7.586l-3.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+              <span class="ml-1 text-sm font-medium text-slate-400 md:ml-2">Configurar Plan</span>
+            </div>
+          </li>
+        </ol>
+      </nav>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Configurar Plan: <%= @plan.name %></h1>
+      <p class="mt-2 text-slate-500">Define las fases, objetivos y temas detallados para este estudiante.</p>
+    </div>
+
+    <div class="flex gap-3">
+      <%= link_to edit_plan_path(@plan), class: "inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 font-medium shadow-sm transition-all" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Editar Info Básica
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar: Añadir Fase -->
+    <div class="lg:col-span-1 space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0h-3m-9-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Nueva Fase (Detalle)
+          </h2>
+        </div>
+        <div class="p-6">
+          <%= form_with(model: @new_detail, url: plan_details_path) do |f| %>
+            <%= f.hidden_field :plan_id %>
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <%= f.label :name, "Nombre de la Fase", class: "text-sm font-medium text-slate-700" %>
+                <%= f.text_field :name, placeholder: "Ej: Aperturas e Inicio", class: "w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+              </div>
+              <div class="space-y-2">
+                <%= f.label :duration_in_days, "Duración (Días)", class: "text-sm font-medium text-slate-700" %>
+                <%= f.number_field :duration_in_days, class: "w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+              </div>
+              <%= f.submit "Crear Fase", class: "w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all shadow-md" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-6 shadow-lg shadow-indigo-200">
+        <h3 class="font-bold text-lg mb-2">Información del Plan</h3>
+        <div class="space-y-3 opacity-90 text-sm">
+          <div class="flex justify-between border-b border-indigo-500/30 pb-2">
+            <span>Estudiante:</span>
+            <span class="font-bold"><%= @plan.student.name %></span>
+          </div>
+          <div class="flex justify-between border-b border-indigo-500/30 pb-2">
+            <span>Trainer:</span>
+            <span class="font-bold"><%= @plan.trainer.name %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Duración Total:</span>
+            <span class="font-bold"><%= @plan.total_duration_in_days %> días</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content: Fases Detail -->
+    <div class="lg:col-span-3 space-y-8">
+      <% if @plan_details.reject(&:new_record?).any? %>
+        <% @plan_details.reject(&:new_record?).each do |detail| %>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+            <!-- Header de Fase -->
+            <div class="p-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <div>
+                <h3 class="text-xl font-bold text-slate-900"><%= detail.name %></h3>
+                <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Duración: <%= detail.duration_in_days %> días</p>
+              </div>
+              <div class="flex gap-2">
+                <%= button_to plan_detail_path(detail), method: :delete, data: { confirm: "¿Eliminar esta fase y todo su contenido?" }, class: "p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors", title: "Eliminar Fase" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <!-- Objetivos de la Fase -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Objetivos de la Fase
+                  </h4>
+                </div>
+                
+                <div class="space-y-2">
+                  <% if detail.plan_detail_objectives.any? %>
+                    <% detail.plan_detail_objectives.each do |obj| %>
+                      <div class="flex items-start justify-between p-3 bg-emerald-50/50 border border-emerald-100 rounded-lg group">
+                        <p class="text-sm text-emerald-900 leading-relaxed"><%= obj.description %></p>
+                        <%= button_to plan_detail_objective_path(obj), method: :delete, class: "opacity-0 group-hover:opacity-100 text-emerald-600 hover:text-red-600 transition-all" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  <% end %>
+                  
+                  <%= form_with(model: @new_objective, url: plan_detail_objectives_path, class: "mt-4") do |f| %>
+                    <%= f.hidden_field :plan_detail_id, value: detail.id %>
+                    <div class="flex gap-2">
+                      <%= f.text_field :description, placeholder: "Nuevo objetivo...", class: "flex-1 rounded-lg border-slate-200 text-sm py-1.5 focus:ring-emerald-500 focus:border-emerald-500" %>
+                      <%= f.submit "Ok", class: "px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Estructura / Temas -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Distribución de Temas
+                  </h4>
+                </div>
+
+                <div class="space-y-4">
+                  <% if detail.plan_detail_structures.any? %>
+                    <% detail.plan_detail_structures.each do |struct| %>
+                      <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-slate-50 p-3 flex items-center justify-between border-b border-slate-100">
+                          <span class="font-bold text-slate-700 text-sm"><%= struct.title %></span>
+                          <%= button_to plan_detail_structure_path(struct), method: :delete, class: "text-slate-400 hover:text-red-500" do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          <% end %>
+                        </div>
+                        
+                        <!-- Tareas de Estructura -->
+                        <div class="p-3 bg-white space-y-2">
+                          <% struct.plan_detail_structure_tasks.each do |task| %>
+                            <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-50/50 p-2 rounded group">
+                              <span class="font-bold text-indigo-600"><%= task.turn %>:</span>
+                              <span class="flex-1 text-slate-700"><%= task.description %></span>
+                              <span class="text-[10px] font-bold bg-slate-200 px-1.5 py-0.5 rounded text-slate-500"><%= task.percentage %>%</span>
+                              <%= button_to plan_detail_structure_task_path(task), method: :delete, class: "opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500" do %>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              <% end %>
+                            </div>
+                          <% end %>
+                          
+                          <!-- Formulario Nueva Tarea -->
+                          <%= form_with(model: @new_task, url: plan_detail_structure_tasks_path, class: "mt-2 pt-2 border-t border-slate-50") do |t| %>
+                            <%= t.hidden_field :plan_detail_structure_id, value: struct.id %>
+                            <div class="space-y-2">
+                              <%= t.text_field :description, placeholder: "Nueva acción/tarea...", class: "w-full rounded-lg border-slate-200 text-[11px] py-1" %>
+                              <div class="flex gap-2">
+                                <%= t.text_field :turn, placeholder: "Turno (D: Dia,T:tarde, N: Noche)", class: "flex-1 rounded-lg border-slate-200 text-[11px] py-1" %>
+                                <%= t.number_field :percentage, placeholder: "%", class: "w-16 rounded-lg border-slate-200 text-[11px] py-1" %>
+                                <%= t.submit "+", class: "px-2 bg-slate-800 text-white rounded font-bold text-xs" %>
+                              </div>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  <% end %>
+
+                  <%= form_with(model: @new_structure, url: plan_detail_structures_path, class: "mt-4") do |f| %>
+                    <%= f.hidden_field :plan_detail_id, value: detail.id %>
+                    <div class="flex gap-2">
+                      <%= f.text_field :title, placeholder: "Nuevo tema (Ej: Defensa Siciliana)...", class: "flex-1 rounded-lg border-slate-200 text-sm py-1.5 focus:ring-amber-500 focus:border-amber-500" %>
+                      <%= f.submit "Ok", class: "px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-bold hover:bg-amber-600" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="bg-white rounded-3xl p-16 text-center border-2 border-dashed border-slate-200">
+           <div class="mx-auto w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-6">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+             </svg>
+           </div>
+           <h3 class="text-xl font-bold text-slate-900 mb-2">No hay fases configuradas</h3>
+           <p class="text-slate-500 max-w-sm mx-auto">Comienza agregando la primera fase del plan de entrenamiento en la barra lateral.</p>
+        </div>
+      <% end %>
+
+      <!-- Sección de Controles Extra -->
+      <div class="mt-12">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-purple-100 text-purple-600 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">Controles Adicionales (Hábitos)</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% if @plan_extra_controls.reject(&:new_record?).any? %>
+            <% @plan_extra_controls.reject(&:new_record?).each do |control| %>
+              <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-slate-100 bg-purple-50/30 flex items-center justify-between">
+                  <h3 class="font-bold text-purple-900 capitalize"><%= control.control_type %></h3>
+                  <%= button_to plan_extra_control_path(control), method: :delete, data: { confirm: "¿Eliminar este control?" }, class: "text-purple-400 hover:text-red-500 transition-colors" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  <% end %>
+                </div>
+                
+                <div class="p-4 flex-1 space-y-3">
+                  <% control.plan_extra_control_details.each do |detail| %>
+                    <div class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl relative group">
+                      <p><%= detail.observation %></p>
+                      <%= button_to plan_extra_control_detail_path(detail), method: :delete, class: "absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="p-4 bg-slate-50/50 mt-auto">
+                  <%= form_with(model: @new_extra_control_detail, url: plan_extra_control_details_path) do |f| %>
+                    <%= f.hidden_field :plan_extra_control_id, value: control.id %>
+                    <div class="flex gap-2">
+                      <%= f.text_area :observation, rows: 1, placeholder: "Añadir seguimiento...", class: "flex-1 rounded-lg border-slate-200 text-xs py-1.5 focus:ring-purple-500 focus:border-purple-500" %>
+                      <%= f.submit "+", class: "px-3 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700 shadow-sm" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+
+          <!-- Card para nuevo control -->
+          <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+            <h4 class="text-sm font-bold text-slate-700 mb-4">Nuevo Tipo de Control</h4>
+            <%= form_with(model: @new_extra_control, url: plan_extra_controls_path) do |f| %>
+              <%= f.hidden_field :plan_id %>
+              <div class="space-y-3">
+                <%= f.select :control_type, ["Alimentación", "Actividad Física", "Descanso", "Suplementación", "Psicología"], { prompt: "Seleccionar tipo..." }, { class: "w-full rounded-lg border-slate-200 text-sm focus:ring-purple-500 focus:border-purple-500" } %>
+                <%= f.submit "Agregar Control", class: "w-full py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
