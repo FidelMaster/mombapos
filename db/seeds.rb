@@ -69,7 +69,8 @@ if Tenant.count == 0
     max_products: 100,
     default_currency: "USD",
     timezone: "America/Managua",
-    is_active: true
+    is_active: true,
+    email: "developerfhernandez@gmail.com"
 )
 
   User.create!(
@@ -198,69 +199,7 @@ if  PaymentTerm.count == 0
   )
 end
 
-puts "Inserting categories and products..."
-if ProductCategory.count == 0
-  bebidas = ProductCategory.create!(name: "Bebidas", tenant: tenant, is_active: true)
-  comida = ProductCategory.create!(name: "Comida", tenant: tenant, is_active: true)
-  postres = ProductCategory.create!(name: "Postres", tenant: tenant, is_active: true)
-
-  um = UnitMeasure.find_or_create_by!(name: "Unidad", abbreviation: "und", tenant: tenant)
-
-  Product.create!(
-    name: "Coca Cola 500ml",
-    price: 35.0,
-    product_category: bebidas,
-    tenant: tenant,
-    product_type: :consumable,
-    stock_unit_measure: um,
-    sale_unit_measure: um,
-    is_active: true
-  )
-
-  Product.create!(
-    name: "Hamburguesa Clásica",
-    price: 180.0,
-    product_category: comida,
-    tenant: tenant,
-    product_type: :consumable,
-    stock_unit_measure: um,
-    sale_unit_measure: um,
-    is_active: true
-  )
-
-  Product.create!(
-    name: "Pizza Pepperoni",
-    price: 350.0,
-    product_category: comida,
-    tenant: tenant,
-    product_type: :consumable,
-    stock_unit_measure: um,
-    sale_unit_measure: um,
-    is_active: true
-  )
-
-  Product.create!(
-    name: "Pasta Alfredo",
-    price: 220.0,
-    product_category: comida,
-    tenant: tenant,
-    product_type: :consumable,
-    stock_unit_measure: um,
-    sale_unit_measure: um,
-    is_active: true
-  )
-
-  Product.create!(
-    name: "Brownie con Helado",
-    price: 95.0,
-    product_category: postres,
-    tenant: tenant,
-    product_type: :consumable,
-    stock_unit_measure: um,
-    sale_unit_measure: um,
-    is_active: true
-  )
-end
+ 
 
 puts "Inserting exchange rates..."
 if ExchangeRate.count == 0
