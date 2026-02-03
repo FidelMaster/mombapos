@@ -55,6 +55,50 @@ if AppModule.count == 0
   
   )
 end
+
+puts "Inserting countries..."
+puts "Country count: #{Country.count}"
+puts "Department count: #{Department.count}"
+puts "Municipality count: #{Municipality.count}"
+
+
+if Country.count == 0
+  country =Country.create!(
+    name: "Nicaragua",
+    code: "505"
+  )
+else 
+  country = Country.first
+end
+
+if Department.count == 0
+  department =Department.create!(
+    name: "Managua",
+    country_id: country.id,
+    is_active: true
+  )
+
+  Department.create!(
+    name: "Masaya",
+    country_id: country.id,
+    is_active: true
+  )
+
+  Department.create!(
+    name: "Chinandega",
+    country_id: country.id,
+    is_active: true
+  )
+end
+
+if Municipality.count == 0
+  Municipality.create!(
+    name: "Managua",
+    department_id: department.id,
+    is_active: true
+  )
+end
+
 puts "Inserting  Tenants..."
 puts "Tenant count: #{Tenant.count}"
 
@@ -105,48 +149,7 @@ if Level.count == 0
   )
 end
 
-puts "Inserting countries..."
-puts "Country count: #{Country.count}"
-puts "Department count: #{Department.count}"
-puts "Municipality count: #{Municipality.count}"
 
-
-if Country.count == 0
-  country =Country.create!(
-    name: "Nicaragua",
-    code: "505"
-  )
-else 
-  country = Country.first
-end
-
-if Department.count == 0
-  department =Department.create!(
-    name: "Managua",
-    country_id: country.id,
-    is_active: true
-  )
-
-  Department.create!(
-    name: "Masaya",
-    country_id: country.id,
-    is_active: true
-  )
-
-  Department.create!(
-    name: "Chinandega",
-    country_id: country.id,
-    is_active: true
-  )
-end
-
-if Municipality.count == 0
-  Municipality.create!(
-    name: "Managua",
-    department_id: department.id,
-    is_active: true
-  )
-end
 
 puts "Inserting dining tables..."
 puts "Dining table count: #{DiningTable.count}"
