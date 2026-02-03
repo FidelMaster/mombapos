@@ -67,12 +67,12 @@ if Tenant.count == 0
     max_invoices: 1000,
     max_branches: 1,
     max_products: 100,
-    default_currency: "USD",
+    default_currency: "NIO",
     timezone: "America/Managua",
     is_active: true,
     email: "developerfhernandez@gmail.com",
     license_id: 1
-)
+  )
 
   User.create!(
     tenant: tenant,
@@ -81,7 +81,7 @@ if Tenant.count == 0
     role: :owner
   )
 else 
-  tenant = Tenant.where(id: 1).first
+  tenant = Tenant.first
 end
 
 Current.tenant = tenant
