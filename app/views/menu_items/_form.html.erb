@@ -1,0 +1,57 @@
+<%= form_with(model: menu_item, class: "contents") do |form| %>
+  <% if menu_item.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(menu_item.errors.count, "error") %> prohibited this menu_item from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% menu_item.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :key %>
+    <%= form.text_field :key, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:key].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:key].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :label %>
+    <%= form.text_field :label, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:label].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:label].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :icon %>
+    <%= form.text_field :icon, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:icon].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:icon].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :path %>
+    <%= form.text_field :path, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:path].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:path].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :section %>
+    <%= form.text_field :section, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:section].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:section].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :position %>
+    <%= form.number_field :position, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:position].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:position].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :item_type %>
+    <%= form.text_field :item_type, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:item_type].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:item_type].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :parent_id %>
+    <%= form.text_field :parent_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": menu_item.errors[:parent_id].none?, "border-red-400 focus:outline-red-600": menu_item.errors[:parent_id].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

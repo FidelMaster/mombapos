@@ -3,43 +3,61 @@
   <head>
     <title>Mombapos</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="bg-gray-50 h-screen w-full font-sans antialiased text-gray-900">
     <div class="flex h-screen overflow-hidden" data-controller="sidebar">
+
       <!-- Mobile Overlay -->
-      <div 
-        data-sidebar-target="overlay" 
-        data-action="click->sidebar#close" 
-        class="fixed inset-0 bg-gray-900/50 z-20 hidden md:hidden transition-opacity backdrop-blur-sm"
-      ></div>
+      <div
+        data-sidebar-target="overlay"
+        data-action="click->sidebar#close"
+        class="fixed inset-0 bg-gray-900/50 z-20 hidden md:hidden transition-opacity backdrop-blur-sm">
+      </div>
 
       <!-- Sidebar -->
       <%= render 'shared/sidebar' %>
 
       <!-- Main Content -->
       <main class="flex-1 overflow-y-auto bg-gray-50/50 relative w-full">
+
+        <!-- Topbar Desktop -->
+        <%= render 'shared/topbar' %>
+
         <!-- Mobile Header -->
-        <div class="md:hidden sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between mb-4">
+        <div class="md:hidden sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <button data-action="click->sidebar#toggle" class="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            <button
+              data-action="click->sidebar#toggle"
+              class="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                   stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               </svg>
             </button>
-            <span class="font-bold text-slate-900">Momba<span class="text-[var(--color-brand)]">POS</span></span>
+
+            <span class="font-bold text-slate-900">
+              Momba<span class="text-[var(--color-brand)]">POS</span>
+            </span>
           </div>
         </div>
 
-        <div class="px-5 py-4 md:px-10 md:py-8 md:ml-64">
+        <!-- Page Content -->
+        <div class="px-5 py-4 md:px-10 md:py-8 md:ml-64 mt-16">
           <%= yield %>
         </div>
+
       </main>
     </div>
   </body>

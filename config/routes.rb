@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :menu_items
 
   get 'reports/sales_summary'
   get 'reports/payment_methods'

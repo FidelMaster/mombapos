@@ -8,6 +8,15 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 #   
+#
+
+#clear tables
+InvoicePayment.destroy_all
+InvoiceItem.destroy_all
+Invoice.destroy_all
+
+OrderItem.destroy_all
+Order.destroy_all
 
 puts "Inserting License...."
 puts "License count: #{License.count}"

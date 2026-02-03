@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_30_143205) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,6 +34,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_30_143205) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "app_modules_menu_items", force: :cascade do |t|
+    t.bigint "app_module_id", null: false
+    t.bigint "menu_item_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["app_module_id", "menu_item_id"], name: "index_modules_menu_unique", unique: true
+    t.index ["app_module_id"], name: "index_app_modules_menu_items_on_app_module_id"
+    t.index ["menu_item_id"], name: "index_app_modules_menu_items_on_menu_item_id"
   end
 
   create_table "areas", force: :cascade do |t|
@@ -304,6 +314,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_30_143205) do
     t.decimal "price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "menu_items", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "label", null: false
+    t.string "icon"
+    t.string "path"
+    t.string "section"
+    t.integer "position"
+    t.string "item_type", null: false
+    t.bigint "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_type"], name: "index_menu_items_on_item_type"
+    t.index ["key"], name: "index_menu_items_on_key", unique: true
+    t.index ["parent_id"], name: "index_menu_items_on_parent_id"
   end
 
   create_table "municipalities", force: :cascade do |t|
@@ -755,6 +781,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_30_143205) do
   end
 
   add_foreign_key "account_receivable_details", "document_account_receivables"
+  add_foreign_key "app_modules_menu_items", "app_modules"
+  add_foreign_key "app_modules_menu_items", "menu_items"
   add_foreign_key "areas", "tenants"
   add_foreign_key "bank_accounts", "banks"
   add_foreign_key "bank_accounts", "tenants"
@@ -794,6 +822,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_30_143205) do
   add_foreign_key "levels", "tenants"
   add_foreign_key "license_modules", "app_modules"
   add_foreign_key "license_modules", "licenses"
+  add_foreign_key "menu_items", "menu_items", column: "parent_id"
   add_foreign_key "municipalities", "departments"
   add_foreign_key "objectives", "tenants"
   add_foreign_key "order_items", "orders"
