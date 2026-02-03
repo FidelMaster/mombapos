@@ -11,13 +11,6 @@
 #
 
 #clear tables
-InvoicePayment.destroy_all
-InvoiceItem.destroy_all
-Invoice.destroy_all
-
-OrderItem.destroy_all
-Order.destroy_all
-
 puts "Inserting License...."
 puts "License count: #{License.count}"
 if License.count == 0
