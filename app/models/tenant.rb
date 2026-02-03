@@ -24,49 +24,41 @@ class Tenant < ApplicationRecord
   private
 
   def initialize_tenant
-    # 1. Copy modules from license if present
+    Current.set(tenant: self) do
+    # 1. Copy modules
     if license.present?
       license.app_modules.each do |app_module|
-        tenant_modules.create(app_module: app_module, enabled: true)
+        tenant_modules.create!(app_module: app_module, enabled: true)
       end
     end
 
-    # 2. Create default Branch
-    branches.unscoped.create!(
-      tenant: self,
+    branches.create!(
       name: "Casa Matriz - #{name}",
       is_default: true,
       is_active: true
     )
 
-    # 3. Create default Warehouse
-    warehouses.unscoped.create(
-      tenant: self,
+    warehouses.create!(
       name: "Bodega General - #{name}",
       is_default: true,
       is_active: true
     )
 
-    # 4. Create default Price List
-    PriceList.unscoped.create( 
+    PriceList.create!(
       tenant: self,
       name: "Lista de Precios Base",
       currency: default_currency,
       is_active: true
     )
 
-    #5. Create default User
-    users.unscoped.create(
-      tenant: self,
+    users.create!(
       email: email,
       password: "password123",
       role: :admin,
       is_active: true
     )
 
-    #6. Create default Customer Generic
-    customers.unscoped.create(
-      tenant: self,
+    customers.create!(
       name: "Cliente Generico",
       address: "Casa Matriz - #{name}",
       municipality_id: 1,
@@ -78,5 +70,6 @@ class Tenant < ApplicationRecord
       is_tax_exempt: false,
       is_active: true
     )
+    end
   end
 end
