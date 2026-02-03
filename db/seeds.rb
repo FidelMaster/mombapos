@@ -74,12 +74,7 @@ if Tenant.count == 0
     license_id: 1
   )
 
-  Branch.create!(
-    tenant: tenant,
-    name: "Sucursal 1",
-    is_default: true,
-    is_active: true
-  )
+ 
 
   User.create!(
     tenant: tenant,

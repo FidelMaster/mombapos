@@ -33,6 +33,7 @@ class Tenant < ApplicationRecord
 
     # 2. Create default Branch
     branches.create(
+      tenant: self,
       name: "Casa Matriz - #{name}",
       is_default: true,
       is_active: true
@@ -40,6 +41,7 @@ class Tenant < ApplicationRecord
 
     # 3. Create default Warehouse
     warehouses.create(
+      tenant: self,
       name: "Bodega General - #{name}",
       is_default: true,
       is_active: true
