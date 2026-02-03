@@ -21,7 +21,6 @@ class Tenant < ApplicationRecord
 
   validates_presence_of :email, :name, :subdomain, :license_id
 
-
   private
 
   def initialize_tenant

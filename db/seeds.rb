@@ -81,7 +81,7 @@ if Tenant.count == 0
     role: :owner
   )
 else 
-  tenant = Tenant.where(id: 2).first
+  tenant = Tenant.where(id: 1).first
 end
 
 Current.tenant = tenant
