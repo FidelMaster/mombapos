@@ -70,7 +70,8 @@ if Tenant.count == 0
     default_currency: "USD",
     timezone: "America/Managua",
     is_active: true,
-    email: "developerfhernandez@gmail.com"
+    email: "developerfhernandez@gmail.com",
+    license_id: 1
 )
 
   User.create!(
