@@ -74,8 +74,6 @@ if Tenant.count == 0
     license_id: 1
   )
 
- 
-
   User.create!(
     tenant: tenant,
     email: "admin@demo.com",

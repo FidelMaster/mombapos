@@ -32,7 +32,7 @@ class Tenant < ApplicationRecord
     end
 
     # 2. Create default Branch
-    branches.create(
+    branches.unscoped.create!(
       tenant: self,
       name: "Casa Matriz - #{name}",
       is_default: true,
@@ -40,7 +40,7 @@ class Tenant < ApplicationRecord
     )
 
     # 3. Create default Warehouse
-    warehouses.create(
+    warehouses.unscoped.create(
       tenant: self,
       name: "Bodega General - #{name}",
       is_default: true,
@@ -48,7 +48,7 @@ class Tenant < ApplicationRecord
     )
 
     # 4. Create default Price List
-    PriceList.create( 
+    PriceList.unscoped.create( 
       tenant: self,
       name: "Lista de Precios Base",
       currency: default_currency,
@@ -56,7 +56,7 @@ class Tenant < ApplicationRecord
     )
 
     #5. Create default User
-    users.create(
+    users.unscoped.create(
       tenant: self,
       email: email,
       password: "password123",
@@ -65,7 +65,7 @@ class Tenant < ApplicationRecord
     )
 
     #6. Create default Customer Generic
-    customers.create(
+    customers.unscoped.create(
       tenant: self,
       name: "Cliente Generico",
       address: "Casa Matriz - #{name}",
