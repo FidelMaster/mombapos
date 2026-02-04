@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
+//IF INVOICE PAYMENT IS CREDIT HIDE PAYMENT METHODS
 export default class extends Controller {
     static targets = [
         "item", "product", "quantity", "price", "lineTotal",
@@ -23,6 +24,19 @@ export default class extends Controller {
         this.togglePaymentInfo()
         this.setupPaymentMethodButtons()
         this.updatePaymentSummary()
+    }
+
+    togglePaymentInfo() {
+        const selectedType = this.element.querySelector('input[name="invoice[invoice_type]"]:checked')?.value || 'cash'
+        const paymentInfo = this.paymentsContainerTarget
+
+        if (selectedType === 'credit') {
+            paymentInfo.classList.add('hidden')
+        } else {
+            paymentInfo.classList.remove('hidden')
+        }
+
+        this.calculateChange()
     }
 
     setupPaymentMethodButtons() {
@@ -176,11 +190,6 @@ export default class extends Controller {
         }
     }
 
-    togglePaymentInfo() {
-        // Ya no necesitamos mostrar/ocultar secciones
-        // Solo recalcular el cambio
-        this.calculateChange()
-    }
 
     addItem(event) {
         event.preventDefault()

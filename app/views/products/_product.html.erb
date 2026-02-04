@@ -1,35 +1,152 @@
-<div id="<%= dom_id product %>" class="w-full sm:w-auto my-5 space-y-5">
- 
-  <div>
-    <strong class="block font-medium mb-1">Código del producto:</strong>
-    <%= product.product_code %>
+<div id="<%= dom_id product %>" class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+  <!-- Encabezado Principal -->
+  <div class="p-8 sm:p-10 border-b border-gray-100 bg-gray-50/30">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div class="space-y-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="px-3 py-1 text-xs font-bold tracking-wider uppercase bg-primary-100 text-primary-700 rounded-lg">
+            SKU: <%= product.product_code %>
+          </span>
+          <% if product.is_active? %>
+            <span class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-lg border border-emerald-100/50">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Activo
+            </span>
+          <% else %>
+            <span class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
+              <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+              Inactivo
+            </span>
+          <% end %>
+          <span class="px-3 py-1 text-xs font-bold tracking-wider uppercase bg-blue-50 text-blue-700 rounded-lg border border-blue-100/50">
+            <%= product.product_type.humanize %>
+          </span>
+        </div>
+        
+        <div>
+          <h2 class="text-4xl font-black text-gray-900 tracking-tight leading-tight"><%= product.name %></h2>
+          <p class="mt-3 text-lg text-gray-500 max-w-2xl leading-relaxed">
+            <%= product.description.presence || "Sin descripción proporcionada para este producto." %>
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex flex-col items-start lg:items-end p-6 bg-white rounded-2xl border border-gray-100 shadow-sm min-w-[200px]">
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Precio de Venta</span>
+        <span class="text-5xl font-black text-primary"><%= number_to_currency product.price %></span>
+        <% if product.price.to_f > 0 && product.cost.to_f > 0 %>
+          <span class="mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
+            +<%= number_to_percentage(( (product.price - product.cost) / product.price.to_f * 100 ), precision: 1) %> margen
+          </span>
+        <% end %>
+      </div>
+    </div>
   </div>
-  <div>
-    <strong class="block font-medium mb-1">Nombre del producto:</strong>
-    <%= product.name %>
+
+  <!-- Cuadrícula de Detalles -->
+  <div class="p-8 sm:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    
+    <!-- Categorización -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01"></path></svg>
+        </div>
+        <h3 class="text-base font-bold text-gray-900">Clasificación</h3>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="group">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Categoría</p>
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 group-hover:border-primary/20 transition-all">
+            <p class="text-gray-900 font-bold"><%= product.product_category&.name || "Sin Categoría" %></p>
+          </div>
+        </div>
+        
+        <div class="group">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Proveedor Principal</p>
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 group-hover:border-primary/20 transition-all">
+            <p class="text-gray-900 font-bold"><%= product.supplier&.name || "No asignado" %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventario y Unidades -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+        </div>
+        <h3 class="text-base font-bold text-gray-900">Unidades y Stock</h3>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="group">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Unidad de Venta</p>
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 group-hover:border-primary/20 transition-all">
+            <p class="text-gray-900 font-bold"><%= product.sale_unit_measure&.name || "N/A" %></p>
+          </div>
+        </div>
+        
+        <div class="group">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Unidad de Almacén</p>
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 group-hover:border-primary/20 transition-all">
+            <p class="text-gray-900 font-bold"><%= product.stock_unit_measure&.name || "N/A" %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gestión Financiera -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        </div>
+        <h3 class="text-base font-bold text-gray-900">Gestión Financiera</h3>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="group">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Costo Unitario</p>
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 group-hover:border-primary/20 transition-all">
+            <p class="text-gray-900 font-bold"><%= number_to_currency product.cost %></p>
+          </div>
+        </div>
+        
+        <div class="group">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Ganancia por Unidad</p>
+          <div class="p-4 bg-primary-50 rounded-xl border border-primary-100 group-hover:border-primary/30 transition-all">
+            <p class="text-primary font-black text-lg">
+              <%= number_to_currency(product.price - product.cost) %>
+              <span class="text-xs font-medium text-primary-600/70 ml-1">neto</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div>
-    <strong class="block font-medium mb-1">Descripción del producto:</strong>
-    <%= product.description %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Tipo de producto:</strong>
-    <%= product.product_type %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Categoría:</strong>
-    <%= product.product_category_id %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Costo:</strong>
-    <%= number_to_currency product.cost %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Precio:</strong>
-    <%= number_to_currency product.price %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Activo:</strong>
-    <%= product.is_active? ? "Sí" : "No" %>
+
+  <!-- Información de Seguimiento -->
+  <div class="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-6">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        Creado: <span class="text-gray-600"><%= l product.created_at, format: :short %></span>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Actualizado: <span class="text-gray-600"><%= l product.updated_at, format: :short %></span>
+      </div>
+    </div>
+    
+    <% if product.stockeable? %>
+      <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+        <span class="text-xs font-bold uppercase tracking-tighter">Producto Inventariable</span>
+      </div>
+    <% end %>
   </div>
 </div>

@@ -99,6 +99,39 @@ if Municipality.count == 0
   )
 end
 
+puts "Inserting payment methods..."
+puts "Payment method count: #{PaymentMethod.count}"
+if PaymentMethod.count == 0
+  PaymentMethod.create!(
+    name: "Efectivo",
+    code: "CASH",
+  )
+
+  PaymentMethod.create!(
+    name: "Transferencia Bancaria",
+    code: "TRANSFER",
+  )
+end
+
+puts "Inserting banks..."
+puts "Bank count: #{Bank.count}"
+if Bank.count == 0
+  Bank.create!(
+    name: "Banpro",
+    code: "BANPRO",
+  )
+
+  Bank.create!(
+    name: "BAC",
+    code: "BAC",
+  )
+
+  Bank.create!(
+    name: "LAFISE",
+    code: "LAFISE",
+  )
+end
+
 puts "Inserting  Tenants..."
 puts "Tenant count: #{Tenant.count}"
 

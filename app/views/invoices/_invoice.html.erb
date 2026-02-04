@@ -40,7 +40,7 @@
         <p class="text-lg font-bold text-gray-900"><%= invoice.customer&.name || invoice.customer_name_snapshot %></p>
         <p class="text-sm text-gray-600"><%= invoice.customer&.tax_id || invoice.customer_tax_id_snapshot %></p>
         <% if invoice.customer&.contact_email.present? %>
-          <p class="text-sm text-gray-500"><%= invoice.customer.email %></p>
+          <p class="text-sm text-gray-500"><%= invoice.customer.contact_email %></p>
         <% end %>
       </div>
     </div>

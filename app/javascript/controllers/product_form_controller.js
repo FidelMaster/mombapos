@@ -25,9 +25,9 @@ export default class extends Controller {
 
         // APPLY VISIBILITY
         // ------------------------------------------
-        this.toggleElement(this.stockContainerTarget, showInventory)
+        //  this.toggleElement(this.stockContainerTarget, showInventory)
         this.toggleElement(this.warehouseStockContainerTarget, showInventory)
-        this.toggleElement(this.supplierContainerTarget, showInventory)
+        // this.toggleElement(this.supplierContainerTarget, showInventory)
 
         if (this.hasCostContainerTarget) {
             this.toggleElement(this.costContainerTarget, showCost)

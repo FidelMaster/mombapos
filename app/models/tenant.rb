@@ -70,6 +70,19 @@ class Tenant < ApplicationRecord
       is_tax_exempt: false,
       is_active: true
     )
+
+    suppliers.create!(
+      name: "ND - No Definido",
+      contact_name: "ND - No Definido",
+      contact_email: "nd@#{name}.com",
+      contact_phone: "12345678",
+      is_active: true
+    )
+
+    unit_measures.create!(
+      name: "Unidad",
+      abbreviation: "UND"
+    )
     end
   end
 end

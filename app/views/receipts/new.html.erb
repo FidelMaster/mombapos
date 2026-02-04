@@ -1,103 +1,136 @@
-<div class="min-h-screen bg-slate-50 py-8 px-4" data-controller="receipt">
+<div class="min-h-screen bg-gray-50/50 py-12 px-4" data-controller="receipt">
   <div class="max-w-4xl mx-auto">
-    <%# Header %>
-    <div class="mb-8 flex items-center justify-between">
+    <%# En cabecera sutil %>
+    <div class="flex items-center justify-between mb-10">
       <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Nuevo Recibo de Caja</h1>
-        <p class="text-slate-500 font-medium">Registra un abono a la cuenta de un cliente.</p>
+        <nav class="flex text-xs font-bold text-gray-400 uppercase tracking-widest mb-2" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-2">
+            <li><%= link_to "Recibos", receipts_path, class: "hover:text-primary transition-colors" %></li>
+            <li class="flex items-center space-x-2">
+              <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+              <span class="text-gray-600">Nuevo</span>
+            </li>
+          </ol>
+        </nav>
+        <h1 class="text-4xl font-black text-gray-900 tracking-tight">Gestión de Abonos</h1>
       </div>
-      <%= link_to receipts_path, class: "px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all" do %>
-        Volver
+      <%= link_to receipts_path, class: "group flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-600 font-bold rounded-2xl hover:bg-gray-50 transition-all shadow-sm" do %>
+        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Regresar
       <% end %>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <%# Main Form %>
-      <div class="lg:col-span-2 space-y-6">
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
-          <%= form_with(model: @receipt) do |f| %>
-            <%= f.hidden_field :document_account_receivable_id %>
+    <%= form_with(model: @receipt, id: "receipt-form") do |f| %>
+      <%= f.hidden_field :document_account_receivable_id %>
 
-            <div class="space-y-6">
-              <%# Customer Selection %>
+      <div class="space-y-8">
+        <%# SECCIÓN 1: Selección de Cliente %>
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-8">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="w-10 h-10 rounded-full bg-primary-100 text-primary flex items-center justify-center font-black text-lg">1</div>
               <div>
-                <%= f.label :customer_id, "Cliente", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
-                <%= f.collection_select :customer_id, @customers, :id, :name, 
-                    { prompt: "Seleccionar cliente..." }, 
-                    { class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all",
-                      data: { "receipt-target": "customerSelect", action: "change->receipt#loadAccounts" } } %>
+                <h2 class="text-lg font-black text-gray-900">Identificación del Cliente</h2>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Busca y selecciona al cliente para ver su saldo</p>
               </div>
+            </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <%# Amount %>
+            <div class="relative group">
+              <%= f.label :customer_id, "Nombre del Cliente", class: "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-1" %>
+              <%= f.collection_select :customer_id, @customers, :id, :name, 
+                  { prompt: "Escriba el nombre del cliente..." }, 
+                  { class: "w-full rounded-2xl border-gray-100 bg-gray-50 py-4 px-6 text-base font-bold text-gray-700 focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all appearance-none shadow-inner",
+                    data: { "receipt-target": "customerSelect", action: "change->receipt#loadAccounts", controller: "select" } } %>
+              <div class="absolute right-6 bottom-4 pointer-events-none text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+          </div>
+
+          <%# SECCIÓN 2: Cartera (Dínámica) %>
+          <div class="border-t border-gray-100 bg-gray-50/30 p-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-lg">2</div>
                 <div>
-                  <%= f.label :total_amount, "Cantidad a Abonar", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
-                  <div class="relative">
-                    <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                      <span class="text-slate-400 font-bold">C$</span>
-                    </div>
-                    <%= f.number_field :total_amount, step: :any, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 pl-12 pr-4 text-lg font-black text-slate-900 focus:ring-2 focus:ring-slate-900 transition-all", placeholder: "0.00", data: { "receipt-target": "amountInput" } %>
+                  <h3 class="text-base font-black text-gray-900">Estado de Cuentas Pendientes</h3>
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Selecciona una factura para realizar el abono automático</p>
+                </div>
+              </div>
+              
+              <div class="px-6 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm text-center md:text-right">
+                <span class="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 leading-none text-center">Deuda Total Acumulada</span>
+                <span class="text-2xl font-black text-gray-900 tracking-tight" data-receipt-target="totalBalance">C$ 0.00</span>
+              </div>
+            </div>
+
+            <div id="accounts-list" data-receipt-target="accountsList" class="min-h-[160px] flex items-center justify-center border-2 border-dashed border-gray-200 rounded-3xl bg-white/50">
+              <div class="text-center px-10">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                   <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <p class="text-sm font-bold text-gray-400">Esperando selección de cliente...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <%# SECCIÓN 3: Detalles del Abono %>
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-8">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-lg">3</div>
+              <div>
+                <h2 class="text-lg font-black text-gray-900">Configuración del Pago</h2>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Ingresa el monto del abono y la información bancaria</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <%# Amount %>
+              <div class="md:col-span-2">
+                <%= f.label :total_amount, "Monto a Abonar (C$)", class: "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-1" %>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+                    <span class="text-2xl font-black text-gray-300 group-focus-within:text-emerald-500 transition-colors">C$</span>
                   </div>
-                </div>
-
-                <%# Date %>
-                <div>
-                  <%= f.label :receipt_date, "Fecha", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
-                  <%= f.date_field :receipt_date, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all" %>
+                  <%= f.number_field :total_amount, step: :any, class: "w-full rounded-2xl border-gray-100 bg-gray-50 py-6 pl-20 pr-8 text-4xl font-black text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all placeholder-gray-200", placeholder: "0.00", data: { "receipt-target": "amountInput" } %>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <%# Payment Method %>
-                <div>
-                  <%= f.label :payment_method, "Método de Pago", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
-                  <%= f.select :payment_method, ["Efectivo", "Transferencia", "Tarjeta", "Cheque"], {}, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all" %>
-                </div>
-
-                <%# Reference %>
-                <div>
-                  <%= f.label :reference, "Referencia / No. Comprobante", class: "block text-xs font-black text-slate-400 uppercase tracking-widest mb-2" %>
-                  <%= f.text_field :reference, class: "w-full rounded-2xl border-slate-200 bg-slate-50 py-4 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-slate-900 transition-all", placeholder: "Ej: Transf #12345" %>
-                </div>
+              <%# Date %>
+              <div>
+                <%= f.label :receipt_date, "Fecha Efectiva", class: "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3" %>
+                <%= f.date_field :receipt_date, class: "w-full rounded-2xl border-gray-100 bg-gray-50 py-4 px-6 text-base font-bold text-gray-700 focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all shadow-sm" %>
               </div>
 
-              <div class="pt-4">
-                <%= f.submit "Procesar Abono", class: "w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-xl shadow-slate-200" %>
+              <%# Payment Method %>
+              <div>
+                <%= f.label :payment_method, "Método de Pago", class: "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3" %>
+                <%= f.select :payment_method, ["Efectivo", "Transferencia", "Tarjeta", "Cheque"], {}, class: "w-full rounded-2xl border-gray-100 bg-gray-50 py-4 px-6 text-base font-bold text-gray-700 focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all appearance-none shadow-sm" %>
+              </div>
+
+              <%# Reference %>
+              <div class="md:col-span-2">
+                <%= f.label :reference, "Referencia / No. de Transacción", class: "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3" %>
+                <%= f.text_field :reference, class: "w-full rounded-2xl border-gray-100 bg-gray-50 py-4 px-6 text-base font-bold text-gray-700 focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all shadow-sm", placeholder: "Ej: Transferencia BAC #102938" %>
               </div>
             </div>
-          <% end %>
-        </div>
-      </div>
 
-      <%# Sidebar: Debt Info %>
-      <div class="space-y-6">
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
-          <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Cartera del Cliente</h3>
-          
-          <div class="space-y-4">
-            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo Total Pendiente</span>
-              <span class="text-2xl font-black text-slate-900" data-receipt-target="totalBalance">C$ 0.00</span>
-            </div>
-
-            <div class="space-y-2">
-              <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Detalle de Facturas</span>
-              <div id="accounts-list" data-receipt-target="accountsList">
-                <div class="text-slate-400 text-sm text-center py-8 italic">Seleccione un cliente</div>
+            <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 mb-8 flex gap-4">
+              <div class="p-2 bg-amber-100 rounded-lg shrink-0">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
               </div>
+              <p class="text-xs font-bold text-amber-900/70 leading-relaxed">
+                <span class="text-amber-900 block mb-1">Nota importante:</span>
+                Este proceso aplicará un abono directo a la cuenta por cobrar. Asegúrese de que el monto coincida con el comprobante bancario antes de finalizar.
+              </p>
             </div>
-          </div>
-        </div>
 
-        <div class="bg-amber-50 rounded-3xl p-6 border border-amber-100">
-          <div class="flex gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-amber-600 shrink-0">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-            </svg>
-            <p class="text-xs font-bold text-amber-900 leading-relaxed"> Al procesar este abono, se creará automáticamente un registro de crédito en el estado de cuenta del cliente disminuyendo su deuda pendiente.</p>
+            <%= f.submit "Finalizar y Generar Recibo", class: "w-full py-5 bg-gray-900 text-white font-black text-xl rounded-2xl hover:bg-gray-800 transition-all shadow-xl shadow-gray-200 active:scale-[0.98]" %>
           </div>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>
