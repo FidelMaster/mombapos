@@ -4,6 +4,7 @@ class OrdersController < ApplicationController
   # GET /orders/history
   def history
     @active_orders = Order.where(status: :open).order(created_at: :desc)
+    @pickup_orders = @active_orders.where(order_type: :pickup)
     @closed_orders = Order.where(status: [:closed, :cancelled]).order(created_at: :desc).limit(50)
   end
 

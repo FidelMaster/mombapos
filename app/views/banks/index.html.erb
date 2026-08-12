@@ -1,5 +1,14 @@
 <% content_for :title, "Bancos" %>
 
+<div class="mb-6 flex justify-end gap-3 print:hidden">
+  <button type="button" onclick="document.getElementById('bank-accounts-modal').classList.remove('hidden')" class="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-black rounded-2xl hover:bg-slate-50 transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2 text-sm shrink-0">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-500">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-1.971-.659-1.171-.88-1.171-2.303 0-3.182 1.171-.879 3.07-.879 4.242 0M12 6c-.725 0-1.45-.22-1.971-.659" />
+    </svg>
+    <span>Cuentas Bancarias</span>
+  </button>
+</div>
+
 <%= render "shared/resource_table", 
       title: "Bancos", 
       collection: @banks,
@@ -22,3 +31,105 @@
       </td>
     </tr>
 <% end %>
+
+<%# MODAL CUENTAS BANCARIAS %>
+<div id="bank-accounts-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+  <div class="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+    
+    <%# Modal Header %>
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+      <div>
+        <h3 class="font-bold text-slate-900 text-lg">Cuentas Bancarias</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Administración y creación de cuentas bancarias asociadas a tus bancos.</p>
+      </div>
+      <button type="button" onclick="document.getElementById('bank-accounts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <%# Modal Content (Scrollable) %>
+    <div class="flex-1 overflow-y-auto pr-1 space-y-6">
+      
+      <%# Formulario para Agregar Nueva Cuenta %>
+      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+        <h4 class="font-bold text-slate-900 text-sm mb-3">Nueva Cuenta Bancaria</h4>
+        <%= form_with(model: @bank_account, url: bank_accounts_path, local: true, class: "space-y-4") do |form| %>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <%= form.label :bank_id, "Banco", class: "block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1" %>
+              <%= form.collection_select :bank_id, @banks, :id, :name, { prompt: "Seleccionar banco..." }, class: "w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
+            </div>
+
+            <div>
+              <%= form.label :account_name, "Titular de Cuenta", class: "block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1" %>
+              <%= form.text_field :account_name, placeholder: "Titular...", class: "w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
+            </div>
+
+            <div>
+              <%= form.label :account_number, "Número de Cuenta", class: "block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1" %>
+              <%= form.text_field :account_number, placeholder: "Número...", class: "w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
+            </div>
+
+            <div>
+              <%= form.label :currency, "Moneda", class: "block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1" %>
+              <%= form.select :currency, [["Córdobas (NIO)", "NIO"], ["Dólares (USD)", "USD"]], { prompt: "Seleccionar moneda..." }, class: "w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <%= form.submit "Guardar Cuenta", class: "px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition-all cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Lista de Cuentas Existentes %>
+      <div>
+        <h4 class="font-bold text-slate-900 text-sm mb-3">Cuentas Registradas</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                <th class="py-2 px-2">Banco</th>
+                <th class="py-2 px-2">Titular</th>
+                <th class="py-2 px-2">Número de Cuenta</th>
+                <th class="py-2 px-2">Moneda</th>
+                <th class="py-2 px-2 text-right"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <% if @bank_accounts.any? %>
+                <% @bank_accounts.each do |account| %>
+                  <tr class="hover:bg-slate-50/50">
+                    <td class="py-2 px-2 font-medium text-slate-900"><%= account.bank&.name %></td>
+                    <td class="py-2 px-2 text-slate-600"><%= account.account_name %></td>
+                    <td class="py-2 px-2 font-mono text-slate-600"><%= account.account_number %></td>
+                    <td class="py-2 px-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold <%= account.currency == 'USD' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-blue-50 text-blue-600 border border-blue-100' %>"><%= account.currency %></span></td>
+                    <td class="py-2 px-2 text-right">
+                      <%= button_to "Eliminar", bank_account_path(account), method: :delete, class: "text-red-500 hover:text-red-700 bg-transparent border-none p-0 cursor-pointer font-semibold text-xs", data: { turbo_confirm: "¿Estás seguro?" } %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="5" class="py-6 text-center text-slate-400 font-medium">No hay cuentas bancarias registradas.</td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <%# Modal Footer %>
+    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-end">
+      <button type="button" onclick="document.getElementById('bank-accounts-modal').classList.add('hidden')" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors">
+        Cerrar
+      </button>
+    </div>
+
+  </div>
+</div>
+

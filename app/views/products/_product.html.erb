@@ -33,7 +33,10 @@
       
       <div class="flex flex-col items-start lg:items-end p-6 bg-white rounded-2xl border border-gray-100 shadow-sm min-w-[200px]">
         <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Precio de Venta</span>
-        <span class="text-5xl font-black text-primary"><%= number_to_currency product.price %></span>
+        <span class="text-5xl font-black text-primary"><%= number_to_currency product.price,  unit: "C$",
+            separator: ".",
+            delimiter: ",",
+            format: "%u %n" %></span>
         <% if product.price.to_f > 0 && product.cost.to_f > 0 %>
           <span class="mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
             +<%= number_to_percentage(( (product.price - product.cost) / product.price.to_f * 100 ), precision: 1) %> margen
@@ -111,7 +114,10 @@
         <div class="group">
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Costo Unitario</p>
           <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 group-hover:border-primary/20 transition-all">
-            <p class="text-gray-900 font-bold"><%= number_to_currency product.cost %></p>
+            <p class="text-gray-900 font-bold"><%= number_to_currency product.cost,  unit: "C$",
+            separator: ".",
+            delimiter: ",",
+            format: "%u %n" %></p>
           </div>
         </div>
         
@@ -119,7 +125,15 @@
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">Ganancia por Unidad</p>
           <div class="p-4 bg-primary-50 rounded-xl border border-primary-100 group-hover:border-primary/30 transition-all">
             <p class="text-primary font-black text-lg">
-              <%= number_to_currency(product.price - product.cost) %>
+              <% if product.price && product.cost %>
+        <%= number_to_currency(product.price - product.cost,
+      unit: "C$",
+      separator: ".",
+      delimiter: ",",
+      format: "%u %n") %>
+              <% else %>
+                N/A
+              <% end %> 
               <span class="text-xs font-medium text-primary-600/70 ml-1">neto</span>
             </p>
           </div>

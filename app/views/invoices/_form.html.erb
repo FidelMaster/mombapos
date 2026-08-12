@@ -1,5 +1,5 @@
-<div class="min-h-screen bg-slate-50 py-4 px-3 md:py-6 md:px-8 animate-fade-in-down">
-  <%= form_with(model: @invoice, class: "max-w-6xl mx-auto", data: { 
+<div class="w-full py-2 px-2 md:py-4 md:px-4 animate-fade-in-down">
+  <%= form_with(model: @invoice, class: "w-full mx-auto max-w-7xl", data: { 
       controller: "invoice", 
       invoice_products_value: @products.to_json(only: [:id, :name, :price]),
       invoice_price_map_value: @price_map.to_json
@@ -7,33 +7,34 @@
     <%= form.hidden_field :order_id %>
 
     <%# Header Section %>
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-4 py-4 md:px-8 md:py-6 mb-4 md:mb-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-4 py-4 md:px-6 md:py-5 mb-6 print:hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-3">
-            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Factura</h1>
-            <span class="px-3 py-1 bg-orange-100 text-orange-600 text-xs font-bold uppercase rounded-full">BORRADOR</span>
+            <h1 class="text-xl md:text-2xl font-bold text-slate-900">Factura</h1>
+            <span class="px-2.5 py-0.5 bg-orange-100 text-orange-600 text-xs font-bold uppercase rounded-full">BORRADOR</span>
           </div>
-          <p class="text-slate-500 text-sm mt-1">Crear una nueva factura para tu cliente.</p>
+          <p class="text-slate-500 text-xs mt-1">Crear una nueva factura para tu cliente.</p>
         </div>
-        <div class="flex items-center gap-3">
-          <%= link_to invoices_path, class: "px-4 md:px-5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" do %>
+        <div class="flex items-center gap-2">
+          <%= link_to invoices_path, class: "px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors" do %>
             Cancelar
           <% end %>
-          <%= form.submit "Guardar Borrador", class: "px-4 md:px-5 py-2.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200 transition-colors" %>
+          <button type="button" onclick="document.getElementById('ticket-modal').classList.remove('hidden')" class="px-3 py-2 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-900 transition-colors flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231a1.125 1.125 0 01-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.636 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.656" />
+            </svg>
+            Imprimir Ticket
+          </button>
+          <%= form.submit "Guardar Borrador", class: "px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200 transition-colors" %>
         </div>
       </div>
     </div>
 
     <% if @invoice.errors.any? %>
-      <div class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6">
-        <div class="flex items-center gap-3 mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-red-500">
-            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
-          </svg>
-          <h2 class="text-lg font-bold text-red-800"><%= pluralize(@invoice.errors.count, "error") %> impidieron guardar la factura:</h2>
-        </div>
-        <ul class="list-disc list-inside text-sm text-red-700 ml-9">
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 print:hidden">
+        <h2 class="text-sm font-bold text-red-800"><%= pluralize(@invoice.errors.count, "error") %> impidieron guardar la factura:</h2>
+        <ul class="list-disc list-inside text-xs text-red-700 ml-2 mt-1">
           <% @invoice.errors.each do |error| %>
             <li><%= error.full_message %></li>
           <% end %>
@@ -41,325 +42,285 @@
       </div>
     <% end %>
 
-    <%# Main Content Card %>
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <%# BLOQUE SUPERIOR 100% ANCHO: INFORMACIÓN GENERAL %>
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 mb-6 print:hidden">
+      <h3 class="text-sm font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Información General</h3>
       
-      <%# Invoice Info Section %>
-      <div class="p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 border-b border-slate-200">
-        
-        <%# Left Column - Invoice Number & Dates %>
-        <div class="space-y-4 md:space-y-6">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Número de Factura</label>
-            <div class="flex items-center gap-2 px-4 py-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span class="text-slate-400 font-medium">#</span>
-              <%= form.text_field :invoice_number, value: @invoice.invoice_number || "FAC-00001", class: "flex-1 bg-transparent border-none p-0 text-slate-900 font-semibold focus:ring-0", placeholder: "FAC-00001", readonly: true %>
-            </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Número de Factura</label>
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="text-slate-400 font-medium text-xs">#</span>
+            <%= form.text_field :invoice_number, value: @invoice.invoice_number || "FAC-00001", class: "flex-1 bg-transparent border-none p-0 text-slate-900 font-semibold focus:ring-0 text-xs", readonly: true %>
           </div>
+        </div>
 
-          <div class="grid grid-cols-2 gap-3 md:gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Fecha Emisión</label>
-              <%= form.date_field :invoice_date, class: "w-full px-3 md:px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Fecha Venc.</label>
-              <%= form.date_field :due_date, class: "w-full px-3 md:px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
-            </div>
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Cliente</label>
+          <%= form.collection_select :customer_id, @customers, :id, :name, { prompt: "Buscar cliente..." }, class: "w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500", data: { controller: "select" } %>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Nombre del Cliente</label>
+          <%= form.text_field :customer_name_snapshot, class: "w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500" %>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Lista de Precios</label>
+          <%= form.collection_select :price_list_id, @price_lists, :id, :name, {}, { class: "w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500", data: { invoice_target: "priceList", action: "change->invoice#updateAllPrices", controller: "select" } } %>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Fecha Emisión</label>
+          <%= form.date_field :invoice_date, class: "w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500" %>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Fecha Vencimiento</label>
+          <%= form.date_field :due_date, class: "w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500" %>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Tipo de Factura</label>
+          <div class="flex items-center gap-3 py-1.5">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <%= form.radio_button :invoice_type, "cash", checked: true, class: "w-3.5 h-3.5 text-orange-600 border-slate-300 focus:ring-orange-500", data: { action: "change->invoice#togglePaymentInfo", invoice_target: "invoiceType" } %>
+              <span class="text-xs font-semibold text-slate-700">Contado</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <%= form.radio_button :invoice_type, "credit", class: "w-3.5 h-3.5 text-orange-600 border-slate-300 focus:ring-orange-500", data: { action: "change->invoice#togglePaymentInfo", invoice_target: "invoiceType" } %>
+              <span class="text-xs font-semibold text-slate-700">Crédito</span>
+            </label>
           </div>
+        </div>
 
-          <div>
-              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Tipo de Factura</label>
-              <div class="flex items-center gap-4">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <%= form.radio_button :invoice_type, "cash", checked: true, class: "w-4 h-4 text-orange-600 border-slate-300 focus:ring-orange-500", data: { action: "change->invoice#togglePaymentInfo", invoice_target: "invoiceType" } %>
-                  <span class="text-sm font-semibold text-slate-700">Contado</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <%= form.radio_button :invoice_type, "credit", class: "w-4 h-4 text-orange-600 border-slate-300 focus:ring-orange-500", data: { action: "change->invoice#togglePaymentInfo", invoice_target: "invoiceType" } %>
-                  <span class="text-sm font-semibold text-slate-700">Crédito</span>
-                </label>
-              </div>
-            </div>
+        <div>
+          <%= form.label :payment_term_id, "Condiciones de Pago", class: "block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5" %>
+          <%= form.collection_select :payment_term_id, @payment_terms, :id, :name, { prompt: "Seleccionar..." }, class: "w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500" %>
+        </div>
 
 
-            <div>
-              <%= form.label :status, "Estado de Factura", class: "block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2" %>
-              <%= form.select :status, Invoice.statuses.keys.map { |s| [s.humanize, s] }, { selected: 'issued' }, class: "w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
-            </div>
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-600 uppercase tracking-wider mb-2">Notas / Términos de Pago</label>
+          <%= form.text_area :notes, rows: 2, placeholder: "Agregar notas específicas...", class: "w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 font-medium text-xs focus:ring-2 focus:ring-orange-500 resize-none" %>
+        </div>
 
-             <div>
-              <%= form.label :payment_term_id, "Condiciones de Pago", class: "block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2" %>
-              <%= form.collection_select :payment_term_id, @payment_terms, :id, :name, { prompt: "Seleccionar condiciones de pago..." }, class: "w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
-            </div>
+      </div>
+    </div>
+
+    <%# GRID INFERIOR 2 COLUMNAS %>
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 print:hidden">
       
-        </div>
-
-        <%# Right Column - Customer Selection %>
-        <div class="space-y-4 md:space-y-6">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Selección de Cliente</label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-400">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-              </div>
-              <%= form.collection_select :customer_id, @customers, :id, :name, { prompt: "Buscar cliente..." }, class: "w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500", data: { controller: "select" } %>
-            </div>
-          </div>
-
-          <div class="bg-slate-50 rounded-lg border border-slate-200 p-4">     
-              <div>
-                <%= form.label :customer_name_snapshot, "Nombre del Cliente", class: "block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2" %>
-                <%= form.text_field :customer_name_snapshot, class: "w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
-              </div>
-          </div>
-
-          <div class="bg-slate-50 rounded-lg border border-slate-200 p-4">     
-              <div>
-                <%= form.label :price_list_id, "Lista de Precios", class: "block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2" %>
-                <%= form.collection_select :price_list_id, @price_lists, :id, :name, {}, { class: "w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500", data: { invoice_target: "priceList", action: "change->invoice#updateAllPrices", controller: "select" } } %>
-              </div>
-          </div>
-
-          <div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Notas / Términos de Pago</label>
-              <%= form.text_area :notes, rows: 3, placeholder: "Agregar notas específicas...", class: "w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none" %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <%# Item Details Section %>
-      <div class="p-4 md:p-8 border-b border-slate-200">
-        <h3 class="text-base md:text-lg font-bold text-slate-900 mb-4 md:mb-6">Detalle de Productos</h3>
+      <%# COLUMNA IZQUIERDA: DETALLE DE PRODUCTO %>
+      <div class="xl:col-span-7 space-y-6">
         
-        <div class="overflow-x-auto -mx-4 md:mx-0">
-          <table class="w-full min-w-[640px]">
-            <thead>
-              <tr class="border-b border-slate-200">
-                <th class="text-left py-3 px-2 md:px-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Producto</th>
-                <th class="text-center py-3 px-2 md:px-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Cant.</th>
-                <th class="text-right py-3 px-2 md:px-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Precio</th>
-                <th class="text-right py-3 px-2 md:px-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Tax (%)</th>
-                <th class="text-right py-3 px-2 md:px-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Total</th>
-                <th class="w-10 md:w-12"></th>
-              </tr>
-            </thead>
-            <tbody id="invoice-items" data-invoice-target="itemsContainer" class="divide-y divide-slate-100">
-              <%= form.fields_for :invoice_items do |item_form| %>
-                <tr data-invoice-target="item" class="group hover:bg-slate-50 transition-colors">
-                  <td class="py-4 px-4">
-                    <%= item_form.collection_select :product_id, @products, :id, :name, { prompt: "Select product..." }, class: "w-full bg-transparent border-none p-0 text-sm font-medium text-slate-900 focus:ring-0", data: { action: "change->invoice#updatePrice", invoice_target: "product", controller: "select" } %>
-                    <p class="text-xs text-slate-400 mt-1">SKU: <span class="font-mono">CF-001</span></p>
-                  </td>
-                  <td class="py-4 px-4">
-                    <%= item_form.number_field :quantity, min: 1, class: "w-20 mx-auto text-center px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500", data: { action: "input->invoice#updateQuantity", invoice_target: "quantity" } %>
-                  </td>
-                  <td class="py-4 px-4 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                      <span class="text-slate-400 text-sm">C$</span>
-                      <%= item_form.number_field :unit_price, step: "0.01", class: "w-24 text-right bg-transparent border-none p-0 text-sm font-semibold text-slate-900 focus:ring-0", data: { invoice_target: "price", action: "input->invoice#updateQuantity" }, readonly: true %>
-                    </div>
-                  </td>
-                  <td class="py-4 px-4 text-right">
-                    <span class="text-sm font-semibold text-slate-700">15%</span>
-                  </td>
-                  <td class="py-4 px-4 text-right">
-                    <span class="text-sm font-bold text-slate-900">C$<span data-invoice-target="lineTotal"><%= number_with_precision(item_form.object.total, precision: 2) || "0.00" %></span></span>
-                    <%= item_form.hidden_field :total, data: { invoice_target: "lineTotalInput" } %>
-                  </td>
-                  <td class="py-4 px-4 text-center">
-                    <button type="button" data-action="invoice#removeItem" class="text-slate-300 hover:text-red-500 transition-colors p-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                    </button>
-                    <%= item_form.hidden_field :_destroy %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-
-        <button type="button" data-action="invoice#addItem" class="mt-4 flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold text-sm transition-colors ml-2 md:ml-0">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Agregar Producto
-        </button>
-      </div>
-
-      <%# Payment Details Section %>
-      <div class="p-4 md:p-8 bg-slate-50 border-t border-slate-200">
-        <div data-invoice-target="paymentsContainer">
-          <div class="flex items-center justify-between mb-4 md:mb-6">
-            <h3 class="text-base md:text-lg font-bold text-slate-900">Detalles de Pago</h3>
-            <button type="button" data-action="invoice#addPayment" class="flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold text-sm transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold text-slate-900">Detalle de Productos</h3>
+            <button type="button" data-action="invoice#addItem" class="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold text-xs transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              Agregar Pago
+              Agregar Producto
             </button>
           </div>
-          
-          <div id="payments-container" class="space-y-4 mb-6">
-            <%= form.fields_for :invoice_payments do |payment_form| %>
-              <div data-invoice-target="paymentItem" class="bg-white rounded-xl border-2 border-slate-200 p-4 md:p-5 relative">
-                <button type="button" data-action="invoice#removePayment" class="absolute top-3 right-3 text-slate-300 hover:text-red-500 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <%# Payment Method Selection %>
-                  <div class="md:col-span-2">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Método de Pago</label>
-                    <div class="grid grid-cols-2 md:grid-cols-<%= [@payment_methods.count, 4].min %> gap-2">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[500px]">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-600 text-[10px] font-semibold uppercase tracking-wider">
+                  <th class="text-left py-2 px-1">Producto</th>
+                  <th class="text-center py-2 px-1 w-16">Cant.</th>
+                  <th class="text-right py-2 px-1 w-20">Precio</th>
+                  <th class="text-right py-2 px-1 w-24">Total</th>
+                  <th class="w-8"></th>
+                </tr>
+              </thead>
+              <tbody id="invoice-items" data-invoice-target="itemsContainer" class="divide-y divide-slate-100">
+                <%= form.fields_for :invoice_items do |item_form| %>
+                  <tr data-invoice-target="item" class="group hover:bg-slate-50 transition-colors">
+                    <td class="py-2 px-1">
+                      <%= item_form.select :product_id, @products, { prompt: "Seleccionar..." }, class: "w-full bg-transparent border-none p-0 text-xs font-medium text-slate-900 focus:ring-0", data: { action: "change->invoice#updatePrice", invoice_target: "product", controller: "select" } %>
+                      <%= item_form.hidden_field :description, data: { invoice_target: "itemDescriptionInput" } %>
+                    </td>
+                    <td class="py-2 px-1">
+                      <%= item_form.number_field :quantity, min: 1, class: "w-14 mx-auto text-center px-1 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-orange-500", data: { action: "input->invoice#updateQuantity", invoice_target: "quantity" } %>
+                    </td>
+                    <td class="py-2 px-1 text-right">
+                      <div class="flex items-center justify-end gap-0.5">
+                        <span class="text-slate-400 text-[10px]">C$</span>
+                        <%= item_form.number_field :unit_price, step: "0.01", class: "w-16 text-right bg-transparent border-none p-0 text-xs font-semibold text-slate-900 focus:ring-0", data: { invoice_target: "price", action: "input->invoice#updateQuantity" }, readonly: true %>
+                      </div>
+                    </td>
+                    <td class="py-2 px-1 text-right">
+                      <span class="text-xs font-bold text-slate-900">C$<span data-invoice-target="lineTotal"><%= number_with_precision(item_form.object.total, precision: 2) || "0.00" %></span></span>
+                      <%= item_form.hidden_field :total, data: { invoice_target: "lineTotalInput" } %>
+                    </td>
+                    <td class="py-2 px-1 text-center">
+                      <button type="button" data-action="invoice#removeItem" class="text-slate-300 hover:text-red-500 transition-colors p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                      </button>
+                      <%= item_form.hidden_field :_destroy %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <%# COLUMNA DERECHA: MÉTODOS DE PAGO Y RESUMEN %>
+      <div class="xl:col-span-5 space-y-6">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 sticky top-4">
+          
+          <div data-invoice-target="paymentsContainer" class="mb-6 pb-6 border-b border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-slate-900">Métodos de Pago</h3>
+              <button type="button" data-action="invoice#addPayment" class="flex items-center gap-1.5 text-orange-600 hover:text-orange-700 font-semibold text-xs transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Agregar
+              </button>
+            </div>
+            
+            <div id="payments-container" class="space-y-3">
+              <%= form.fields_for :invoice_payments do |payment_form| %>
+                <div data-invoice-target="paymentItem" class="bg-slate-50 rounded-xl border border-slate-200 p-3.5 relative space-y-3">
+                  <button type="button" data-action="invoice#removePayment" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Método</label>
+                    <div class="grid grid-cols-3 gap-1.5">
                       <% @payment_methods.each_with_index do |pm, index| %>
-                        <button type="button" data-payment-method-id="<%= pm.id %>" data-payment-method-name="<%= pm.name %>" class="payment-method-btn flex flex-col items-center justify-center gap-1 px-2 md:px-3 py-2 md:py-3 bg-white border-2 <%= index == 0 ? 'border-orange-500' : 'border-slate-200' %> rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-                          <% if pm.name.upcase.include?('CASH') || pm.name.upcase.include?('EFECTIVO') %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 <%= index == 0 ? 'text-orange-600' : 'text-slate-400' %>">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-                            </svg>
-                          <% elsif pm.name.upcase.include?('TRANSFER') || pm.name.upcase.include?('BANK') %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 <%= index == 0 ? 'text-orange-600' : 'text-slate-400' %>">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-                            </svg>
-                          <% else %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 <%= index == 0 ? 'text-orange-600' : 'text-slate-400' %>">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                            </svg>
-                          <% end %>
-                          <span class="text-xs font-bold <%= index == 0 ? 'text-orange-600' : 'text-slate-400' %>"><%= pm.name.truncate(12) %></span>
+                        <button type="button" data-payment-method-id="<%= pm.id %>" data-payment-method-name="<%= pm.name %>" class="payment-method-btn flex flex-col items-center justify-center py-2 px-1 bg-white border <%= index == 0 ? 'border-orange-500' : 'border-slate-200' %> rounded-lg hover:border-orange-500 transition-colors">
+                          <span class="text-[11px] font-bold <%= index == 0 ? 'text-orange-600' : 'text-slate-500' %>"><%= pm.name.truncate(10) %></span>
                         </button>
                       <% end %>
                     </div>
                     <%= payment_form.hidden_field :payment_method_id, value: @payment_methods.first&.id, data: { invoice_target: "paymentMethodId" } %>
                   </div>
 
-                  <%# Currency Selection %>
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Moneda</label>
-                    <%= payment_form.select :currency, [['Córdobas (NIO)', 'NIO'], ['Dólares (USD)', 'USD']], {}, class: "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500", data: { action: "change->invoice#updatePaymentConversion", invoice_target: "paymentCurrency" } %>
-                  </div>
-
-                  <%# Bank Account %>
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Cuenta Destino</label>
-                    <%= payment_form.collection_select :bank_account_id, @bank_accounts, :id, :full_name, { include_blank: "Seleccione una cuenta" }, class: "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-medium text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500" %>
-                  </div>
-
-                  <%# Amount %>
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Monto</label>
-                    <div class="relative">
-                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm" data-invoice-target="paymentCurrencySymbol">$</span>
-                      <%= payment_form.number_field :amount, step: "0.01", placeholder: "0.00", class: "w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-semibold text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500", data: { action: "input->invoice#updatePaymentConversion", invoice_target: "paymentAmount" } %>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Moneda</label>
+                      <%= payment_form.select :currency, [['NIO (C$)', 'NIO'], ['USD ($)', 'USD']], {}, class: "w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold", data: { action: "change->invoice#updatePaymentConversion", invoice_target: "paymentCurrency" } %>
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Monto</label>
+                      <%= payment_form.number_field :amount, step: "0.01", placeholder: "0.00", class: "w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900", data: { action: "input->invoice#updatePaymentConversion", invoice_target: "paymentAmount" } %>
                     </div>
                   </div>
 
-                  <%# Amount in NIO (if USD) %>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Cuenta Destino</label>
+                    <%= payment_form.collection_select :bank_account_id, @bank_accounts, :id, :full_name, { include_blank: "Seleccionar cuenta..." }, class: "w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs" %>
+                  </div>
+
                   <div data-invoice-target="paymentConversionDisplay" class="hidden">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Equivalente en NIO</label>
-                    <div class="px-4 py-2.5 bg-orange-50 border border-orange-200 rounded-lg">
-                      <span class="text-sm font-bold text-orange-900">C$ <span data-invoice-target="paymentNioAmount">0.00</span></span>
+                    <div class="px-3 py-2 bg-orange-100 border border-orange-200 rounded flex justify-between items-center text-xs">
+                      <span class="text-orange-800 font-semibold text-[11px]">Equiv. NIO:</span>
+                      <span class="font-bold text-orange-950 text-sm">C$ <span data-invoice-target="paymentNioAmount">0.00</span></span>
                     </div>
                   </div>
 
                   <%= payment_form.hidden_field :exchange_rate, value: @exchange_rates&.rate || 1, data: { invoice_target: "paymentExchangeRate" } %>
                 </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-
-      
-
-        <%# Totals Summary %>
-        <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-200">
-          <div class="flex justify-end">
-            <div class="w-full lg:w-1/2 space-y-3">
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-slate-600 font-medium">Subtotal</span>
-                <span class="text-slate-900 font-semibold">C$<span data-invoice-target="subtotal"><%= number_with_precision(@invoice.subtotal_amount, precision: 2) || "0.00" %></span></span>
-                <%= form.hidden_field :subtotal_amount, data: { invoice_target: "subtotalInput" } %>
-              </div>
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-slate-600 font-medium">Impuesto (0%)</span>
-                <span class="text-slate-900 font-semibold">C$<span data-invoice-target="tax">0.00</span></span>
-                <%= form.hidden_field :tax_amount, data: { invoice_target: "taxInput" } %>
-              </div>
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-slate-600 font-medium">Tipo de Cambio</span>
-                <span class="text-slate-900 font-semibold">C$<span data-invoice-target="exchangeRate"><%= @exchange_rates&.rate || 1.0 %></span></span>
-                <%= form.hidden_field :exchange_rate, value: @exchange_rates&.rate || 1.0, data: { invoice_target: "exchangeRateInput" } %>
-              </div>
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-slate-600 font-medium">Total Pagado</span>
-                <span class="text-slate-900 font-semibold">C$<span data-invoice-target="totalPaid">0.00</span></span>
-            
-              </div>
-
-               <div class="flex justify-between items-center text-sm">
-                <span class="text-slate-600 font-medium">Pendiente de Pago</span>
-                <span class="text-slate-900 font-semibold"><span data-invoice-target="pendingAmount">0.00</span></span>
-            
-              </div>
-              <div class="h-px bg-slate-200"></div>
-
-              <div class="flex justify-between items-center">
-                <span class="text-base font-bold text-slate-900">Total</span>
-                <span class="text-xl md:text-2xl font-black text-slate-900">C$<span data-invoice-target="total"><%= number_with_precision(@invoice.total_local_amount, precision: 2) || "0.00" %></span></span>
-                <%= form.hidden_field :total_local_amount, data: { invoice_target: "totalInput" } %>
-              </div>
+              <% end %>
             </div>
           </div>
+
+          <div class="space-y-3 text-sm">
+            <h3 class="text-base font-bold text-slate-900 mb-4">Resumen de Venta</h3>
+
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium text-xs">Subtotal</span>
+              <span class="text-slate-900 font-bold text-xs">C$<span data-invoice-target="subtotal"><%= number_with_precision(@invoice.subtotal_amount, precision: 2) || "0.00" %></span></span>
+              <%= form.hidden_field :subtotal_amount, data: { invoice_target: "subtotalInput" } %>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium text-xs">IVA (0%)</span>
+              <span class="text-slate-900 font-bold text-xs">C$<span data-invoice-target="tax">0.00</span></span>
+              <%= form.hidden_field :tax_amount, data: { invoice_target: "taxInput" } %>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium text-xs">Tipo Cambio</span>
+              <span class="text-slate-700 font-semibold text-xs">C$<span data-invoice-target="exchangeRate"><%= @exchange_rates&.rate || 1.0 %></span></span>
+              <%= form.hidden_field :exchange_rate, value: @exchange_rates&.rate || 1.0, data: { invoice_target: "exchangeRateInput" } %>
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+              <span class="text-slate-600 font-medium text-xs">Total Pagado</span>
+              <span class="text-slate-900 font-bold text-xs">C$<span data-invoice-target="totalPaid">0.00</span></span>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-slate-600 font-medium text-xs">Pendiente</span>
+              <span class="font-bold text-xs"><span data-invoice-target="pendingAmount">0.00</span></span>
+            </div>
+
+            <div class="h-px bg-slate-200 my-3"></div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-bold text-slate-900">Total NIO</span>
+              <span class="text-xl font-black text-slate-900">C$<span data-invoice-target="total"><%= number_with_precision(@invoice.total_local_amount, precision: 2) || "0.00" %></span></span>
+              <%= form.hidden_field :total_local_amount, data: { invoice_target: "totalInput" } %>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-500">Total USD</span>
+              <span class="text-base font-bold text-orange-600">U$<span data-invoice-target="totalUsd">0.00</span></span>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <%= form.submit "Crear Factura", class: "w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-600/20 transition-all transform hover:scale-[1.02] active:scale-[0.98]" %>
+          </div>
+
         </div>
 
-        <%# Submit Button %>
-        <div class="mt-6 md:mt-8 flex justify-end">
-          <%= form.submit "Crear Factura", class: "w-full md:w-auto px-6 md:px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-lg shadow-orange-600/30 transition-all transform hover:scale-105 active:scale-95" %>
-        </div>
       </div>
 
     </div>
 
-    <%# Hidden Template for New Items %>
     <template data-invoice-target="template">
       <tr data-invoice-target="item" class="group hover:bg-slate-50 transition-colors">
-        <td class="py-4 px-4">
-          <select name="invoice[invoice_items_attributes][NEW_RECORD][product_id]" class="w-full bg-transparent border-none p-0 text-sm font-medium text-slate-900 focus:ring-0" data-action="change->invoice#updatePrice" data-invoice-target="product" data-controller="select">
-            <option value="">Seleccionar producto...</option>
-            <% @products.each do |p| %>
-              <option value="<%= p.id %>"><%= p.name %></option>
+        <td class="py-2 px-1">
+          <select name="invoice[invoice_items_attributes][NEW_RECORD][product_id]" class="w-full bg-transparent border-none p-0 text-xs font-medium text-slate-900 focus:ring-0" data-action="change->invoice#updatePrice" data-invoice-target="product" data-controller="select">
+            <option value="">Seleccionar...</option>
+            <% @products.each do |label, id| %>
+              <option value="<%= id %>"><%= label %></option>
             <% end %>
           </select>
-          <p class="text-xs text-slate-400 mt-1">SKU: <span class="font-mono">-</span></p>
+          <input type="hidden" name="invoice[invoice_items_attributes][NEW_RECORD][description]" data-invoice-target="itemDescriptionInput">
         </td>
-        <td class="py-4 px-4">
-          <input type="number" name="invoice[invoice_items_attributes][NEW_RECORD][quantity]" min="1" value="1" class="w-20 mx-auto text-center px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" data-action="input->invoice#updateQuantity" data-invoice-target="quantity">
+        <td class="py-2 px-1">
+          <input type="number" name="invoice[invoice_items_attributes][NEW_RECORD][quantity]" min="1" value="1" class="w-14 mx-auto text-center px-1 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-orange-500" data-action="input->invoice#updateQuantity" data-invoice-target="quantity">
         </td>
-        <td class="py-4 px-4 text-right">
-          <div class="flex items-center justify-end gap-1">
-            <span class="text-slate-400 text-sm">C$</span>
-            <input type="number" name="invoice[invoice_items_attributes][NEW_RECORD][unit_price]" step="0.01" class="w-24 text-right bg-transparent border-none p-0 text-sm font-semibold text-slate-900 focus:ring-0" data-invoice-target="price" data-action="input->invoice#updateQuantity" readonly>
+        <td class="py-2 px-1 text-right">
+          <div class="flex items-center justify-end gap-0.5">
+            <span class="text-slate-400 text-[10px]">C$</span>
+            <input type="number" name="invoice[invoice_items_attributes][NEW_RECORD][unit_price]" step="0.01" class="w-16 text-right bg-transparent border-none p-0 text-xs font-semibold text-slate-900 focus:ring-0" data-invoice-target="price" data-action="input->invoice#updateQuantity" readonly>
           </div>
         </td>
-        <td class="py-4 px-4 text-right">
-          <span class="text-sm font-semibold text-slate-700">15%</span>
-        </td>
-        <td class="py-4 px-4 text-right">
-          <span class="text-sm font-bold text-slate-900">C$<span data-invoice-target="lineTotal">0.00</span></span>
+        <td class="py-2 px-1 text-right">
+          <span class="text-xs font-bold text-slate-900">C$<span data-invoice-target="lineTotal">0.00</span></span>
           <input type="hidden" name="invoice[invoice_items_attributes][NEW_RECORD][total]" data-invoice-target="lineTotalInput">
         </td>
-        <td class="py-4 px-4 text-center">
+        <td class="py-2 px-1 text-center">
           <button type="button" data-action="invoice#removeItem" class="text-slate-300 hover:text-red-500 transition-colors p-1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
           </button>
@@ -367,6 +328,129 @@
         </td>
       </tr>
     </template>
-
   <% end %>
 </div>
+
+<%# MODAL TICKET TÉRMICO 80MM %>
+<div id="ticket-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden print:p-0 print:static print:bg-white">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl print:shadow-none print:p-0 print:w-full">
+    
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 print:hidden">
+      <h3 class="font-bold text-slate-900 text-sm">Vista Previa - Ticket 80mm</h3>
+      <button type="button" onclick="document.getElementById('ticket-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div id="thermal-receipt" class="font-mono text-xs text-slate-900 leading-tight space-y-3">
+      
+      <div class="text-center border-b border-dashed border-slate-300 pb-3">
+        <h2 class="font-black text-sm uppercase">MOMBASHOP S.A.</h2>
+        <p class="text-[11px]">RUC: J0310000000000</p>
+        <p class="text-[11px]">Managua, Nicaragua</p>
+        <p class="text-[11px]">Tel: +505 8888-8888</p>
+      </div>
+
+      <div class="border-b border-dashed border-slate-300 pb-2 space-y-1">
+        <div class="flex justify-between">
+          <span>FACTURA:</span>
+          <span class="font-bold"><%= @invoice.invoice_number || "FAC-00001" %></span>
+        </div>
+        <div class="flex justify-between">
+          <span>FECHA:</span>
+          <span><%= Time.current.strftime("%d/%m/%Y %I:%M %p") %></span>
+        </div>
+        <div class="flex justify-between">
+          <span>CLIENTE:</span>
+          <span class="font-medium truncate max-w-[150px]"><%= @invoice.customer_name_snapshot.presence || "Consumidor Final" %></span>
+        </div>
+      </div>
+
+      <div class="border-b border-dashed border-slate-300 pb-2">
+        <div class="grid grid-cols-12 font-bold border-b border-slate-200 pb-1 mb-1">
+          <span class="col-span-2">CANT</span>
+          <span class="col-span-6">PROD</span>
+          <span class="col-span-4 text-right">TOTAL</span>
+        </div>
+        <div class="space-y-1" data-invoice-target="ticketItemsContainer">
+        </div>
+      </div>
+
+      <div class="border-b border-dashed border-slate-300 pb-2 space-y-1">
+        <div class="flex justify-between">
+          <span>SUBTOTAL:</span>
+          <span>C$<span data-invoice-target="ticketSubtotal"><%= number_with_precision(@invoice.subtotal_amount, precision: 2) || "0.00" %></span></span>
+        </div>
+        <div class="flex justify-between">
+          <span>IVA (15%):</span>
+          <span>C$0.00</span>
+        </div>
+        <div class="flex justify-between font-black text-sm pt-1 border-t border-slate-200">
+          <span>TOTAL:</span>
+          <span>C$<span data-invoice-target="ticketTotal"><%= number_with_precision(@invoice.total_local_amount, precision: 2) || "0.00" %></span></span>
+        </div>
+        <div class="flex justify-between font-black text-sm pt-1 border-t border-slate-200">
+          <span>TOTAL USD:</span>
+          <span>U$<span data-invoice-target="ticketTotalUsd">0.00</span></span>
+        </div>
+      </div>
+
+      <div class="text-center pt-2 space-y-1">
+        <p class="font-bold">¡GRACIAS POR SU COMPRA!</p>
+        <p class="text-[10px] text-slate-500">Conserve este ticket como comprobante.</p>
+      </div>
+
+    </div>
+
+    <div class="mt-6 flex items-center justify-end gap-3 print:hidden border-t border-slate-200 pt-4">
+      <button type="button" onclick="document.getElementById('ticket-modal').classList.add('hidden')" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50">
+        Cerrar
+      </button>
+      <button type="button" onclick="window.print()" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg shadow-md flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231a1.125 1.125 0 01-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.636 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.656" />
+        </svg>
+        Imprimir
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  @media print {
+    @page {
+      size: 80mm auto;
+      margin: 0;
+    }
+    
+    body {
+      background: #ffffff !important;
+      font-family: monospace !important;
+      width: 80mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .print\:hidden {
+      display: none !important;
+    }
+
+    #ticket-modal {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 80mm !important;
+      margin: 0 !important;
+      padding: 4mm !important;
+      background: white !important;
+    }
+
+    #thermal-receipt {
+      width: 100% !important;
+      font-size: 11px !important;
+    }
+  }
+</style>

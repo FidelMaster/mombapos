@@ -4,6 +4,8 @@ class BanksController < ApplicationController
   # GET /banks
   def index
     @banks = Bank.all
+    @bank_accounts = BankAccount.all
+    @bank_account = BankAccount.new
   end
 
   # GET /banks/1

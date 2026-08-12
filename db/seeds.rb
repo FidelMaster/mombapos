@@ -30,6 +30,33 @@ if License.count == 0
     )
 end
 
+
+if Currency.count == 0
+  Currency.create!(
+    code: "NIO",
+    name: "Córdoba",
+    symbol: "C$",
+    locale: "es-NI",
+    is_active: true
+  )
+
+  Currency.create!(
+    code: "USD",
+    name: "Dollar",
+    symbol: "U$",
+    locale: "en-US",
+    is_active: true
+  )
+
+  Currency.create!(
+    code: "EUR",
+    name: "Euro",
+    symbol: "€",
+    locale: "en-ES",
+    is_active: true
+  )
+end
+
 puts "App Modules....."
 puts "App Module count: #{AppModule.count}"
 if AppModule.count == 0

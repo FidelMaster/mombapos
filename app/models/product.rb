@@ -22,6 +22,13 @@ class Product < ApplicationRecord
 
   default_scope { where(tenant_id: Current.tenant.id) }
 
+  scope :stockables, -> {
+    where.not(product_type: [
+      product_types[:service],
+      product_types[:kit]
+    ])
+  }
+
   validates :tenant, presence: true
   validates :product_type, presence: true
 

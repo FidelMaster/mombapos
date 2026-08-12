@@ -12,7 +12,7 @@ class CustomersController < ApplicationController
 
   # GET /customers/new
   def new
-    @customer = Customer.new
+    @customer = Customer.new(is_active: true )
     load_form_collections
   end
 

@@ -42,10 +42,25 @@ class Invoice < ApplicationRecord
   validates :tenant, presence: true
 
   before_validation :calculate_due_date
+  before_validation :calculate_totals_usd
 
   def calculate_due_date 
     return unless payment_term && (invoice_date || Date.current)
     self.due_date ||= (invoice_date || Date.current) + (payment_term.total || 0).days
+  end
+
+  def calculate_totals_usd
+    if total_local_amount.present? && exchange_rate.present? && exchange_rate > 0
+      self.total_usd ||= (total_local_amount / exchange_rate).round(2)
+    end
+    invoice_items.each do |item|
+      if item.product.present?
+        item.description ||= "#{item.product.name} - #{item.product.product_code.presence || 'S/K'}"
+      end
+      if item.total.present? && exchange_rate.present? && exchange_rate > 0
+        item.total_usd ||= (item.total / exchange_rate).round(2)
+      end
+    end
   end
 
   private

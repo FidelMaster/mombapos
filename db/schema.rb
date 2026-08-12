@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -91,6 +91,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
     t.string "code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "currencies", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", null: false
+    t.string "symbol", null: false
+    t.string "locale"
+    t.boolean "is_active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_currencies_on_code", unique: true
   end
 
   create_table "customer_addresses", force: :cascade do |t|
@@ -232,6 +243,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
     t.decimal "total"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "description"
+    t.decimal "total_usd"
     t.index ["invoice_id"], name: "index_invoice_items_on_invoice_id"
     t.index ["product_id"], name: "index_invoice_items_on_product_id"
     t.index ["unit_measure_id"], name: "index_invoice_items_on_unit_measure_id"
@@ -281,6 +294,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
     t.bigint "payment_term_id"
     t.date "issue_date"
     t.date "due_date"
+    t.decimal "total_usd"
     t.index ["branch_id"], name: "index_invoices_on_branch_id"
     t.index ["customer_id"], name: "index_invoices_on_customer_id"
     t.index ["order_id"], name: "index_invoices_on_order_id"
@@ -703,6 +717,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
     t.datetime "updated_at", null: false
     t.bigint "license_id"
     t.string "email"
+    t.bigint "currency_id"
+    t.index ["currency_id"], name: "index_tenants_on_currency_id"
     t.index ["license_id"], name: "index_tenants_on_license_id"
   end
 
@@ -875,6 +891,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_02_160839) do
   add_foreign_key "taxes", "tenants"
   add_foreign_key "tenant_modules", "app_modules"
   add_foreign_key "tenant_modules", "tenants"
+  add_foreign_key "tenants", "currencies"
   add_foreign_key "tenants", "licenses"
   add_foreign_key "trainer_specialities", "specialities"
   add_foreign_key "trainer_specialities", "trainers"

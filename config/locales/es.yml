@@ -1,0 +1,21 @@
+es:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d %b"
+      long: "%d de %B de %Y"
+
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d/%m %H:%M"
+      long: "%d de %B de %Y %H:%M"
+
+  number:
+    currency:
+      format:
+        unit: "C$"
+        format: "%u %n"
+        separator: "."
+        delimiter: ","
+        precision: 2

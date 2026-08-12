@@ -4,6 +4,17 @@ class ProductsController < ApplicationController
   # GET /products
   def index
     @products = manage_resource(Product.all)
+    
+    # Indicadores del inventario basados en el tenant actual (con scope por defecto)
+    all_products = Product.all
+    @total_products = all_products.count
+    @total_stock = all_products.sum("COALESCE(quantity, 0)")
+    
+    # Valor de venta: Suma de Existencia * Precio de Venta
+    @inventory_sale_value = all_products.sum("COALESCE(quantity, 0) * COALESCE(price, 0)")
+    
+    # Valor de costo: Suma de Existencia * Costo
+    @inventory_cost_value = all_products.sum("COALESCE(quantity, 0) * COALESCE(cost, 0)")
   end
 
   # GET /products/1

@@ -9,9 +9,12 @@ class StockWarehousesController < ApplicationController
     end
 
     if @warehouse
-      @stocks = WarehouseStock.where(warehouse: @warehouse)
-                              .includes(:product)
-                              .order('products.name ASC')
+      @stocks = WarehouseStock
+            .joins(:product)
+            .where(warehouse: @warehouse)
+            .merge(Product.stockables)
+            .includes(:product)
+            .order('products.name ASC')
     else
       @stocks = []
     end

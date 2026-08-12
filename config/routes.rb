@@ -14,7 +14,8 @@ Rails.application.routes.draw do
     get "reports/sales_summary", to: "reports#sales_summary"
     get "reports/payment_methods", to: "reports#payment_methods"
     get "reports/inventory_impact", to: "reports#inventory_impact"
-    get "reports/kardex", to: "reports#kardex"
+    get "reports/kardex", to: "reports#kardex" 
+    
     resources :areas
     resources :stock_unit_measures
     resources :app_modules
@@ -29,6 +30,7 @@ Rails.application.routes.draw do
         get :customer_accounts
       end
     end
+
     resources :payment_methods
     resources :exchange_rates
     resources :customers

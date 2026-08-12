@@ -1,5 +1,6 @@
 class Tenant < ApplicationRecord
   belongs_to :license, optional: true
+  belongs_to :currency, optional: true
   has_many :users
   has_many :invoices
   has_many :products

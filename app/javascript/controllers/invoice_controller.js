@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-//IF INVOICE PAYMENT IS CREDIT HIDE PAYMENT METHODS
+// IF INVOICE PAYMENT IS CREDIT HIDE PAYMENT METHODS
 export default class extends Controller {
     static targets = [
         "item", "product", "quantity", "price", "lineTotal",
@@ -9,7 +9,8 @@ export default class extends Controller {
         "subtotalInput", "taxInput", "totalInput",
         "paymentsContainer", "paymentItem", "paymentMethodId", "paymentCurrency",
         "paymentAmount", "paymentExchangeRate", "paymentNioAmount", "paymentConversionDisplay",
-        "paymentCurrencySymbol", "totalPaid", "pendingAmount", "invoiceTotal"
+        "paymentCurrencySymbol", "totalPaid", "pendingAmount", "invoiceTotal",
+        "exchangeRateInput", "totalUsd", "ticketTotalUsd", "ticketSubtotal", "ticketTotal", "ticketItemsContainer"
     ]
     static values = {
         products: Array,
@@ -40,7 +41,6 @@ export default class extends Controller {
     }
 
     setupPaymentMethodButtons() {
-        // Setup for all existing payment items
         this.paymentItemTargets.forEach(paymentItem => {
             this.setupPaymentMethodButtonsForItem(paymentItem)
         })
@@ -54,7 +54,6 @@ export default class extends Controller {
             btn.addEventListener('click', (e) => {
                 e.preventDefault()
 
-                // Remove active state from all buttons in this payment item
                 buttons.forEach(b => {
                     b.classList.remove('border-orange-500')
                     b.classList.add('border-slate-200')
@@ -64,7 +63,6 @@ export default class extends Controller {
                     b.querySelector('span').classList.add('text-slate-400')
                 })
 
-                // Add active state to clicked button
                 btn.classList.add('border-orange-500')
                 btn.classList.remove('border-slate-200')
                 btn.querySelector('svg').classList.add('text-orange-600')
@@ -72,7 +70,6 @@ export default class extends Controller {
                 btn.querySelector('span').classList.add('text-orange-600')
                 btn.querySelector('span').classList.remove('text-slate-400')
 
-                // Update hidden input
                 if (hiddenInput) {
                     hiddenInput.value = btn.dataset.paymentMethodId
                 }
@@ -82,15 +79,22 @@ export default class extends Controller {
 
     updatePrice(event) {
         const row = event.target.closest("tr") || event.target.closest('[data-invoice-target="item"]')
-        const productId = event.target.value
+        const productSelect = row.querySelector('[data-invoice-target="product"]')
+        const productId = productSelect ? productSelect.value : ''
         const priceListId = this.hasPriceListTarget ? this.priceListTarget.value : 0
 
-        // Get price from map: priceMap[priceListId][productId]
+        // 1. Guardar la descripción/nombre del producto en el input hidden de la línea
+        const descriptionInput = row.querySelector('[data-invoice-target="itemDescriptionInput"]')
+        if (descriptionInput && productSelect && productSelect.selectedIndex >= 0) {
+            const selectedOption = productSelect.options[productSelect.selectedIndex]
+            descriptionInput.value = selectedOption ? selectedOption.text.trim() : ''
+        }
+
+        // 2. Obtener precio desde la lista de precios
         let price = 0
         if (this.priceMapValue[priceListId] && this.priceMapValue[priceListId][productId]) {
             price = parseFloat(this.priceMapValue[priceListId][productId])
         } else if (this.priceMapValue[0] && this.priceMapValue[0][productId]) {
-            // Fallback to base product price
             price = parseFloat(this.priceMapValue[0][productId])
         }
 
@@ -105,7 +109,6 @@ export default class extends Controller {
     updateAllPrices() {
         this.productTargets.forEach(productSelect => {
             if (productSelect.value) {
-                // Manually trigger price update for each row
                 this.updatePrice({ target: productSelect })
             }
         })
@@ -141,29 +144,77 @@ export default class extends Controller {
     calculateTotals() {
         let subtotal = 0
 
-        // Manual query to ensure we catch all inputs including newly added ones
         const inputs = this.element.querySelectorAll('[data-invoice-target="lineTotalInput"]')
         inputs.forEach(target => {
             subtotal += parseFloat(target.value) || 0
         })
 
-        const total = subtotal
-        // Task 5: Use 0 for tax (VAT omitted)
         const tax = 0
         const grandTotal = subtotal + tax
 
-        // Updates Displays
+        // Obtener tipo de cambio activo
+        const exchangeRate = parseFloat(this.hasExchangeRateInputTarget ? this.exchangeRateInputTarget.value : 1.0) || 1.0
+
+        // Calcular Total USD
+        const totalUsd = exchangeRate > 0 ? (grandTotal / exchangeRate) : 0
+
+        // Actualizar UI del Formulario Principal
         if (this.hasSubtotalTarget) this.subtotalTarget.textContent = subtotal.toFixed(2)
         if (this.hasTaxTarget) this.taxTarget.textContent = tax.toFixed(2)
         if (this.hasTotalTarget) this.totalTarget.textContent = grandTotal.toFixed(2)
+        if (this.hasTotalUsdTarget) this.totalUsdTarget.textContent = totalUsd.toFixed(2)
 
-        // Update Hidden Inputs
+        // Actualizar UI del Ticket Modal 80mm
+        if (this.hasTicketSubtotalTarget) this.ticketSubtotalTarget.textContent = subtotal.toFixed(2)
+        if (this.hasTicketTotalTarget) this.ticketTotalTarget.textContent = grandTotal.toFixed(2)
+        if (this.hasTicketTotalUsdTarget) this.ticketTotalUsdTarget.textContent = totalUsd.toFixed(2)
+
+        // Actualizar Hidden Inputs para la base de datos
         if (this.hasSubtotalInputTarget) this.subtotalInputTarget.value = subtotal.toFixed(2)
         if (this.hasTaxInputTarget) this.taxInputTarget.value = tax.toFixed(2)
         if (this.hasTotalInputTarget) this.totalInputTarget.value = grandTotal.toFixed(2)
 
+        this.updateTicketItemsModal()
         this.calculateChange()
         this.updatePaymentSummary()
+    }
+
+    updateTicketItemsModal() {
+        if (!this.hasTicketItemsContainerTarget) return
+
+        let html = ''
+        let hasRows = false
+
+        this.element.querySelectorAll('[data-invoice-target="item"]').forEach(row => {
+            const productSelect = row.querySelector('[data-invoice-target="product"]')
+            const qtyInput = row.querySelector('[data-invoice-target="quantity"]')
+            const totalInput = row.querySelector('[data-invoice-target="lineTotalInput"]')
+            const destroyInput = row.querySelector('input[name*="[_destroy]"]')
+
+            // Ignorar filas marcadas para eliminar
+            if (destroyInput && destroyInput.value === '1') return
+
+            if (productSelect && productSelect.selectedIndex >= 0 && productSelect.value) {
+                hasRows = true
+                const productName = productSelect.options[productSelect.selectedIndex].text.split(' - ')[0] // Toma el nombre limpio
+                const qty = qtyInput ? qtyInput.value : 1
+                const total = totalInput ? parseFloat(totalInput.value).toFixed(2) : '0.00'
+
+                html += `
+                    <div class="grid grid-cols-12">
+                        <span class="col-span-2">${qty}x</span>
+                        <span class="col-span-6 truncate">${productName}</span>
+                        <span class="col-span-4 text-right">C$${total}</span>
+                    </div>
+                `
+            }
+        })
+
+        if (!hasRows) {
+            html = '<div class="text-center text-slate-400 py-1">Sin productos agregados</div>'
+        }
+
+        this.ticketItemsContainerTarget.innerHTML = html
     }
 
     calculateChange() {
@@ -172,7 +223,6 @@ export default class extends Controller {
         const total = parseFloat(this.totalTarget.textContent) || 0
         const tendered = parseFloat(this.tenderedTarget.value) || 0
 
-        // Verificar si existe invoiceTypeTarget antes de usarlo
         if (this.hasInvoiceTypeTarget && this.invoiceTypeTarget.value === 'cash') {
             const change = tendered - total
             this.changeTarget.textContent = change.toFixed(2)
@@ -190,7 +240,6 @@ export default class extends Controller {
         }
     }
 
-
     addItem(event) {
         event.preventDefault()
         const content = this.templateTarget.innerHTML.replace(/NEW_RECORD/g, new Date().getTime())
@@ -201,36 +250,34 @@ export default class extends Controller {
     removeItem(event) {
         event.preventDefault()
         const row = event.target.closest("tr")
-        if (this.itemTargets.length > 1) {
-            row.remove()
-            this.calculateTotals()
+        const destroyInput = row.querySelector('input[name*="[_destroy]"]')
+
+        if (destroyInput) {
+            destroyInput.value = "1"
+            row.style.display = "none"
         } else {
-            row.querySelectorAll("input").forEach(input => input.value = "")
-            this.calculateTotals()
+            row.remove()
         }
+        this.calculateTotals()
     }
 
     // Payment Methods
     addPayment(event) {
         event.preventDefault()
 
-        // Clone the first payment item as template
         const firstPayment = this.paymentItemTargets[0]
         if (!firstPayment) return
 
         const clone = firstPayment.cloneNode(true)
         const timestamp = new Date().getTime()
 
-        // Get the exchange rate value before clearing
         const exchangeRateInput = clone.querySelector('[data-invoice-target="paymentExchangeRate"]')
         const exchangeRateValue = exchangeRateInput ? exchangeRateInput.value : '1'
 
-        // Update all name attributes to use new timestamp
         clone.querySelectorAll('input, select').forEach(input => {
             if (input.name) {
                 input.name = input.name.replace(/\[\d+\]/, `[${timestamp}]`)
 
-                // Clear values EXCEPT for exchange_rate and paymentMethodId
                 const target = input.getAttribute('data-invoice-target')
                 if (target !== 'paymentExchangeRate' && target !== 'paymentMethodId') {
                     input.value = ''
@@ -238,25 +285,20 @@ export default class extends Controller {
             }
         })
 
-        // Restore exchange rate value
         if (exchangeRateInput) {
             exchangeRateInput.value = exchangeRateValue
-            console.log('Cloned payment with exchange_rate:', exchangeRateValue)
         }
 
-        // Reset currency to NIO
         const currencySelect = clone.querySelector('[data-invoice-target="paymentCurrency"]')
         if (currencySelect) {
             currencySelect.value = 'NIO'
         }
 
-        // Reset currency symbol to NIO
         const currencySymbol = clone.querySelector('[data-invoice-target="paymentCurrencySymbol"]')
         if (currencySymbol) {
             currencySymbol.textContent = 'C$'
         }
 
-        // Reset to first payment method
         const buttons = clone.querySelectorAll('.payment-method-btn')
         const hiddenMethodInput = clone.querySelector('[data-invoice-target="paymentMethodId"]')
 
@@ -269,7 +311,6 @@ export default class extends Controller {
                 btn.querySelector('span').classList.add('text-orange-600')
                 btn.querySelector('span').classList.remove('text-slate-400')
 
-                // Update hidden input with the first payment method ID
                 if (hiddenMethodInput) {
                     hiddenMethodInput.value = btn.dataset.paymentMethodId
                 }
@@ -283,7 +324,6 @@ export default class extends Controller {
             }
         })
 
-        // Hide conversion display
         const conversionDisplay = clone.querySelector('[data-invoice-target="paymentConversionDisplay"]')
         if (conversionDisplay) {
             conversionDisplay.classList.add('hidden')
@@ -321,12 +361,10 @@ export default class extends Controller {
         const amount = parseFloat(amountInput.value) || 0
         const exchangeRate = parseFloat(exchangeRateInput.value) || 1
 
-        // Update currency symbol
         if (currencySymbol) {
             currencySymbol.textContent = currency === 'USD' ? '$' : 'C$'
         }
 
-        // Show/hide conversion display
         if (currency === 'USD') {
             const nioAmount = amount * exchangeRate
             if (nioAmountDisplay) {
@@ -345,26 +383,18 @@ export default class extends Controller {
     }
 
     updatePaymentSummary() {
-        // Verificar que existan todos los targets necesarios
-        if (!this.hasTotalPaidTarget || !this.hasPendingAmountTarget) {
-            console.warn('Missing payment summary targets')
-            return
-        }
+        if (!this.hasTotalPaidTarget || !this.hasPendingAmountTarget) return
 
-        // Obtener el total de la factura - buscar el total correcto (el del resumen de totales)
         let invoiceTotal = 0
         if (this.hasTotalTarget) {
-            // Puede haber múltiples elementos con este target, usar el primero
             const totalElements = this.element.querySelectorAll('[data-invoice-target="total"]')
             if (totalElements.length > 0) {
-                // Usar el último elemento que es el del resumen de totales
                 invoiceTotal = parseFloat(totalElements[totalElements.length - 1].textContent) || 0
             }
         }
 
         let totalPaid = 0
 
-        // Calculate total paid in NIO
         this.paymentItemTargets.forEach(paymentItem => {
             const currencySelect = paymentItem.querySelector('[data-invoice-target="paymentCurrency"]')
             const amountInput = paymentItem.querySelector('[data-invoice-target="paymentAmount"]')
@@ -376,21 +406,9 @@ export default class extends Controller {
             const amount = parseFloat(amountInput.value) || 0
             const exchangeRate = parseFloat(exchangeRateInput?.value) || 1
 
-            console.log('Payment calculation:', {
-                currency,
-                amount,
-                exchangeRate,
-                amountInput: amountInput.value,
-                exchangeRateInput: exchangeRateInput?.value
-            })
-
-            // Convert to NIO ONLY if USD, NIO stays as is
             let amountInNio = amount
             if (currency === 'USD') {
                 amountInNio = amount * exchangeRate
-                console.log(`USD ${amount} * ${exchangeRate} = NIO ${amountInNio}`)
-            } else {
-                console.log(`NIO ${amount} (no conversion)`)
             }
 
             totalPaid += amountInNio
@@ -398,18 +416,10 @@ export default class extends Controller {
 
         const pending = invoiceTotal - totalPaid
 
-        console.log('Payment Summary:', {
-            invoiceTotal,
-            totalPaid,
-            pending
-        })
-
-
         this.totalPaidTarget.textContent = totalPaid.toFixed(2)
         this.pendingAmountTarget.textContent = `C$ ${pending.toFixed(2)}`
 
-        // Update pending amount color
-        if (pending > 0.01) { // Small tolerance for floating point
+        if (pending > 0.01) {
             this.pendingAmountTarget.classList.add('text-red-600')
             this.pendingAmountTarget.classList.remove('text-green-600', 'text-orange-600')
         } else if (pending < -0.01) {
