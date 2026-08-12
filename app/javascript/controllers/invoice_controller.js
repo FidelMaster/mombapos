@@ -57,18 +57,22 @@ export default class extends Controller {
                 buttons.forEach(b => {
                     b.classList.remove('border-orange-500')
                     b.classList.add('border-slate-200')
-                    b.querySelector('svg').classList.remove('text-orange-600')
-                    b.querySelector('svg').classList.add('text-slate-400')
-                    b.querySelector('span').classList.remove('text-orange-600')
-                    b.querySelector('span').classList.add('text-slate-400')
+                    
+                    const textSpan = b.querySelector('span')
+                    if (textSpan) {
+                        textSpan.classList.remove('text-orange-600')
+                        textSpan.classList.add('text-slate-500')
+                    }
                 })
 
                 btn.classList.add('border-orange-500')
                 btn.classList.remove('border-slate-200')
-                btn.querySelector('svg').classList.add('text-orange-600')
-                btn.querySelector('svg').classList.remove('text-slate-400')
-                btn.querySelector('span').classList.add('text-orange-600')
-                btn.querySelector('span').classList.remove('text-slate-400')
+                
+                const activeTextSpan = btn.querySelector('span')
+                if (activeTextSpan) {
+                    activeTextSpan.classList.add('text-orange-600')
+                    activeTextSpan.classList.remove('text-slate-500')
+                }
 
                 if (hiddenInput) {
                     hiddenInput.value = btn.dataset.paymentMethodId
