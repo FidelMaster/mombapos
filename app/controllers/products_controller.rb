@@ -91,6 +91,7 @@ class ProductsController < ApplicationController
         :product_type, 
         :product_category_id, 
         :cost, 
+        :quantity,
         :stock_unit_measure_id, 
         :sale_unit_measure_id, 
         :is_active,
