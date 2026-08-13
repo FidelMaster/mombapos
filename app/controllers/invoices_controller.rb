@@ -32,6 +32,8 @@ class InvoicesController < ApplicationController
         )
       end
     else
+      @invoice.customer = Customer.order(:id).first
+      @invoice.customer_name_snapshot = "Cliente Genérico"
       @invoice.invoice_items.build
     end
     

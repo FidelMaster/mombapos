@@ -35,6 +35,10 @@ class Product < ApplicationRecord
   after_save :sync_price_to_default_list
   before_save :set_stockeable
 
+  def name_with_code
+    "#{product_code} - #{name}" 
+  end
+
   private
 
   def set_stockeable

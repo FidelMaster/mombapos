@@ -40,5 +40,12 @@ module Mombapos
     config.i18n.available_locales = [:es]
     # Don't generate system test files.
     config.generators.system_tests = nil
+ 
+    # 1. Define la zona horaria de tu negocio
+    config.time_zone = 'Central America' # o 'America/Managua'
+
+    # 2. Indica a ActiveRecord que mantenga la BD en UTC (Estándar de Rails)
+    config.active_record.default_timezone = :utc
+ 
   end
 end

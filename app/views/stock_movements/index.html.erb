@@ -18,6 +18,8 @@
         <thead class="bg-slate-50/50">
           <tr>
             <th class="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Fecha</th>
+            <th class="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Codigo</th>
+
             <th class="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Producto</th>
             <th class="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Almacén</th>
             <th class="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Tipo</th>
@@ -31,6 +33,9 @@
                 <td class="px-6 py-4">
                   <span class="text-sm font-bold text-slate-600"><%= movement.created_at.strftime("%d/%m/%Y") %></span>
                   <span class="text-[10px] font-bold text-slate-400 block"><%= movement.created_at.strftime("%H:%M") %></span>
+                </td>
+                 <td class="px-6 py-4">
+                   <p class="text-sm font-bold text-slate-800"><%= movement.product&.product_code %></p>
                 </td>
                 <td class="px-6 py-4">
                    <p class="text-sm font-bold text-slate-800"><%= movement.product&.name %></p>

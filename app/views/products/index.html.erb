@@ -65,12 +65,15 @@
       title: "Productos", 
       collection: @products,
       new_path: new_product_path, 
-      headers: [["Codigo", "product_code"], ["Nombre", "name"], ["Tipo", "product_type"], ["Cantidad", "quantity"],  ["Costo", "cost"],  ["Precio", "price"], "Composicion", "Acciones"] do |product| %>
+      headers: [["Codigo", "product_code"],["Categoria", "product_category"],  ["Nombre", "name"], ["Tipo", "product_type"], ["Cantidad", "quantity"],  ["Costo", "cost"],  ["Precio", "price"], "Composicion", "Acciones"] do |product| %>
 
     <tr class="hover:bg-slate-50 transition-colors duration-200 group">
       <%# Dynamic fields %>
       <td class="px-6 py-4 whitespace-nowrap">
         <div class="text-sm text-gray-900"><%= product.product_code %></div>
+      </td>
+       <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900"><%= product.product_category.name %></div>
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
         <div class="text-sm text-gray-900"><%= product.name %></div>

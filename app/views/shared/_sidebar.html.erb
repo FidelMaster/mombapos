@@ -29,6 +29,10 @@
         ⚡ Operaciones rápidas
       </div>
 
+         <%= link_to authenticated_root_path, class: nav_class(authenticated_root_path) do %>
+        🏦 Panel de Control
+      <% end %>
+
      <%= link_to invoices_path, class: nav_class(invoices_path) do %>
         📄 Facturas
       <% end %>
@@ -121,9 +125,9 @@
         💲 Listas de precios
       <% end %>
 
-      <%= link_to banks_path, class: nav_class(banks_path) do %>
+      <!-- <%= link_to banks_path, class: nav_class(banks_path) do %>
         🏦 Bancos
-      <% end %>
+      <% end %>-->
 
       <%= link_to bank_accounts_path, class: nav_class(bank_accounts_path) do %>
         🏦 Cuentas Bancarias
@@ -136,7 +140,7 @@
     <% end %>
 
     <!-- ================= 🧑‍💼 SISTEMA (OWNER) ================= -->
-    <% if current_user.owner? %>
+    <!--  <% if current_user.owner? %>
     <div>
       <div class="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
         🧑‍💼 Sistema
@@ -150,7 +154,7 @@
         📄 Licencias
       <% end %>
     </div>
-    <% end %>
+    <% end %>-->
 
   </nav>
 </aside>
