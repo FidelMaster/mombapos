@@ -55,8 +55,13 @@ class ProductsController < ApplicationController
 
   # PATCH/PUT /products/1
   def update
+    #check if user is admin or owner
+    if !current_user.admin? && !current_user.owner?
+      redirect_to @product, alert: "Usted no tiene permiso para editar este producto."
+    end
+    
     if @product.update(product_params)
-      redirect_to @product, notice: "Product was successfully updated.", status: :see_other
+      redirect_to @product, notice: "Producto actualizado exitosamente.", status: :see_other
     else
       load_form_collections
       render :edit, status: :unprocessable_entity

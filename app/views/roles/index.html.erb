@@ -1,0 +1,26 @@
+<% content_for :title, "Roles y Permisos" %>
+
+<%= render "shared/resource_table", 
+      title: "Roles", 
+      collection: @roles,
+      new_path: new_role_path, 
+      headers: ["Nombre", "Usuarios asignados", "Acciones"] do |role| %>
+
+    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-black text-slate-900 uppercase tracking-wide"><%= role.name %></div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-slate-600 font-medium"><%= role.users.count %> usuarios</div>
+      </td>
+
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <%= link_to "Editar Permisos", edit_role_path(role), class: "text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1 rounded-full text-xs font-semibold" %>
+          <% unless %w[owner admin].include?(role.name.downcase) || role.users.any? %>
+            <%= button_to "Eliminar", role, method: :delete, class: "text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer", data: { turbo_confirm: "¿Estás seguro de que deseas eliminar este rol?" } %>
+          <% end %>
+        </div>
+      </td>
+    </tr>
+<% end %>

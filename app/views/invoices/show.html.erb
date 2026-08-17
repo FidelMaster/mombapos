@@ -23,6 +23,13 @@
         Imprimir Ticket 80mm
       </button>
 
+     <%= link_to edit_invoice_path(@invoice), class: "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-500 shadow-sm transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+        </svg>
+        Anular
+      <% end %>
+
       <%= link_to edit_invoice_path(@invoice), class: "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 shadow-sm transition-colors" do %>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
@@ -52,10 +59,10 @@
 
 <%# MODAL TICKET TÉRMICO 80MM %>
 <div id="ticket-modal-80mm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden print:p-0 print:static print:bg-white print:block">
-  <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl print:shadow-none print:p-0 print:w-full">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full max-h-[92vh] flex flex-col shadow-2xl print:max-h-none print:shadow-none print:p-0 print:w-full">
     
-    <%# Header Modal %>
-    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 print:hidden">
+    <%# Header Modal (Fijo en pantalla) %>
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3 shrink-0 print:hidden">
       <h3 class="font-bold text-slate-900 text-sm">Ticket Térmico (80mm)</h3>
       <button type="button" onclick="document.getElementById('ticket-modal-80mm').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
@@ -64,8 +71,8 @@
       </button>
     </div>
 
-    <%# CONTENIDO DEL TICKET 80MM %>
-    <div id="thermal-receipt" class="font-mono text-xs text-slate-900 leading-tight space-y-3">
+    <%# CONTENIDO DEL TICKET 80MM (Con scroll si es muy largo) %>
+    <div id="thermal-receipt" class="font-mono text-xs text-slate-900 leading-tight space-y-3 overflow-y-auto flex-1 pr-1 print:overflow-visible">
       
       <%# Logo y Encabezado %>
       <div class="text-center border-b border-dashed border-slate-300 pb-3">
@@ -90,7 +97,6 @@
           <span>CLIENTE:</span>
           <span class="font-medium truncate max-w-[160px]"><%= @invoice.try(:customer_name_snapshot).presence || @invoice.try(:customer)&.name || "Consumidor Final" %></span>
         </div>
-          
       </div>
 
       <%# TABLA DE PRODUCTOS (MULTILÍNEA AUTOMÁTICA) %>
@@ -116,7 +122,7 @@
                   <%= qty %>x <%= name %>
                 </span>
                 <span class="text-right font-bold whitespace-nowrap">
-                  C$<%= number_with_precision(total_val, precision: 2) %>
+                  C$<%= number_with_precision(total_val, precision: 2, delimiter: ",") %>
                 </span>
               </div>
               
@@ -135,17 +141,17 @@
       <div class="border-b border-dashed border-slate-300 pb-2 space-y-1">
         <div class="flex justify-between">
           <span>SUBTOTAL:</span>
-          <span>C$<%= number_with_precision(@invoice.try(:subtotal_amount) || @invoice.try(:subtotal_local) || 0, precision: 2) %></span>
+          <span>C$<%= number_with_precision(@invoice.try(:subtotal_amount) || @invoice.try(:subtotal_local) || 0, precision: 2, delimiter: ",") %></span>
         </div>
     
         <div class="flex justify-between font-black text-sm pt-1 border-t border-slate-200">
           <span>TOTAL CORDOBAS:</span>
-          <span>C$<%= number_with_precision(@invoice.try(:total_local_amount) || @invoice.try(:total_local) || 0, precision: 2) %></span>
+          <span>C$<%= number_with_precision(@invoice.try(:total_local_amount) || @invoice.try(:total_local) || 0, precision: 2, delimiter: ",") %></span>
         </div>
 
         <div class="flex justify-between font-black text-sm pt-1 border-t border-slate-200">
           <span>TOTAL USD:</span>
-          <span>U$<%= number_with_precision(@invoice.try(:total_usd) || @invoice.try(:total_foreign_amount) || 0, precision: 2) %></span>
+          <span>U$<%= number_with_precision(@invoice.try(:total_usd) || @invoice.try(:total_foreign_amount) || 0, precision: 2, delimiter: ",") %></span>
         </div>
       </div>
 
@@ -160,20 +166,20 @@
             <% method_name = payment.try(:payment_method)&.name || payment.try(:payment_method)&.description || payment.try(:payment_method_id) || "Efectivo" %>
             <div class="flex justify-between pl-2">
               <span>• <%= method_name %> (<%= payment.currency %>):</span>
-              <span class="font-medium"><%= payment.currency == 'USD' ? '$' : 'C$' %> <%= number_with_precision(payment.amount, precision: 2) %></span>
+              <span class="font-medium"><%= payment.currency == 'USD' ? '$' : 'C$' %> <%= number_with_precision(payment.amount, precision: 2, delimiter: ",") %></span>
             </div>
           <% end %>
         <% else %>
           <div class="flex justify-between pl-2">
             <span>• Efectivo (NIO):</span>
-            <span class="font-medium">C$ <%= number_with_precision(@invoice.try(:paid_amount_local) || @invoice.try(:total_local_amount) || 0, precision: 2) %></span>
+            <span class="font-medium">C$ <%= number_with_precision(@invoice.try(:paid_amount_local) || @invoice.try(:total_local_amount) || 0, precision: 2, delimiter: ",") %></span>
           </div>
         <% end %>
 
         <% if @invoice.try(:change_amount_local).to_f > 0 %>
           <div class="flex justify-between pt-1 font-bold">
             <span>CAMBIO / VUELTO:</span>
-            <span>C$ <%= number_with_precision(@invoice.change_amount_local, precision: 2) %></span>
+            <span>C$ <%= number_with_precision(@invoice.change_amount_local, precision: 2, delimiter: ",") %></span>
           </div>
         <% end %>
       </div>
@@ -186,8 +192,8 @@
 
     </div>
 
-    <%# Botones de Acción Modal %>
-    <div class="mt-6 flex items-center justify-end gap-3 print:hidden border-t border-slate-200 pt-4">
+    <%# Botones de Acción Modal (Siempre fijos al pie) %>
+    <div class="mt-4 flex items-center justify-end gap-3 shrink-0 print:hidden border-t border-slate-200 pt-3">
       <button type="button" onclick="document.getElementById('ticket-modal-80mm').classList.add('hidden')" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50">
         Cerrar
       </button>
@@ -209,33 +215,68 @@
       size: 80mm auto;
       margin: 0;
     }
-    
-    body {
-      background: #ffffff !important;
-      font-family: monospace !important;
-      width: 80mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
 
-    .print\:hidden {
+    /* 1. Oculta el sidebar del layout, encabezados y cualquier elemento ajeno */
+    aside,
+    nav,
+    header,
+    footer,
+    .print\:hidden,
+    .max-w-5xl {
       display: none !important;
     }
 
+    /* 2. Regla de aislamiento: oculta todo por defecto */
+    body * {
+      visibility: hidden;
+    }
+
+    /* 3. Hace visible únicamente el modal del ticket y su contenido */
+    #ticket-modal-80mm,
+    #ticket-modal-80mm * {
+      visibility: visible;
+    }
+
+    html, body {
+      background: #ffffff !important;
+      font-family: monospace !important;
+      width: 80mm !important;
+      min-height: 100% !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+
+    /* 4. Coloca el ticket al inicio absoluto de la página */
     #ticket-modal-80mm {
       display: block !important;
       position: absolute !important;
       left: 0 !important;
       top: 0 !important;
       width: 80mm !important;
+      height: auto !important;
       margin: 0 !important;
-      padding: 3mm !important;
-      background: white !important;
+      padding: 2mm !important;
+      background: transparent !important;
+    }
+
+    #ticket-modal-80mm > div {
+      max-width: 100% !important;
+      width: 100% !important;
+      max-height: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
     }
 
     #thermal-receipt {
       width: 100% !important;
       font-size: 11px !important;
+      line-height: 1.2 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      page-break-inside: auto;
     }
   }
 </style>

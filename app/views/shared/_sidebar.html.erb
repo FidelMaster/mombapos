@@ -54,9 +54,11 @@
       <%= link_to stock_warehouses_path, class: nav_class(stock_warehouses_path) do %>
         📦 Control Existencias
       <% end %>
-
-      <%= link_to stock_movements_path, class: nav_class(stock_movements_path) do %>
-        📦 Mantenimiento Inventario
+      <% if current_user.admin? || current_user.owner? %>
+      
+        <%= link_to stock_movements_path, class: nav_class(stock_movements_path) do %>
+          📦 Mantenimiento Inventario
+        <% end %> 
       <% end %>
 
       <%= link_to customers_path, class: nav_class(customers_path) do %>
@@ -139,22 +141,37 @@
     </div>
     <% end %>
 
-    <!-- ================= 🧑‍💼 SISTEMA (OWNER) ================= -->
-    <!--  <% if current_user.owner? %>
+    <!-- ================= 🧑‍💼 SISTEMA ================= -->
+    <% if current_user.admin? || current_user.owner? %>
     <div>
       <div class="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
         🧑‍💼 Sistema
       </div>
 
-      <%= link_to tenants_path, class: nav_class(tenants_path) do %>
-        🏢 Tenants
+      <%= link_to users_path, class: nav_class(users_path) do %>
+        👥 Usuarios
       <% end %>
 
-      <%= link_to licenses_path, class: nav_class(licenses_path) do %>
-        📄 Licencias
+      <%= link_to roles_path, class: nav_class(roles_path) do %>
+        🔑 Roles y Permisos
       <% end %>
     </div>
-    <% end %>-->
+    <% end %>
 
   </nav>
+
+  <!-- User Profile & Sign Out Section -->
+  <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
+    <div class="flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <div class="text-xs font-bold text-slate-800 truncate"><%= current_user.email %></div>
+        <div class="text-[10px] text-slate-400 capitalize font-semibold mt-0.5"><%= current_user.app_role&.name || "Usuario" %></div>
+      </div>
+      <%= button_to destroy_user_session_path, method: :delete, class: "p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50/50 transition-colors cursor-pointer", title: "Cerrar sesión" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+        </svg>
+      <% end %>
+    </div>
+  </div>
 </aside>

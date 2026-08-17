@@ -102,7 +102,7 @@ class InvoicesController < ApplicationController
             origin_product_id: main_product.id
           )
         end
-      else
+      else 
         reduce_stock(
           product_id: invoice_item.product_id,
           quantity: invoice_item.quantity,
@@ -122,6 +122,35 @@ class InvoicesController < ApplicationController
       load_form_collections
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def annull
+    @invoice.update(status: :annulled)
+    #Aumentar inventario
+    @invoice.invoice_items.each do |invoice_item|
+      main_product = Product.find(invoice_item.product_id)
+      
+      if main_product.kit? && main_product.product_composition.present?
+        main_product.product_composition.product_composition_items.each do |comp_item|
+          increase_stock(
+            product_id: comp_item.product_id,
+            quantity: comp_item.quantity * invoice_item.quantity,
+            warehouse_id: @invoice.warehouse_id,
+            invoice: @invoice,
+            origin_product_id: main_product.id
+          )
+        end
+      else 
+        increase_stock(
+          product_id: invoice_item.product_id,
+          quantity: invoice_item.quantity,
+          warehouse_id: @invoice.warehouse_id,
+          invoice: @invoice
+        )
+      end
+    end
+    
+    redirect_to @invoice, notice: "Invoice was successfully annulled.", status: :see_other
   end
 
   # PATCH/PUT /invoices/1
@@ -177,35 +206,79 @@ class InvoicesController < ApplicationController
     end
 
     def reduce_stock(product_id:, quantity:, warehouse_id:, invoice:, origin_product_id: nil)
-      # Buscar el registro de stock en la bodega actual
-      warehouse_stock = WarehouseStock.find_by(product_id: product_id, warehouse_id: warehouse_id)
-  
-      # Si NO existe registro en la bodega → CREARLO
-      unless warehouse_stock
-        WarehouseStock.create!(product_id: product_id, warehouse_id: warehouse_id, stock_available: 0)
-        warehouse_stock = WarehouseStock.last # Asignar el registro creado a la variable
+      product = Product.find(product_id)
+
+      # Solo procede si el producto maneja inventario (stockeable)
+      return unless product.stockeable?
+
+      # 1. Reducir stock global en el producto padre de forma atómica
+      product.decrement!(:quantity, quantity)
+
+      # 2. Buscar o inicializar el stock en la bodega de forma segura
+      warehouse_stock = WarehouseStock.find_or_create_by!(
+        product_id: product_id,
+        warehouse_id: warehouse_id
+      ) do |ws|
+        ws.stock_available = 0
       end
-  
-      # Calcular nuevo stock_available
-      new_stock = (warehouse_stock.stock_available || 0) - quantity
-  
-      # Actualizar stock en la bodega
+
+      stock_before = warehouse_stock.stock_available || 0
+      new_stock = stock_before - quantity
+
+      # 3. Actualizar stock en la bodega
       warehouse_stock.update!(stock_available: new_stock)
-  
-      # Registrar movimiento en el Kardex
+
+      # 4. Registrar movimiento en el Kardex
       StockMovement.create!(
         branch_id: invoice.branch_id || Branch.first&.id,
         tenant_id: invoice.tenant_id,
         product_id: product_id,
         warehouse_id: warehouse_id,
         movement_type: :sale,
-        quantity_before: warehouse_stock.stock_available || 0, # Stock ANTES de la venta
-        quantity: -quantity,  # Negativo porque se está reduciendo
+        quantity_before: stock_before,
+        quantity: -quantity,
         reference_type: origin_product_id ? "ProductComposition" : "Invoice",
         reference_id: origin_product_id || invoice.id
       )
     end
 
+    def increase_stock(product_id:, quantity:, warehouse_id:, invoice:, origin_product_id: nil)
+      product = Product.find(product_id)
+
+      # Solo procede si el producto maneja inventario (stockeable)
+      return unless product.stockeable?
+
+      # 1. Aumentar stock global en el producto padre de forma atómica
+      product.increment!(:quantity, quantity)
+
+      # 2. Buscar o inicializar el stock en la bodega de forma segura
+      warehouse_stock = WarehouseStock.find_or_create_by!(
+        product_id: product_id,
+        warehouse_id: warehouse_id
+      ) do |ws|
+        ws.stock_available = 0
+      end
+
+      stock_before = warehouse_stock.stock_available || 0
+      new_stock = stock_before + quantity
+
+      # 3. Actualizar stock en la bodega
+      warehouse_stock.update!(stock_available: new_stock)
+
+      # 4. Registrar movimiento en el Kardex
+      StockMovement.create!(
+        branch_id: invoice.branch_id || Branch.first&.id,
+        tenant_id: invoice.tenant_id,
+        product_id: product_id,
+        warehouse_id: warehouse_id,
+        movement_type: :sale,
+        quantity_before: stock_before,
+        quantity: quantity,
+        reference_type: origin_product_id ? "ProductComposition" : "Invoice",
+        reference_id: origin_product_id || invoice.id
+      )
+    end
+    
     def invoice_params
       params.require(:invoice).permit(
         :customer_id, :order_id, :customer_name_snapshot, :invoice_date, :invoice_type, :price_list_id, :payment_term_id,

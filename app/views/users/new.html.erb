@@ -1,0 +1,10 @@
+<% content_for :title, "Nuevo Usuario" %>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Nuevo Usuario</h1>
+    <p class="text-sm font-medium text-slate-500 mt-1">Crea una nueva cuenta de usuario en tu sistema.</p>
+  </div>
+
+  <%= render "form", user: @user %>
+</div>

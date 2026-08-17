@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -83,6 +83,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
     t.boolean "is_active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "address"
+    t.string "phone_number"
+    t.string "city"
     t.index ["tenant_id"], name: "index_branches_on_tenant_id"
   end
 
@@ -416,6 +419,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "permissions", force: :cascade do |t|
+    t.bigint "role_id", null: false
+    t.string "action", null: false
+    t.string "subject_class", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["role_id"], name: "index_permissions_on_role_id"
+  end
+
   create_table "plan_detail_objectives", force: :cascade do |t|
     t.bigint "plan_detail_id", null: false
     t.text "description"
@@ -591,6 +603,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
     t.datetime "updated_at", null: false
     t.index ["level_id"], name: "index_resources_on_level_id"
     t.index ["tenant_id"], name: "index_resources_on_tenant_id"
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_roles_on_tenant_id"
   end
 
   create_table "specialities", force: :cascade do |t|
@@ -769,8 +789,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
     t.bigint "tenant_id", null: false
     t.integer "role", default: 0, null: false
     t.boolean "is_active", default: true
+    t.bigint "role_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role_id"], name: "index_users_on_role_id"
     t.index ["tenant_id"], name: "index_users_on_tenant_id"
   end
 
@@ -846,6 +868,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "dining_tables"
   add_foreign_key "orders", "tenants"
+  add_foreign_key "permissions", "roles", on_delete: :cascade
   add_foreign_key "plan_detail_objectives", "plan_details"
   add_foreign_key "plan_detail_structure_tasks", "plan_detail_structures"
   add_foreign_key "plan_detail_structures", "plan_details"
@@ -874,6 +897,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
   add_foreign_key "receipts", "tenants"
   add_foreign_key "resources", "levels"
   add_foreign_key "resources", "tenants"
+  add_foreign_key "roles", "tenants"
   add_foreign_key "specialities", "tenants"
   add_foreign_key "stock_movements", "branches"
   add_foreign_key "stock_movements", "products"
@@ -900,6 +924,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_12_170707) do
   add_foreign_key "trainers", "tenants"
   add_foreign_key "trainers", "users"
   add_foreign_key "unit_measures", "tenants"
+  add_foreign_key "users", "roles"
   add_foreign_key "users", "tenants"
   add_foreign_key "warehouse_stocks", "products"
   add_foreign_key "warehouse_stocks", "warehouses"

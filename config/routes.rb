@@ -17,9 +17,17 @@ Rails.application.routes.draw do
     get "reports/kardex", to: "reports#kardex" 
     
     resources :areas
+    resources :users
+    resources :roles
     resources :stock_unit_measures
     resources :app_modules
-    resources :invoices
+    
+    resources :invoices do
+      member do
+        post :annull
+      end
+    end
+    
     resources :document_account_receivables, path: 'account_receivables', only: [:index, :show]
     resources :stock_movements
     resources :price_lists
