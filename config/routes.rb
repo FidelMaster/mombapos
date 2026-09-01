@@ -1,21 +1,17 @@
 Rails.application.routes.draw do
-  resources :menu_items
-
-  get 'reports/sales_summary'
-  get 'reports/payment_methods'
-
-
   devise_for :users
 
+  # Rutas cuando el usuario está autenticado
   authenticated :user do
-    get "dashboard/academic"
     root "dashboard#index", as: :authenticated_root
     
+    get "dashboard/academic"
     get "reports/sales_summary", to: "reports#sales_summary"
     get "reports/payment_methods", to: "reports#payment_methods"
     get "reports/inventory_impact", to: "reports#inventory_impact"
     get "reports/kardex", to: "reports#kardex" 
     
+    resources :menu_items
     resources :areas
     resources :users
     resources :roles
@@ -101,10 +97,12 @@ Rails.application.routes.draw do
     resources :dining_tables
   end
 
+  # Fallback raíz para usuarios no autenticados o rutas genéricas
   devise_scope :user do
     unauthenticated do
       root to: "devise/sessions#new", as: :unauthenticated_root
     end
+    root to: "devise/sessions#new"
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

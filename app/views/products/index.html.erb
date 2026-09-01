@@ -61,10 +61,52 @@
 
 </div>
 
+<%# Define filters slot %>
+<% filters_slot = capture do %>
+  <%# Category Filter %>
+  <div class="flex items-center gap-2">
+    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Categoría:</label>
+    <select name="category_id" class="py-2 px-3 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" data-action="change->table-interactions#change">
+      <option value="">Todas</option>
+      <% ProductCategory.all.each do |category| %>
+        <option value="<%= category.id %>" <%= "selected" if params[:category_id].to_i == category.id %>>
+          <%= category.name %>
+        </option>
+      <% end %>
+    </select>
+  </div>
+
+  <%# Product Type Filter %>
+  <div class="flex items-center gap-2">
+    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Tipo:</label>
+    <select name="product_type" class="py-2 px-3 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" data-action="change->table-interactions#change">
+      <option value="">Todos</option>
+      <% Product.product_types.keys.each do |type| %>
+        <option value="<%= type %>" <%= "selected" if params[:product_type] == type %>>
+          <%= type.humanize %>
+        </option>
+      <% end %>
+    </select>
+  </div>
+
+  <%# Active Status Filter %>
+  <div class="flex items-center gap-2">
+    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Estado:</label>
+    <select name="is_active" class="py-2 px-3 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" data-action="change->table-interactions#change">
+      <option value="">Todos</option>
+      <option value="true" <%= "selected" if params[:is_active] == "true" %>>Activos</option>
+      <option value="false" <%= "selected" if params[:is_active] == "false" %>>Inactivos</option>
+    </select>
+  </div>
+<% end %>
+
 <%= render "shared/resource_table", 
       title: "Productos", 
       collection: @products,
-      new_path: new_product_path, 
+   
+      new_path: new_product_path,
+      export_path: products_path(format: :csv, q: params[:q], category_id: params[:category_id], product_type: params[:product_type], is_active: params[:is_active], sort: params[:sort], direction: params[:direction]),
+      filter_slot: filters_slot,
       headers: [["Codigo", "product_code"],["Categoria", "product_category"],  ["Nombre", "name"], ["Tipo", "product_type"], ["Cantidad", "quantity"],  ["Costo", "cost"],  ["Precio", "price"], "Composicion", "Acciones"] do |product| %>
 
     <tr class="hover:bg-slate-50 transition-colors duration-200 group">

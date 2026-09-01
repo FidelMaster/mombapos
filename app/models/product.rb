@@ -33,6 +33,7 @@ class Product < ApplicationRecord
   validates :product_type, presence: true
 
   # Callbacks
+  before_validation :ensure_initial_warehouse_stock, on: :create
   before_save :set_stockeable
   before_save :sync_total_quantity
   after_save :sync_price_to_default_list
@@ -48,9 +49,11 @@ class Product < ApplicationRecord
   end
 
   def sync_total_quantity
-    # Recorre los registros de warehouse_stocks (incluyendo los que vienen del formulario en memoria)
-    # y suma el stock disponible. Si no hay registros o viene nil, asigna 0.
-    self.quantity = warehouse_stocks.reject(&:marked_for_destruction?).sum { |ws| ws.stock_available.to_f }
+    # Only calculate quantity if warehouse_stocks exist or are being built
+    # This prevents overwriting the quantity set in the form during creation
+    if warehouse_stocks.reject(&:marked_for_destruction?).any?
+      self.quantity = warehouse_stocks.reject(&:marked_for_destruction?).sum { |ws| ws.stock_available.to_f }
+    end
   end
 
   def sync_price_to_default_list
@@ -64,5 +67,28 @@ class Product < ApplicationRecord
     item = price_list_items.find_or_initialize_by(price_list: default_list)
     item.price = price
     item.save
+  end
+
+  def ensure_initial_warehouse_stock
+    # Only process if product is stockeable and has initial quantity
+    return unless stockeable && quantity.to_f > 0
+
+    # If no warehouse_stocks exist, create one with the default warehouse
+    if warehouse_stocks.reject(&:marked_for_destruction?).empty?
+      default_warehouse = tenant.warehouses.find_by(is_default: true) || tenant.warehouses.first
+      
+      if default_warehouse
+        warehouse_stocks.build(
+          warehouse: default_warehouse,
+          stock_available: quantity.to_f
+        )
+      end
+    else
+      # If warehouse_stocks exist but stock_available is nil/0, assign the quantity
+      warehouse_stocks.each do |ws|
+        next if ws.marked_for_destruction?
+        ws.stock_available ||= quantity.to_f if ws.stock_available.to_f.zero?
+      end
+    end
   end
 end

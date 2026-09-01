@@ -1,13 +1,19 @@
+# app/models/user.rb
 class User < ApplicationRecord
   devise :database_authenticatable,
          :recoverable,
-         :rememberable,
+         :timeoutable, # Cierra la sesión tras inactividad
          :validatable
 
   belongs_to :tenant
   belongs_to :app_role, class_name: "Role", foreign_key: "role_id", optional: true
 
   scope :active, -> { where(is_active: true) }
+
+  # Configuración de timeout por modelo (opcional, también se puede en config/initializers/devise.rb)
+  def timeout_in
+    15.minutes
+  end
 
   def active_for_authentication?
     super && is_active?
@@ -29,4 +35,8 @@ class User < ApplicationRecord
     app_role&.name == "seller"
   end
 
+  # Solo los vendedores pueden operar la caja registradora
+  def can_operate_cash_register?
+    seller?
+  end
 end

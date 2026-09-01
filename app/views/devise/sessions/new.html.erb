@@ -30,18 +30,11 @@
               placeholder: "••••••••" %>
         </div>
 
-        <div class="flex items-center justify-between">
-          <% if devise_mapping.rememberable? %>
-            <div class="flex items-center">
-              <%= f.check_box :remember_me, class: "h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer" %>
-              <%= f.label :remember_me, class: "ml-2 block text-sm text-gray-600 cursor-pointer select-none" %>
-            </div>
-          <% end %>
-
-          <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+        <% if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+          <div class="flex justify-end">
             <%= link_to "¿Olvidaste tu contraseña?", new_password_path(resource_name), class: "text-sm font-medium text-primary hover:text-primary-600 transition-colors" %>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
 
         <div>
           <%= f.submit "Iniciar sesión",

@@ -3,18 +3,25 @@ class ProductsController < ApplicationController
 
   # GET /products
   def index
-    @products = manage_resource(Product.all)
-    
-    # Indicadores del inventario basados en el tenant actual (con scope por defecto)
-    all_products = Product.all
-    @total_products = all_products.count
-    @total_stock = all_products.sum("COALESCE(quantity, 0)")
-    
-    # Valor de venta: Suma de Existencia * Precio de Venta
-    @inventory_sale_value = all_products.sum("COALESCE(quantity, 0) * COALESCE(price, 0)")
-    
-    # Valor de costo: Suma de Existencia * Costo
-    @inventory_cost_value = all_products.sum("COALESCE(quantity, 0) * COALESCE(cost, 0)")
+    # Base query with optional filters
+    @products = Product.all
+    @products = apply_filters(@products)
+    @products = apply_search(@products)
+    @products = apply_sorting(@products)
+
+    # Handle export request
+    if params[:format] == "csv"
+      return export_to_excel(@products)
+    end
+
+    # Store filtered count for dashboard indicators
+    filtered_products = @products
+     
+    # Dashboard indicators (from filtered but unpaginated collection)
+    @total_products = filtered_products.count
+    @total_stock = filtered_products.sum("COALESCE(quantity, 0)")
+    @inventory_sale_value = filtered_products.sum("COALESCE(quantity, 0) * COALESCE(price, 0)")
+    @inventory_cost_value = filtered_products.sum("COALESCE(quantity, 0) * COALESCE(cost, 0)")
   end
 
   # GET /products/1
@@ -102,8 +109,67 @@ class ProductsController < ApplicationController
         :is_active,
         :price,
         :supplier_id,
-        warehouse_stocks_attributes: [:id, :warehouse_id, :stock_available],
+        warehouse_stocks_attributes: [:id, :warehouse_id, :stock_available, :_destroy],
         price_list_items_attributes: [:id, :price_list_id, :price]
       )
+    end
+
+    # Apply dynamic filters (category, status, warehouse, etc.)
+    def apply_filters(collection)
+      collection = collection.where(product_category_id: params[:category_id]) if params[:category_id].present?
+      collection = collection.where(product_type: params[:product_type]) if params[:product_type].present?
+      collection = collection.where(supplier_id: params[:supplier_id]) if params[:supplier_id].present?
+      collection = collection.where(is_active: params[:is_active]) if params[:is_active].present?
+      collection
+    end
+
+    # Apply smart search on multiple fields
+    def apply_search(collection)
+      return collection unless params[:q].present?
+      
+      search_term = "%#{params[:q]}%"
+      collection.where(
+        "product_code ILIKE ? OR name ILIKE ? OR description ILIKE ?",
+        search_term, search_term, search_term
+      )
+    end
+
+    # Apply sorting with persistence
+    def apply_sorting(collection)
+      if params[:sort].present?
+        direction = params[:direction] == "desc" ? "DESC" : "ASC"
+        collection.order("#{params[:sort]} #{direction}")
+      else
+        collection.order(created_at: :desc)
+      end
+    end
+
+    # Export to CSV with filters applied
+    def export_to_excel(collection)
+      require 'csv'
+      
+      file_name = "productos_#{Time.current.strftime('%Y%m%d_%H%M%S')}.csv"
+      file_path = Rails.root.join("tmp", file_name)
+
+      CSV.open(file_path, 'w', encoding: 'UTF-8', col_sep: ';') do |csv|
+        # Headers
+        csv << ['SKU', 'Nombre', 'Categoría', 'Tipo', 'Cantidad', 'Costo', 'Precio', 'Activo']
+
+        # Data rows
+        collection.includes(:product_category).each do |product|
+          csv << [
+            product.product_code,
+            product.name,
+            product.product_category&.name,
+            product.product_type_before_type_cast,
+            product.quantity,
+            product.cost,
+            product.price,
+            product.is_active ? 'Sí' : 'No'
+          ]
+        end
+      end
+
+      send_file file_path, filename: file_name, type: 'text/csv; charset=utf-8'
     end
 end
