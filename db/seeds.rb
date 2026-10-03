@@ -161,10 +161,22 @@ if Tenant.count == 0
     license_id: 1
   )
 
+
+  puts "Inserting  roles..."
+  
+  %w(owner admin manager staff cashier waiter waiteress).each do |role_name|
+    Role.create!(
+      tenant: tenant,
+      name: role_name
+    )
+  end
+
+  puts "user.."
   User.create!(
     tenant: tenant,
     email: "admin@demo.com",
     password: "password123",
+    role_id: Role.where(name: "owner").first.id,
     role: :owner
   )
 else 
@@ -274,7 +286,7 @@ if ExchangeRate.count == 0
   ExchangeRate.create!(
     tenant: tenant,
     currency: "USD",
-    rate: 36.80, # Example rate
+    rate: 36.72, # Example rate
     effective_date: Date.today
   )
 end
