@@ -192,20 +192,17 @@ puts "Bank count: #{Bank.count}"
 if Bank.count == 0
   Bank.create!(
     tenant: tenant,
-    name: "Banpro",
-    code: "BANPRO",
+    name: "Banpro", 
   )
 
   Bank.create!(
     tenant: tenant,
-    name: "BAC",
-    code: "BAC",
+    name: "BAC", 
   )
 
   Bank.create!(
     tenant: tenant,
-    name: "LAFISE",
-    code: "LAFISE",
+    name: "LAFISE", 
   )
 end
 
