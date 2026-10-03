@@ -1,0 +1,17 @@
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>
+
+# Fotos de variantes de producto (joyería) en AWS S3.
+# Variables requeridas: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_S3_BUCKET
+# (o bien credenciales en `rails credentials:edit` bajo la llave :aws).
+amazon:
+  service: S3
+  access_key_id: <%= ENV["AWS_ACCESS_KEY_ID"] || Rails.application.credentials.dig(:aws, :access_key_id) %>
+  secret_access_key: <%= ENV["AWS_SECRET_ACCESS_KEY"] || Rails.application.credentials.dig(:aws, :secret_access_key) %>
+  region: <%= ENV["AWS_REGION"] || Rails.application.credentials.dig(:aws, :region) || "us-east-1" %>
+  bucket: <%= ENV["AWS_S3_BUCKET"] || Rails.application.credentials.dig(:aws, :bucket) %>

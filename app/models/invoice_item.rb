@@ -2,6 +2,7 @@ class InvoiceItem < ApplicationRecord
   belongs_to :invoice
   belongs_to :product
   belongs_to :unit_measure
+  belongs_to :product_variant, optional: true
 
   before_validation :set_defaults
 

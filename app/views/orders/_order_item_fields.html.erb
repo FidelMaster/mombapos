@@ -1,0 +1,101 @@
+<%# locals: (f:, products:) %>
+<%# Fila de pieza del pedido (también se usa dentro del <template> para filas nuevas) %>
+<% item = f.object %>
+<% variants = item.product ? item.product.product_variants.active.ordered : ProductVariant.none %>
+<% customized = item.engraving_text.present? || item.custom_specifications.present? %>
+
+<div class="order-item group relative rounded-3xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
+     data-order-form-target="item"
+     data-new-record="<%= item.new_record? %>"
+     data-customized="<%= customized %>">
+  <%= f.hidden_field :_destroy, data: { role: "destroy" } %>
+
+  <div class="grid grid-cols-12 gap-3 md:gap-4">
+    <!-- Producto base -->
+    <div class="col-span-12 lg:col-span-5">
+      <%= f.label :product_id, "Pieza / producto base", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+      <%= f.select :product_id,
+            options_for_select(products.map { |p| [p.name_with_code, p.id, { "data-price" => p.price.to_f }] }, item.product_id),
+            { include_blank: "Selecciona una pieza…" },
+            class: "w-full rounded-2xl border-slate-200 text-sm",
+            data: { controller: "select", role: "product", action: "change->order-form#productChanged" } %>
+    </div>
+
+    <!-- Variante -->
+    <div class="col-span-12 lg:col-span-4">
+      <%= f.label :product_variant_id, "Variante (metal · kilataje · talla)", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+      <%= f.select :product_variant_id,
+            options_for_select(variants.map { |v|
+              [v.display_name, v.id, { "data-price" => v.price.to_f, "data-metal" => v.metal_type, "data-karat" => v.karat,
+                                       "data-size" => v.size, "data-weight" => v.weight_grams.to_f }]
+            }, item.product_variant_id),
+            { include_blank: item.product ? (variants.any? ? "Sin variante específica" : "Este producto no tiene variantes") : "Primero elige una pieza" },
+            class: "w-full rounded-2xl border-slate-200 py-2.5 text-sm font-medium text-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 disabled:bg-slate-50 disabled:text-slate-400",
+            disabled: item.product.nil?,
+            data: { role: "variant", action: "change->order-form#variantChanged" } %>
+    </div>
+
+    <!-- Cantidad -->
+    <div class="col-span-4 lg:col-span-1">
+      <%= f.label :quantity, "Cant.", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+      <%= f.number_field :quantity, min: 1, step: 1,
+            class: "w-full rounded-2xl border-slate-200 py-2.5 text-center text-sm font-bold focus:border-amber-400 focus:ring-2 focus:ring-amber-200",
+            data: { role: "quantity", action: "input->order-form#recalculate" } %>
+    </div>
+
+    <!-- Precio unitario -->
+    <div class="col-span-8 lg:col-span-2">
+      <%= f.label :unit_price, "Precio unit.", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+      <div class="relative">
+        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400"><%= order_currency_symbol %></span>
+        <%= f.number_field :unit_price, min: 0, step: "0.01",
+              class: "w-full rounded-2xl border-slate-200 py-2.5 pl-9 text-right text-sm font-bold focus:border-amber-400 focus:ring-2 focus:ring-amber-200",
+              data: { role: "price", action: "input->order-form#recalculate" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalle de variante + subtotal -->
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center gap-1.5" data-role="variant-meta">
+      <% if item.product_variant %>
+        <% { "Metal" => item.product_variant.metal_type, "Kilataje" => item.product_variant.karat&.upcase,
+             "Talla" => item.product_variant.size,
+             "Peso" => ("#{item.product_variant.weight_grams.to_f} g" if item.product_variant.weight_grams.to_f.positive?) }.compact_blank.each do |label, value| %>
+          <span class="rounded-lg bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800 ring-1 ring-inset ring-amber-100"><%= label %>: <%= value %></span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="ml-auto flex items-center gap-3">
+      <button type="button" data-action="order-form#toggleCustom" data-role="custom-toggle"
+              class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-200 transition hover:bg-amber-50">
+        ✎ <span data-role="custom-toggle-label">Grabado y especificaciones</span>
+      </button>
+      <div class="text-right">
+        <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Subtotal</p>
+        <p class="text-base font-black text-slate-900" data-role="subtotal"><%= order_money(item.quantity.to_d * item.unit_price.to_d) %></p>
+      </div>
+      <button type="button" data-action="order-form#removeItem" title="Quitar pieza" aria-label="Quitar pieza"
+              class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-300 transition hover:bg-rose-50 hover:text-rose-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Personalización (grabado / especificaciones para el orfebre) -->
+  <div class="mt-4 hidden grid-cols-1 gap-4 rounded-2xl border border-dashed border-amber-200 bg-gradient-to-br from-amber-50/60 to-yellow-50/30 p-4 md:grid-cols-5" data-role="custom">
+    <div class="md:col-span-2">
+      <%= f.label :engraving_text, "Texto de grabado", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-amber-700" %>
+      <%= f.text_field :engraving_text, maxlength: 120, placeholder: "Ej: Siempre juntos · 14.02.2026",
+            class: "w-full rounded-2xl border-amber-200 bg-white py-2.5 font-serif text-base italic text-slate-800 placeholder:not-italic placeholder:font-sans placeholder:text-sm placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
+      <p class="mt-1 text-[11px] text-amber-700/70">Máx. 120 caracteres. Se imprimirá tal cual en la ficha de taller.</p>
+    </div>
+    <div class="md:col-span-3">
+      <%= f.label :custom_specifications, "Especificaciones de confección / engaste", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-amber-700" %>
+      <%= f.text_area :custom_specifications, rows: 3,
+            placeholder: "Medidas, tipo y tamaño de piedra, engaste, acabado (pulido, mate), tipografía del grabado…",
+            class: "w-full rounded-2xl border-amber-200 bg-white text-sm text-slate-700 placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
+    </div>
+  </div>
+</div>

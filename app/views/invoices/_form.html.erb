@@ -130,6 +130,7 @@
               <thead>
                 <tr class="border-b border-slate-200 text-slate-600 text-[10px] font-semibold uppercase tracking-wider">
                   <th class="text-left py-2 px-1">Producto</th>
+                  <th class="text-left py-2 px-1 w-44">Variante</th>
                   <th class="text-center py-2 px-1 w-16">Cant.</th>
                   <th class="text-right py-2 px-1 w-20">Precio</th>
                   <th class="text-right py-2 px-1 w-24">Total</th>
@@ -142,6 +143,26 @@
                     <td class="py-2 px-1">
                       <%= item_form.select :product_id, @products, { prompt: "Seleccionar..." }, class: "w-full bg-transparent border-none p-0 text-xs font-medium text-slate-900 focus:ring-0", data: { action: "change->invoice#updatePrice", invoice_target: "product", controller: "select" } %>
                       <%= item_form.hidden_field :description, data: { invoice_target: "itemDescriptionInput" } %>
+                    </td>
+                    <td class="py-2 px-1">
+                      <% 
+                        current_prod = item_form.object.product || (item_form.object.product_id.present? ? Product.find_by(id: item_form.object.product_id) : nil)
+                        variant_options = []
+                        if current_prod.present?
+                          variant_options = current_prod.product_variants.active.ordered.map do |v|
+                            [
+                              "#{v.display_name} (Stock: #{v.stock_quantity.to_i})",
+                              v.id,
+                              { "data-price" => (v.price.to_f > 0 ? v.price.to_f : nil), "data-stock" => v.stock_quantity.to_f, "data-variant-name" => v.variant_name }
+                            ]
+                          end
+                        end
+                      %>
+                      <%= item_form.select :product_variant_id, 
+                            options_for_select(variant_options, item_form.object.product_variant_id), 
+                            { include_blank: variant_options.any? ? "Sin variante (Estándar)" : "N/A" }, 
+                            class: "w-full bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-xs font-medium text-slate-700 focus:ring-1 focus:ring-orange-500", 
+                            data: { action: "change->invoice#updateVariant", invoice_target: "variant" } %>
                     </td>
                     <td class="py-2 px-1">
                       <%= item_form.number_field :quantity, min: 1, class: "w-14 mx-auto text-center px-1 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-orange-500", data: { action: "input->invoice#updateQuantity", invoice_target: "quantity" } %>
@@ -304,6 +325,11 @@
             <% end %>
           </select>
           <input type="hidden" name="invoice[invoice_items_attributes][NEW_RECORD][description]" data-invoice-target="itemDescriptionInput">
+        </td>
+        <td class="py-2 px-1">
+          <select name="invoice[invoice_items_attributes][NEW_RECORD][product_variant_id]" class="w-full bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-xs font-medium text-slate-700 focus:ring-1 focus:ring-orange-500" data-action="change->invoice#updateVariant" data-invoice-target="variant">
+            <option value="">N/A</option>
+          </select>
         </td>
         <td class="py-2 px-1">
           <input type="number" name="invoice[invoice_items_attributes][NEW_RECORD][quantity]" min="1" value="1" class="w-14 mx-auto text-center px-1 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-orange-500" data-action="input->invoice#updateQuantity" data-invoice-target="quantity">

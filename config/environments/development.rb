@@ -73,4 +73,6 @@ Rails.application.configure do
 
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 
+  # Active Storage: disco local en desarrollo (usar ACTIVE_STORAGE_SERVICE=amazon para probar S3).
+  config.active_storage.service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "local").to_sym
 end

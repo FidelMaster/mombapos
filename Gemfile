@@ -62,3 +62,6 @@ gem 'devise'
 gem 'cancancan'
  
 
+
+# Active Storage -> AWS S3 (fotos de variantes de producto)
+gem "aws-sdk-s3", require: false

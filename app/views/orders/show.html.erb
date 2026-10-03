@@ -1,15 +1,334 @@
-<% content_for :title, "Showing order" %>
+<% content_for :title, "Pedido #{@order.order_code}" %>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+<style>
+  @media print {
+    aside[data-sidebar-target], header.sticky, [data-print-hide], .md\:hidden { display: none !important; }
+    main > div { margin: 0 !important; padding: 0 !important; }
+    body { background: #fff !important; }
+    .print-card { box-shadow: none !important; border-color: #e2e8f0 !important; break-inside: avoid; }
+  }
+</style>
+
+<div class="mx-auto max-w-7xl space-y-6" data-controller="modal">
+  <%= render "orders/flash" %>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <%= link_to "← Pedidos", orders_path, class: "text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900", data: { print_hide: true } %>
+      <div class="mt-2 flex flex-wrap items-center gap-3">
+        <h1 class="font-mono text-3xl font-black tracking-tight text-slate-900"><%= @order.order_code %></h1>
+        <%= order_kind_badge(@order.order_kind) %>
+        <%= order_status_badge(@order.status, size: :lg) %>
+      </div>
+      <p class="mt-1 text-sm text-slate-500">
+        Creado el <%= @order.created_at.strftime("%d/%m/%Y a las %H:%M") %> · Cliente
+        <strong class="text-slate-800"><%= @order.customer_name.presence || @order.customer&.name %></strong>
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-2" data-print-hide>
+      <button type="button" onclick="window.print()" id="print-order"
+              class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-bold text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50">
+        🖨 Imprimir ficha de taller
+      </button>
+      <% if @order.editable? %>
+        <%= link_to "✎ Editar pedido", edit_order_path(@order), id: "edit-order",
+              class: "inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Línea de tiempo del flujo -->
+  <% if @order.cancelled? %>
+    <div class="print-card flex items-center gap-3 rounded-3xl border border-rose-200 bg-rose-50 p-5 text-rose-800">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-rose-500 font-black text-white">✕</span>
+      <div>
+        <p class="font-black">Pedido cancelado</p>
+        <p class="text-sm text-rose-700/80">Este pedido ya no admite cambios ni abonos.</p>
+      </div>
+    </div>
+  <% else %>
+    <ol class="print-card grid grid-cols-5 gap-2 rounded-[2rem] border border-slate-100 bg-white p-4 shadow-sm md:p-5" aria-label="Fases del pedido">
+      <% OrdersHelper::WORKFLOW_STEPS.each_with_index do |step, index| %>
+        <% state = order_step_state(@order, step) %>
+        <li class="flex flex-col items-center gap-2 text-center">
+          <div class="flex w-full items-center">
+            <div class="h-0.5 flex-1 <%= index.zero? ? 'bg-transparent' : (state == :pending ? 'bg-slate-100' : 'bg-gradient-to-r from-amber-300 to-yellow-400') %>"></div>
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all
+                         <%= case state
+                             when :done then 'bg-gradient-to-br from-amber-300 to-yellow-400 text-slate-900'
+                             when :current then 'bg-slate-900 text-white ring-4 ring-amber-200 scale-110'
+                             else 'bg-slate-100 text-slate-400'
+                             end %>">
+              <%= state == :done ? "✓" : index + 1 %>
+            </span>
+            <div class="h-0.5 flex-1 <%= index == OrdersHelper::WORKFLOW_STEPS.size - 1 ? 'bg-transparent' : (order_step_state(@order, OrdersHelper::WORKFLOW_STEPS[index + 1]) == :pending ? 'bg-slate-100' : 'bg-gradient-to-r from-amber-300 to-yellow-400') %>"></div>
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-wide md:text-[11px] <%= state == :current ? 'text-slate-900' : 'text-slate-400' %>">
+            <%= Order.status_label(step) %>
+          </span>
+        </li>
+      <% end %>
+    </ol>
   <% end %>
 
-  <h1 class="font-bold text-4xl">Showing order</h1>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <!-- Columna principal -->
+    <div class="space-y-6 lg:col-span-2">
 
-  <%= render @order %>
+      <!-- Datos del encargo -->
+      <section class="print-card grid grid-cols-1 gap-4 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm sm:grid-cols-3">
+        <div>
+          <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Cliente</p>
+          <p class="mt-1 font-bold text-slate-900"><%= @order.customer_name.presence || @order.customer&.name %></p>
+          <% if @order.customer_phone.present? %><p class="text-sm text-slate-500"><%= @order.customer_phone %></p><% end %>
+        </div>
+        <div>
+          <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Fecha promesa</p>
+          <p class="mt-1 text-base"><%= promised_date_label(@order) %></p>
+        </div>
+        <div>
+          <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Piezas</p>
+          <p class="mt-1 font-bold text-slate-900"><%= pluralize(@order.total_items, "pieza", plural: "piezas") %></p>
+        </div>
+        <% if @order.workshop_notes.present? %>
+          <div class="rounded-2xl bg-slate-50 p-4 sm:col-span-3">
+            <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Observaciones del encargo</p>
+            <p class="mt-1 whitespace-pre-line text-sm text-slate-700"><%= @order.workshop_notes %></p>
+          </div>
+        <% end %>
+      </section>
 
-  <%= link_to "Edit this order", edit_order_path(@order), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to orders", orders_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this order", @order, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
+      <!-- Ficha técnica de piezas -->
+      <section class="print-card rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm">
+        <div class="mb-5 flex items-center justify-between">
+          <h2 class="text-lg font-black tracking-tight text-slate-900">Ficha técnica de piezas</h2>
+          <span class="text-xs font-bold text-slate-400"><%= pluralize(@order_items.size, "línea", plural: "líneas") %></span>
+        </div>
+
+        <div class="space-y-4">
+          <% @order_items.each_with_index do |item, index| %>
+            <% variant = item.product_variant %>
+            <article class="print-card overflow-hidden rounded-3xl border border-slate-200" id="<%= dom_id(item) %>">
+              <div class="flex flex-col gap-4 p-5 sm:flex-row">
+                <!-- Foto -->
+                <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-100 ring-1 ring-inset ring-amber-100">
+                  <% if variant&.main_photo %>
+                    <%= image_tag url_for(variant.main_photo), alt: variant.display_name, class: "h-full w-full object-cover", loading: "lazy" %>
+                  <% else %>
+                    <span class="text-3xl">💍</span>
+                  <% end %>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="text-[11px] font-black uppercase tracking-wider text-amber-600">Pieza #<%= index + 1 %></p>
+                      <h3 class="text-base font-black text-slate-900"><%= item.product&.name %></h3>
+                      <% if variant %>
+                        <p class="text-sm font-semibold text-slate-600"><%= variant.variant_name %> <span class="font-mono text-xs text-slate-400">· SKU <%= variant.sku %></span></p>
+                      <% end %>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-slate-400"><%= number_with_precision(item.quantity, precision: 0) %> × <%= order_money(item.unit_price) %></p>
+                      <p class="text-lg font-black text-slate-900"><%= order_money(item.subtotal) %></p>
+                    </div>
+                  </div>
+
+                  <% if variant %>
+                    <div class="mt-3 flex flex-wrap gap-1.5">
+                      <% { "Metal" => variant.metal_type, "Kilataje" => variant.karat&.upcase, "Talla" => variant.size,
+                           "Peso" => ("#{variant.weight_grams.to_f} g" if variant.weight_grams.to_f.positive?) }.compact_blank.each do |label, value| %>
+                        <span class="rounded-lg bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-inset ring-slate-200"><%= label %>: <strong class="text-slate-900"><%= value %></strong></span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <% if item.customized? %>
+                <div class="grid grid-cols-1 gap-px border-t border-amber-100 bg-amber-100 md:grid-cols-2">
+                  <div class="bg-gradient-to-br from-amber-50 to-yellow-50/40 p-5">
+                    <p class="text-[11px] font-black uppercase tracking-wider text-amber-700">Grabado</p>
+                    <% if item.engraving_text.present? %>
+                      <p class="mt-2 rounded-xl border border-amber-200 bg-white px-4 py-3 text-center font-serif text-lg italic text-slate-800 shadow-inner">“<%= item.engraving_text %>”</p>
+                    <% else %>
+                      <p class="mt-2 text-sm text-slate-400">Sin grabado</p>
+                    <% end %>
+                  </div>
+                  <div class="bg-gradient-to-br from-amber-50 to-yellow-50/40 p-5">
+                    <p class="text-[11px] font-black uppercase tracking-wider text-amber-700">Especificaciones para el orfebre</p>
+                    <p class="mt-2 whitespace-pre-line text-sm text-slate-700"><%= item.custom_specifications.presence || "—" %></p>
+                  </div>
+                </div>
+              <% end %>
+            </article>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Historial de anticipos -->
+      <section class="print-card rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm" id="order-advances">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-black tracking-tight text-slate-900">Anticipos y abonos</h2>
+            <p class="text-xs text-slate-500"><%= pluralize(@order_advances.size, "abono registrado", plural: "abonos registrados") %></p>
+          </div>
+          <% if @order.accepts_advances? %>
+            <button type="button" data-action="modal#open" id="open-advance-modal-secondary" data-print-hide
+                    class="inline-flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-2.5 text-sm font-black text-emerald-700 ring-1 ring-inset ring-emerald-200 transition hover:bg-emerald-100">
+              + Registrar anticipo
+            </button>
+          <% end %>
+        </div>
+
+        <% if @order_advances.any? %>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b border-slate-100 text-left text-[11px] font-black uppercase tracking-wider text-slate-400">
+                  <th class="py-3 pr-4">Fecha</th>
+                  <th class="py-3 pr-4">Método</th>
+                  <th class="py-3 pr-4">Referencia</th>
+                  <th class="py-3 pr-4">Recibió</th>
+                  <th class="py-3 pr-4 text-right">Monto</th>
+                  <th class="py-3" data-print-hide><span class="sr-only">Acciones</span></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                <% @order_advances.each do |advance| %>
+                  <tr class="group" id="<%= dom_id(advance) %>">
+                    <td class="whitespace-nowrap py-3 pr-4">
+                      <p class="font-semibold text-slate-800"><%= advance.payment_date.strftime("%d/%m/%Y") %></p>
+                      <p class="text-[11px] text-slate-400"><%= advance.payment_date.strftime("%H:%M") %></p>
+                    </td>
+                    <td class="py-3 pr-4">
+                      <p class="font-semibold text-slate-700"><%= advance.payment_method.name %></p>
+                      <% if advance.bank_account %><p class="text-[11px] text-slate-400"><%= advance.bank_account.full_name %></p><% end %>
+                    </td>
+                    <td class="py-3 pr-4 font-mono text-xs text-slate-500">
+                      <%= advance.reference_number.presence || "—" %>
+                      <% if advance.notes.present? %><p class="font-sans text-[11px] text-slate-400"><%= advance.notes %></p><% end %>
+                    </td>
+                    <td class="py-3 pr-4 text-xs text-slate-500"><%= advance.received_by&.email&.split("@")&.first || "—" %></td>
+                    <td class="whitespace-nowrap py-3 pr-4 text-right font-black text-emerald-600"><%= order_money(advance.amount) %></td>
+                    <td class="py-3 text-right" data-print-hide>
+                      <% if @order.editable? %>
+                        <%= button_to "Anular", order_order_advance_path(@order, advance), method: :delete,
+                              class: "cursor-pointer rounded-full px-2.5 py-1 text-[11px] font-bold text-rose-500 opacity-0 transition hover:bg-rose-50 group-hover:opacity-100",
+                              form: { data: { turbo_confirm: "¿Anular este abono de #{order_money(advance.amount)}? Los saldos se recalcularán." } } %>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+              <tfoot>
+                <tr class="border-t-2 border-slate-100">
+                  <td colspan="4" class="py-3 text-right text-xs font-black uppercase tracking-wider text-slate-400">Total abonado</td>
+                  <td class="py-3 pr-4 text-right text-base font-black text-slate-900"><%= order_money(@order.advance_amount) %></td>
+                  <td data-print-hide></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        <% else %>
+          <div class="rounded-3xl border-2 border-dashed border-slate-200 p-8 text-center">
+            <p class="text-sm font-semibold text-slate-500">Aún no se han registrado anticipos.</p>
+            <% if @order.pending_deposit? %>
+              <p class="mt-1 text-xs text-slate-400">Al registrar el primer anticipo el pedido pasará automáticamente a <strong>En taller</strong>.</p>
+            <% end %>
+          </div>
+        <% end %>
+      </section>
+    </div>
+
+    <!-- Columna lateral -->
+    <aside class="space-y-6">
+      <!-- Resumen financiero -->
+      <section class="print-card relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-xl shadow-slate-900/10">
+        <div class="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-amber-400/20 blur-2xl"></div>
+        <p class="relative text-[11px] font-black uppercase tracking-[0.2em] text-amber-300/90">Resumen financiero</p>
+
+        <div class="relative mt-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo restante a cobrar</p>
+          <p class="mt-1 text-4xl font-black tracking-tight <%= @order.balance_amount.to_d.positive? ? 'text-amber-300' : 'text-emerald-300' %>" id="order-balance">
+            <%= order_money(@order.balance_amount) %>
+          </p>
+        </div>
+
+        <div class="relative mt-5">
+          <div class="flex justify-between text-[11px] font-bold text-slate-400">
+            <span>Pagado</span><span><%= @order.paid_percentage %>%</span>
+          </div>
+          <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
+            <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 transition-all duration-700" style="width: <%= @order.paid_percentage %>%"></div>
+          </div>
+        </div>
+
+        <dl class="relative mt-5 space-y-2.5 border-t border-white/10 pt-5 text-sm">
+          <div class="flex justify-between"><dt class="text-slate-400">Total del pedido</dt><dd class="font-bold" id="order-total"><%= order_money(@order.total) %></dd></div>
+          <div class="flex justify-between"><dt class="text-slate-400">Anticipo pagado</dt><dd class="font-bold text-emerald-300" id="order-advance"><%= order_money(@order.advance_amount) %></dd></div>
+        </dl>
+
+        <% if @order.accepts_advances? %>
+          <button type="button" data-action="modal#open" id="open-advance-modal" data-print-hide
+                  class="relative mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-500 px-5 py-3.5 text-sm font-black text-slate-900 shadow-lg shadow-emerald-500/30 transition hover:brightness-105 active:scale-[0.98]">
+            💵 Registrar anticipo
+          </button>
+        <% elsif @order.balance_amount.to_d <= 0 && @order.total.to_d.positive? %>
+          <p class="relative mt-6 rounded-2xl bg-emerald-400/10 px-4 py-3 text-center text-sm font-bold text-emerald-300 ring-1 ring-inset ring-emerald-400/20">✓ Pedido liquidado</p>
+        <% end %>
+      </section>
+
+      <!-- Cambio de fase -->
+      <% if @order.available_transitions.any? %>
+        <section class="print-card space-y-3 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm" data-print-hide id="order-phase-panel">
+          <div>
+            <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Fase actual</p>
+            <div class="mt-2"><%= order_status_badge(@order.status, size: :lg) %></div>
+          </div>
+
+          <% primary, secondary = @order.available_transitions.partition { |t| %i[primary success].include?(OrdersHelper::TRANSITION_ACTIONS.dig(t, :style)) } %>
+          <div class="space-y-2 pt-2">
+            <% (primary + secondary).each do |target| %>
+              <% action = OrdersHelper::TRANSITION_ACTIONS.fetch(target) %>
+              <% blocked = target == "completed" && @order.balance_amount.to_d.positive? %>
+              <%= button_to transition_order_path(@order, to: target), method: :patch,
+                    id: "transition-#{target}",
+                    disabled: blocked,
+                    class: "#{transition_button_classes(action[:style])} disabled:cursor-not-allowed disabled:opacity-40",
+                    form: { data: (action[:confirm] ? { turbo_confirm: action[:confirm] } : {}) } do %>
+                <span><%= action[:icon] %></span> <%= action[:label] %>
+              <% end %>
+              <% if blocked %>
+                <p class="px-1 text-center text-[11px] font-semibold text-rose-500">Liquida el saldo de <%= order_money(@order.balance_amount) %> para poder entregar.</p>
+              <% end %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </aside>
+  </div>
+
+  <!-- Modal: Registrar anticipo -->
+  <% if @order.accepts_advances? %>
+    <dialog data-modal-target="dialog" data-action="click->modal#backdropClose" id="advance-modal"
+            class="w-full max-w-lg rounded-[2rem] p-0 shadow-2xl backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm">
+      <div class="p-6 md:p-7">
+        <div class="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-600">Pedido <%= @order.order_code %></p>
+            <h2 class="mt-1 text-xl font-black tracking-tight text-slate-900">Registrar anticipo</h2>
+            <p class="text-sm text-slate-500">Saldo pendiente: <strong class="text-slate-900"><%= order_money(@order.balance_amount) %></strong></p>
+          </div>
+          <button type="button" data-action="modal#close" aria-label="Cerrar"
+                  class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700">✕</button>
+        </div>
+
+        <%= render "order_advances/form", order: @order, order_advance: @order_advance,
+                   payment_methods: @payment_methods, bank_accounts: @bank_accounts %>
+      </div>
+    </dialog>
+  <% end %>
 </div>

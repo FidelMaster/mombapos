@@ -1,62 +1,170 @@
-<%= form_with(model: order, class: "contents") do |form| %>
-  <% if order.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(order.errors.count, "error") %> prohibited this order from being saved:</h2>
+<%# Formulario de pedido de joyería (vitrina / taller) %>
+<%= form_with model: order, id: "order-form", class: "grid grid-cols-1 gap-6 lg:grid-cols-3",
+      data: {
+        controller: "order-form",
+        order_form_variants_url_value: product_product_variants_path(product_id: "__PRODUCT__", format: :json),
+        order_form_advance_value: order.advance_amount.to_f,
+        order_form_currency_value: order_currency_symbol
+      } do |f| %>
 
-      <ul class="list-disc ml-6">
-        <% order.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+  <div class="space-y-6 lg:col-span-2">
+    <% if order.errors.any? %>
+      <div class="rounded-3xl border border-rose-200 bg-rose-50 p-5" role="alert" id="order-errors">
+        <p class="text-sm font-black text-rose-800">No pudimos guardar el pedido:</p>
+        <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-rose-700">
+          <% order.errors.full_messages.uniq.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- 1. Cliente y tipo de pedido -->
+    <section class="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-7">
+      <div class="mb-5 flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">1</span>
+        <h2 class="text-lg font-black tracking-tight text-slate-900">Cliente y tipo de pedido</h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div>
+          <%= f.label :customer_id, "Cliente", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+          <%= f.collection_select :customer_id, @customers, :id, :name, { include_blank: "Buscar cliente…" },
+                id: "order_customer_id", class: "w-full rounded-2xl border-slate-200 text-sm", data: { controller: "select" } %>
+        </div>
+
+        <fieldset>
+          <legend class="mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400">Tipo de pedido</legend>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="relative cursor-pointer">
+              <%= f.radio_button :order_kind, "standard", class: "peer sr-only", data: { action: "order-form#kindChanged", order_form_target: "kind" } %>
+              <div class="h-full rounded-2xl border-2 border-slate-200 p-3 transition-all hover:border-slate-300 peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-slate-900/20">
+                <p class="text-sm font-black">◇ Vitrina</p>
+                <p class="mt-0.5 text-[11px] opacity-70">Pieza en stock</p>
+              </div>
+            </label>
+            <label class="relative cursor-pointer">
+              <%= f.radio_button :order_kind, "custom_order", class: "peer sr-only", data: { action: "order-form#kindChanged", order_form_target: "kind" } %>
+              <div class="h-full rounded-2xl border-2 border-slate-200 p-3 transition-all hover:border-amber-300 peer-checked:border-amber-400 peer-checked:bg-gradient-to-br peer-checked:from-amber-300 peer-checked:to-yellow-400 peer-checked:text-slate-900 peer-checked:shadow-lg peer-checked:shadow-amber-500/30">
+                <p class="text-sm font-black">⚒ Taller</p>
+                <p class="mt-0.5 text-[11px] opacity-70">Encargo personalizado</p>
+              </div>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <!-- 2. Piezas -->
+    <section class="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-7">
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">2</span>
+          <div>
+            <h2 class="text-lg font-black tracking-tight text-slate-900">Piezas del pedido</h2>
+            <p class="text-xs text-slate-500" data-order-form-target="itemsHint">Selecciona la pieza base y su variante. En encargos de taller agrega grabado y especificaciones.</p>
+          </div>
+        </div>
+        <button type="button" id="add-order-item" data-action="order-form#addItem"
+                class="inline-flex items-center gap-2 rounded-2xl bg-amber-50 px-4 py-2.5 text-sm font-black text-amber-800 ring-1 ring-inset ring-amber-200 transition hover:bg-amber-100 active:scale-95">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Agregar pieza
+        </button>
+      </div>
+
+      <div class="space-y-4" data-order-form-target="items">
+        <%= f.fields_for :order_items do |item_f| %>
+          <%= render "orders/order_item_fields", f: item_f, products: @products %>
         <% end %>
-      </ul>
+      </div>
+
+      <div class="mt-4 hidden rounded-3xl border-2 border-dashed border-slate-200 p-8 text-center" data-order-form-target="emptyState">
+        <p class="text-sm font-semibold text-slate-500">Aún no hay piezas en el pedido.</p>
+        <button type="button" data-action="order-form#addItem" class="mt-2 text-xs font-black uppercase tracking-widest text-amber-600 hover:text-amber-700">+ Agregar la primera pieza</button>
+      </div>
+
+      <template data-order-form-target="template">
+        <%= f.fields_for :order_items, OrderItem.new(quantity: 1), child_index: "NEW_RECORD" do |item_f| %>
+          <%= render "orders/order_item_fields", f: item_f, products: @products %>
+        <% end %>
+      </template>
+    </section>
+
+    <!-- 3. Entrega y taller -->
+    <section class="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-7" data-order-form-target="workshopSection">
+      <div class="mb-5 flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">3</span>
+        <h2 class="text-lg font-black tracking-tight text-slate-900">Entrega y notas de taller</h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div>
+          <%= f.label :promised_delivery_date, class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" do %>
+            Fecha promesa de entrega
+            <span class="text-amber-600" data-order-form-target="dateRequired">*</span>
+          <% end %>
+          <%= f.date_field :promised_delivery_date, min: (Date.current if order.new_record?),
+                class: "w-full rounded-2xl border-slate-200 py-2.5 text-sm font-semibold text-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
+          <p class="mt-1 text-[11px] text-slate-400" data-order-form-target="dateHint">Obligatoria para encargos de taller.</p>
+        </div>
+        <div class="md:col-span-2">
+          <%= f.label :workshop_notes, "Observaciones generales del encargo", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+          <%= f.text_area :workshop_notes, rows: 3, placeholder: "Ej: Cliente trae su propio diamante; verificar talla en prueba previa…",
+                class: "w-full rounded-2xl border-slate-200 text-sm text-slate-700 placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Resumen (sticky) -->
+  <aside class="lg:col-span-1">
+    <div class="space-y-4 lg:sticky lg:top-24">
+      <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-xl shadow-slate-900/10">
+        <div class="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-400/20 blur-2xl"></div>
+        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-amber-300/90">Resumen</p>
+
+        <dl class="relative mt-5 space-y-3 text-sm">
+          <div class="flex justify-between text-slate-300">
+            <dt>Piezas</dt>
+            <dd class="font-bold text-white" data-order-form-target="totalItems"><%= order.order_items.sum { |i| i.quantity.to_i } %></dd>
+          </div>
+          <% if order.persisted? && order.advance_amount.to_d.positive? %>
+            <div class="flex justify-between text-slate-300">
+              <dt>Abonado</dt>
+              <dd class="font-bold text-emerald-300"><%= order_money(order.advance_amount) %></dd>
+            </div>
+          <% end %>
+        </dl>
+
+        <div class="relative mt-5 border-t border-white/10 pt-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total del pedido</p>
+          <p class="mt-1 text-4xl font-black tracking-tight" data-order-form-target="total"><%= order_money(order.total) %></p>
+          <% if order.persisted? && order.advance_amount.to_d.positive? %>
+            <p class="mt-2 text-sm text-slate-300">Saldo: <span class="font-black text-amber-300" data-order-form-target="balance"><%= order_money(order.balance_amount) %></span></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="space-y-3 rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
+        <% if order.new_record? || order.draft? %>
+          <button type="submit" name="workflow_action" value="confirm" id="order-confirm"
+                  class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-300 to-yellow-400 px-5 py-3.5 text-sm font-black text-slate-900 shadow-lg shadow-amber-500/30 transition-all hover:brightness-105 active:scale-[0.98]">
+            ✓ Confirmar pedido
+          </button>
+          <p class="px-1 text-center text-[11px] text-slate-400">Queda «Esperando anticipo». Al registrar el anticipo pasa automáticamente a taller.</p>
+          <button type="submit" name="workflow_action" value="draft" id="order-save-draft"
+                  class="w-full cursor-pointer rounded-2xl bg-white px-5 py-3 text-sm font-bold text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 active:scale-[0.98]">
+            Guardar como cotización
+          </button>
+        <% else %>
+          <button type="submit" name="workflow_action" value="save" id="order-save"
+                  class="w-full cursor-pointer rounded-2xl bg-slate-900 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-[0.98]">
+            Guardar cambios
+          </button>
+        <% end %>
+        <%= link_to "Cancelar", (order.persisted? ? order_path(order) : orders_path),
+              class: "block w-full rounded-2xl px-5 py-2.5 text-center text-sm font-bold text-slate-400 transition hover:text-slate-700" %>
+      </div>
     </div>
-  <% end %>
-
-  <div class="my-5">
-    <%= form.label :tenant_id %>
-    <%= form.text_field :tenant_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:tenant_id].none?, "border-red-400 focus:outline-red-600": order.errors[:tenant_id].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :order_code %>
-    <%= form.text_field :order_code, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:order_code].none?, "border-red-400 focus:outline-red-600": order.errors[:order_code].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :dining_table_id %>
-    <%= form.text_field :dining_table_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:dining_table_id].none?, "border-red-400 focus:outline-red-600": order.errors[:dining_table_id].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :customer_id %>
-    <%= form.text_field :customer_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:customer_id].none?, "border-red-400 focus:outline-red-600": order.errors[:customer_id].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :customer_name %>
-    <%= form.text_field :customer_name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:customer_name].none?, "border-red-400 focus:outline-red-600": order.errors[:customer_name].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :string %>
-    <%= form.text_field :string, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:string].none?, "border-red-400 focus:outline-red-600": order.errors[:string].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :status %>
-    <%= form.text_field :status, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:status].none?, "border-red-400 focus:outline-red-600": order.errors[:status].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :total_items %>
-    <%= form.number_field :total_items, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:total_items].none?, "border-red-400 focus:outline-red-600": order.errors[:total_items].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :Total %>
-    <%= form.text_field :Total, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": order.errors[:Total].none?, "border-red-400 focus:outline-red-600": order.errors[:Total].any?}] %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
-  </div>
+  </aside>
 <% end %>

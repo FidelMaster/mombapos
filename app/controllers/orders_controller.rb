@@ -1,5 +1,42 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: %i[ show edit update destroy ]
+  PER_PAGE = 25
+
+  before_action :set_order, only: %i[ show edit update destroy transition ]
+  before_action :ensure_workflow_editable, only: %i[ edit update ]
+
+  # GET /orders — Pedidos de joyería (vitrina / taller)
+  def index
+    base = Order.workflow
+    @status_counts = base.group(:status).count
+    @summary = {
+      in_workshop: @status_counts.fetch("in_workshop", 0),
+      ready: @status_counts.fetch("ready_for_pickup", 0),
+      overdue: base.overdue.count,
+      receivable: base.active_workflow.sum(:balance_amount)
+    }
+
+    scope = base.includes(:customer)
+    scope = scope.where(status: params[:status]) if Order::WORKFLOW_STATUSES.include?(params[:status])
+    scope = scope.where(order_kind: params[:kind]) if Order.order_kinds.key?(params[:kind])
+    scope = scope.overdue if params[:filter] == "overdue"
+
+    if params[:q].present?
+      term = "%#{Order.sanitize_sql_like(params[:q].to_s.strip)}%"
+      scope = scope.left_joins(:customer)
+                   .where("orders.order_code ILIKE :t OR orders.customer_name ILIKE :t OR customers.name ILIKE :t", t: term)
+    end
+
+    scope = if params[:sort] == "promised"
+              scope.order(Arel.sql("orders.promised_delivery_date ASC NULLS LAST"), created_at: :desc)
+            else
+              scope.order(created_at: :desc)
+            end
+
+    @total_count = scope.count
+    @page        = [params[:page].to_i, 1].max
+    @total_pages = [(@total_count / PER_PAGE.to_f).ceil, 1].max
+    @orders      = scope.offset((@page - 1) * PER_PAGE).limit(PER_PAGE)
+  end
 
   # GET /orders/history
   def history
@@ -11,7 +48,12 @@ class OrdersController < ApplicationController
   # GET /orders/1
   def show
     respond_to do |format|
-      format.html
+      format.html do
+        @order_items = @order.order_items.includes(:product, product_variant: { photos_attachments: :blob })
+        @order_advances = @order.order_advances.includes(:payment_method, :bank_account, :received_by)
+        @order_advance = build_advance
+        load_advance_collections
+      end
       format.json { render json: @order.as_json(include: { order_items: { include: :product } }) }
     end
   end
@@ -20,36 +62,40 @@ class OrdersController < ApplicationController
   def new
     @order = Order.new
     @order.order_type = params[:order_type] if params[:order_type].present?
-    
-    if @order.pickup? || @order.delivery?
-       render :new_pickup
-    end
+
+    # Flujo POS (pickup / delivery)
+    return render :new_pickup if @order.pickup? || @order.delivery?
+
+    # Flujo de pedidos de joyería
+    @order.order_kind = params[:kind].presence_in(Order.order_kinds.keys) || "custom_order"
+    @order.status = "draft"
+    @order.order_items.build(quantity: 1)
+    load_form_collections
   end
 
   # GET /orders/1/edit
   def edit
+    load_form_collections
   end
 
   # POST /orders
   def create
     @order = Order.new(order_params)
     @order.tenant_id = Current.tenant.id
+    @order.status = requested_workflow_status(default: "draft") if workflow_request?
 
     respond_to do |format|
       if @order.save
-        # Update table status
+        # Update table status (POS restaurante)
         @order.dining_table.update(status: :occupied) if @order.dining_table
-        
-        path = if @order.dining_table
-                 pos_table_path(@order.dining_table)
-               else
-                 pos_order_path(@order) 
-               end
 
-        format.html { redirect_to path, notice: "Order was successfully created." }
+        format.html { redirect_to after_create_path, notice: create_notice }
         format.json { render json: @order.as_json(include: { order_items: { include: :product } }), status: :created }
       else
-        format.html { render :new, status: :unprocessable_entity }
+        format.html do
+          load_form_collections
+          render :new, status: :unprocessable_entity
+        end
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
@@ -57,32 +103,119 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
+    @order.assign_attributes(order_params)
+    # "Confirmar pedido" desde un borrador → esperando anticipo
+    @order.status = "pending_deposit" if @order.draft? && params[:workflow_action] == "confirm"
+
     respond_to do |format|
-      if @order.update(order_params)
-        format.html { redirect_to @order, notice: "Order was successfully updated.", status: :see_other }
+      if @order.save
+        format.html { redirect_to @order, notice: "Pedido actualizado correctamente.", status: :see_other }
         format.json { render json: @order.as_json(include: { order_items: { include: :product } }), status: :ok }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html do
+          load_form_collections
+          render :edit, status: :unprocessable_entity
+        end
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
   end
 
+  # PATCH /orders/1/transition?to=ready_for_pickup
+  def transition
+    target = params[:to].to_s
+
+    if @order.transition_to(target)
+      redirect_to @order, notice: "Pedido #{@order.order_code} ahora está «#{@order.status_label}».", status: :see_other
+    else
+      redirect_to @order, alert: @order.errors.full_messages.to_sentence, status: :see_other
+    end
+  end
+
   # DELETE /orders/1
   def destroy
-    @order.destroy!
-    redirect_to orders_url, notice: "Order was successfully destroyed.", status: :see_other
+    if @order.destroy
+      redirect_to (@order.workflow? ? orders_url : history_orders_url), notice: "Pedido eliminado.", status: :see_other
+    else
+      redirect_to @order, alert: "No se puede eliminar: #{@order.errors.full_messages.to_sentence}. Cancélalo en su lugar.",
+                          status: :see_other
+    end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_order
-      @order = Order.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def order_params
-      params.require(:order).permit(:tenant_id, :order_code, :dining_table_id, :customer_id, :customer_name, :status, :total_items, :total, :order_type,
-                                   order_items_attributes: [:id, :product_id, :quantity, :unit_price, :subtotal, :notes, :_destroy])
+  def set_order
+    @order = Order.find(params[:id])
+  end
+
+  # Los pedidos entregados/cancelados quedan bloqueados. El POS (open) no se ve afectado.
+  def ensure_workflow_editable
+    return unless @order.workflow?
+    return if @order.editable?
+
+    respond_to do |format|
+      format.html { redirect_to @order, alert: "Un pedido «#{@order.status_label}» ya no puede modificarse." }
+      format.json { render json: { error: "order_locked" }, status: :unprocessable_entity }
     end
+  end
+
+  # El formulario de joyería siempre envía order_kind; el POS no.
+  def workflow_request?
+    params.dig(:order, :order_kind).present?
+  end
+
+  def requested_workflow_status(default:)
+    params[:workflow_action] == "confirm" ? "pending_deposit" : default
+  end
+
+  def after_create_path
+    if @order.dining_table
+      pos_table_path(@order.dining_table)
+    elsif @order.workflow?
+      order_path(@order)
+    else
+      pos_order_path(@order)
+    end
+  end
+
+  def create_notice
+    return "Order was successfully created." unless @order.workflow?
+
+    @order.draft? ? "Cotización #{@order.order_code} guardada como borrador." : "Pedido #{@order.order_code} creado. Registra el anticipo para enviarlo a taller."
+  end
+
+  def build_advance
+    OrderAdvance.new(
+      order: @order,
+      amount: @order.balance_amount,
+      payment_date: Time.current,
+      exchange_rate: current_exchange_rate
+    )
+  end
+
+  def current_exchange_rate
+    ExchangeRate.order(effective_date: :desc, created_at: :desc).first&.rate || 1.0
+  end
+
+  def load_form_collections
+    @customers = Customer.order(:name)
+    @products  = Product.where.not(product_type: Product.product_types[:raw_material]).order(:name)
+  end
+
+  def load_advance_collections
+    @payment_methods = PaymentMethod.order(:id)
+    @bank_accounts   = BankAccount.includes(:bank).order(:account_name)
+  end
+
+  # status / totales / tenant se calculan en servidor: no se aceptan del cliente.
+  def order_params
+    params.require(:order).permit(
+      :order_code, :dining_table_id, :customer_id, :customer_name, :order_type,
+      :order_kind, :promised_delivery_date, :workshop_notes,
+      order_items_attributes: [
+        :id, :product_id, :product_variant_id, :quantity, :unit_price, :subtotal, :notes,
+        :engraving_text, :custom_specifications, :_destroy
+      ]
+    )
+  end
 end

@@ -109,8 +109,14 @@ class ProductsController < ApplicationController
         :is_active,
         :price,
         :supplier_id,
+        :image,
         warehouse_stocks_attributes: [:id, :warehouse_id, :stock_available, :_destroy],
-        price_list_items_attributes: [:id, :price_list_id, :price]
+        price_list_items_attributes: [:id, :price_list_id, :price],
+        product_variants_attributes: [
+          :id, :sku, :variant_name, :metal_type, :karat, :size,
+          :weight_grams, :cost, :price, :stock_quantity, :is_active, :_destroy,
+          photos: []
+        ]
       )
     end
 

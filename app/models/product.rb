@@ -5,12 +5,15 @@ class Product < ApplicationRecord
   belongs_to :stock_unit_measure, class_name: "UnitMeasure", optional: true
   belongs_to :sale_unit_measure, class_name: "UnitMeasure", optional: true
 
+  has_one_attached :image
   has_many :warehouse_stocks, dependent: :destroy
   has_many :price_list_items, dependent: :destroy
   has_one :product_composition, dependent: :destroy
+  has_many :product_variants, dependent: :destroy
 
   accepts_nested_attributes_for :warehouse_stocks, allow_destroy: true
   accepts_nested_attributes_for :price_list_items, allow_destroy: true
+  accepts_nested_attributes_for :product_variants, allow_destroy: true, reject_if: ->(attrs) { attrs['sku'].blank? && attrs['variant_name'].blank? }
 
   enum product_type: {
     raw_material: "M",

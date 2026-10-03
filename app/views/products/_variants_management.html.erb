@@ -1,0 +1,318 @@
+<div class="mt-8 bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+  <!-- Encabezado de Variantes y Stock -->
+  <div class="p-6 sm:p-8 border-b border-gray-100 bg-gray-50/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="p-2 bg-primary-50 text-primary-600 rounded-xl">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        </span>
+        <h3 class="text-xl font-black text-gray-900 tracking-tight">Variantes y Stock Disponible</h3>
+      </div>
+      <p class="text-sm text-gray-500">Gestiona las tallas, materiales, precios y existencias físicas disponibles para cada variante.</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="px-3.5 py-1.5 bg-white border border-gray-200 rounded-xl shadow-xs text-xs font-bold text-gray-600 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        Stock Total: <span class="text-gray-900 font-extrabold"><%= product.product_variants.sum(:stock_quantity).to_i %> unid.</span>
+      </div>
+      <button type="button" onclick="document.getElementById('modal-new-variant').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary-600 shadow-sm transition-all transform active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nueva Variante
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido de Variantes -->
+  <% if product.product_variants.any? %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-gray-100 bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+            <th class="py-3 px-6">SKU / Variante</th>
+            <th class="py-3 px-4">Material y Talla</th>
+            <th class="py-3 px-4 text-right">Costo</th>
+            <th class="py-3 px-4 text-right">Precio Venta</th>
+            <th class="py-3 px-4 text-center">Stock Disponible</th>
+            <th class="py-3 px-4 text-center">Estado</th>
+            <th class="py-3 px-6 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 text-sm">
+          <% product.product_variants.ordered.each do |variant| %>
+            <tr class="hover:bg-gray-50/70 transition-colors group">
+              <!-- SKU / Variante -->
+              <td class="py-4 px-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-black text-xs flex-shrink-0">
+                    <%= variant.sku[0..2] rescue "VAR" %>
+                  </div>
+                  <div>
+                    <span class="font-mono text-xs font-bold text-gray-900 block group-hover:text-primary transition-colors">
+                      <%= variant.sku %>
+                    </span>
+                    <span class="text-xs text-gray-500 font-medium">
+                      <%= variant.variant_name.presence || "Sin nombre específico" %>
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Material y Talla -->
+              <td class="py-4 px-4">
+                <div class="flex flex-col gap-1 text-xs">
+                  <span class="font-semibold text-gray-800">
+                    <%= [variant.metal_type, variant.karat].compact_blank.join(" ") %>
+                  </span>
+                  <span class="text-gray-400">
+                    <%= [variant.size.present? ? "Talla: #{variant.size}" : nil, variant.weight_grams.to_f > 0 ? "#{variant.weight_grams}g" : nil].compact.join(" · ").presence || "Estándar" %>
+                  </span>
+                </div>
+              </td>
+
+              <!-- Costo -->
+              <td class="py-4 px-4 text-right font-medium text-gray-500 text-xs">
+                C$ <%= number_with_precision(variant.cost, precision: 2) %>
+              </td>
+
+              <!-- Precio Venta -->
+              <td class="py-4 px-4 text-right">
+                <span class="font-black text-gray-900 text-sm">
+                  C$ <%= number_with_precision(variant.price, precision: 2) %>
+                </span>
+              </td>
+
+              <!-- Stock Disponible -->
+              <td class="py-4 px-4 text-center">
+                <% qty = variant.stock_quantity.to_f %>
+                <% if qty > 5 %>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full text-xs font-bold shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <%= qty.to_i %> disponible
+                  </span>
+                <% elsif qty > 0 %>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200/60 rounded-full text-xs font-bold shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <%= qty.to_i %> en stock (Bajo)
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-full text-xs font-bold shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    Agotado (0)
+                  </span>
+                <% end %>
+              </td>
+
+              <!-- Estado -->
+              <td class="py-4 px-4 text-center">
+                <% if variant.is_active? %>
+                  <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 rounded-md border border-emerald-100">
+                    Activo
+                  </span>
+                <% else %>
+                  <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 rounded-md border border-gray-200">
+                    Inactivo
+                  </span>
+                <% end %>
+              </td>
+
+              <!-- Acciones -->
+              <td class="py-4 px-6 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button type="button" onclick="document.getElementById('modal-edit-variant-<%= variant.id %>').classList.remove('hidden')" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Editar / Stock
+                  </button>
+                  <%= button_to product_product_variant_path(product, variant), method: :delete, data: { turbo_confirm: "¿Estás seguro de eliminar la variante #{variant.sku}?" }, class: "p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors" do %>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  <% end %>
+                </div>
+
+                <!-- Modal Editar Variante & Actualizar Stock -->
+                <div id="modal-edit-variant-<%= variant.id %>" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+                  <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl text-left border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
+                      <div>
+                        <h4 class="text-lg font-black text-gray-900">Editar Variante y Stock</h4>
+                        <p class="text-xs text-gray-500 font-mono mt-0.5">SKU: <%= variant.sku %></p>
+                      </div>
+                      <button type="button" onclick="document.getElementById('modal-edit-variant-<%= variant.id %>').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+
+                    <%= form_with(model: [product, variant], url: product_product_variant_path(product, variant), method: :patch, class: "space-y-4") do |f| %>
+                      <!-- Stock Disponible Destacado -->
+                      <div class="p-4 bg-primary-50/60 border border-primary-200/70 rounded-2xl">
+                        <label class="block text-xs font-bold text-primary-900 uppercase tracking-wider mb-1">
+                          Stock Disponible (Existencias)
+                        </label>
+                        <div class="flex items-center gap-3">
+                          <%= f.number_field :stock_quantity, step: "1", min: "0", class: "w-full px-3 py-2 bg-white border border-primary-300 rounded-xl text-lg font-black text-primary-900 focus:ring-2 focus:ring-primary focus:border-transparent text-center" %>
+                          <span class="text-xs font-bold text-primary-800 uppercase">unid.</span>
+                        </div>
+                        <p class="text-[11px] text-primary-700 mt-1.5">
+                          Ajusta la cantidad disponible para venta inmediata de esta variante.
+                        </p>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3">
+                        <div>
+                          <label class="block text-xs font-bold text-gray-700 mb-1">SKU</label>
+                          <%= f.text_field :sku, required: true, class: "w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary" %>
+                        </div>
+                        <div>
+                          <label class="block text-xs font-bold text-gray-700 mb-1">Nombre / Atributo</label>
+                          <%= f.text_field :variant_name, placeholder: "ej. Oro Amarillo - Talla 7", class: "w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary" %>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-2">
+                        <div>
+                          <label class="block text-[11px] font-bold text-gray-600 mb-1">Metal</label>
+                          <%= f.text_field :metal_type, placeholder: "Oro / Plata", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+                        </div>
+                        <div>
+                          <label class="block text-[11px] font-bold text-gray-600 mb-1">Quilataje</label>
+                          <%= f.text_field :karat, placeholder: "14k / 18k", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+                        </div>
+                        <div>
+                          <label class="block text-[11px] font-bold text-gray-600 mb-1">Talla</label>
+                          <%= f.text_field :size, placeholder: "6 / 7 / 8", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-2">
+                        <div>
+                          <label class="block text-[11px] font-bold text-gray-600 mb-1">Peso (g)</label>
+                          <%= f.number_field :weight_grams, step: "0.01", min: "0", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+                        </div>
+                        <div>
+                          <label class="block text-[11px] font-bold text-gray-600 mb-1">Costo (C$)</label>
+                          <%= f.number_field :cost, step: "0.01", min: "0", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+                        </div>
+                        <div>
+                          <label class="block text-[11px] font-bold text-gray-600 mb-1">Precio (C$)</label>
+                          <%= f.number_field :price, step: "0.01", min: "0", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-900" %>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center gap-2 pt-2">
+                        <%= f.check_box :is_active, class: "rounded border-gray-300 text-primary focus:ring-primary" %>
+                        <label class="text-xs font-semibold text-gray-700">Variante activa para ventas</label>
+                      </div>
+
+                      <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button type="button" onclick="document.getElementById('modal-edit-variant-<%= variant.id %>').classList.add('hidden')" class="px-4 py-2 border border-gray-200 text-gray-600 font-bold text-xs rounded-xl hover:bg-gray-50">
+                          Cancelar
+                        </button>
+                        <%= f.submit "Guardar Cambios", class: "px-5 py-2 bg-primary hover:bg-primary-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <!-- Estado Vacío -->
+    <div class="p-12 text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 mb-3">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+      </div>
+      <h4 class="text-base font-bold text-gray-900 mb-1">Sin variantes registradas</h4>
+      <p class="text-xs text-gray-500 max-w-sm mx-auto mb-5">Agrega variantes si este producto se vende en diferentes metales, tallas, o requiere control de stock independiente.</p>
+      <button type="button" onclick="document.getElementById('modal-new-variant').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary-600 shadow-sm transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Crear primera variante
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<!-- Modal Nueva Variante -->
+<div id="modal-new-variant" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl text-left border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
+      <div>
+        <h4 class="text-lg font-black text-gray-900">Nueva Variante</h4>
+        <p class="text-xs text-gray-500">Agrega una variante y define su stock inicial disponible.</p>
+      </div>
+      <button type="button" onclick="document.getElementById('modal-new-variant').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <%= form_with(model: [product, ProductVariant.new], url: product_product_variants_path(product), method: :post, class: "space-y-4") do |f| %>
+      <!-- Stock Disponible Inicial -->
+      <div class="p-4 bg-primary-50/60 border border-primary-200/70 rounded-2xl">
+        <label class="block text-xs font-bold text-primary-900 uppercase tracking-wider mb-1">
+          Stock Inicial Disponible
+        </label>
+        <div class="flex items-center gap-3">
+          <%= f.number_field :stock_quantity, value: 0, step: "1", min: "0", class: "w-full px-3 py-2 bg-white border border-primary-300 rounded-xl text-lg font-black text-primary-900 focus:ring-2 focus:ring-primary focus:border-transparent text-center" %>
+          <span class="text-xs font-bold text-primary-800 uppercase">unid.</span>
+        </div>
+        <p class="text-[11px] text-primary-700 mt-1.5">
+          Cantidad física disponible en almacén para esta variante.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">SKU <span class="text-red-500">*</span></label>
+          <%= f.text_field :sku, required: true, value: "#{product.product_code}-V#{product.product_variants.count + 1}", class: "w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary" %>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Nombre / Atributo</label>
+          <%= f.text_field :variant_name, placeholder: "ej. Oro Amarillo - Talla 7", class: "w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary" %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block text-[11px] font-bold text-gray-600 mb-1">Metal</label>
+          <%= f.text_field :metal_type, placeholder: "Oro / Plata", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-600 mb-1">Quilataje</label>
+          <%= f.text_field :karat, placeholder: "14k / 18k", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-600 mb-1">Talla</label>
+          <%= f.text_field :size, placeholder: "6 / 7 / 8", class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block text-[11px] font-bold text-gray-600 mb-1">Peso (g)</label>
+          <%= f.number_field :weight_grams, step: "0.01", min: "0", value: 0, class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-600 mb-1">Costo (C$)</label>
+          <%= f.number_field :cost, step: "0.01", min: "0", value: product.cost.to_f, class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" %>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-600 mb-1">Precio (C$)</label>
+          <%= f.number_field :price, step: "0.01", min: "0", value: product.price.to_f, class: "w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-900" %>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <%= f.check_box :is_active, checked: true, class: "rounded border-gray-300 text-primary focus:ring-primary" %>
+        <label class="text-xs font-semibold text-gray-700">Variante activa para ventas</label>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+        <button type="button" onclick="document.getElementById('modal-new-variant').classList.add('hidden')" class="px-4 py-2 border border-gray-200 text-gray-600 font-bold text-xs rounded-xl hover:bg-gray-50">
+          Cancelar
+        </button>
+        <%= f.submit "Crear Variante", class: "px-5 py-2 bg-primary hover:bg-primary-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all" %>
+      </div>
+    <% end %>
+  </div>
+</div>

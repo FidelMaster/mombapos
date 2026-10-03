@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: %i[ show edit update destroy ]
+  before_action :set_invoice, only: %i[ show edit update destroy annull ]
 
   # GET /invoices
   def index
@@ -23,9 +23,14 @@ class InvoicesController < ApplicationController
       @invoice.total_local_amount = @order.total
       
       @order.order_items.each do |item|
+        desc_parts = [item.product.name]
+        desc_parts << item.product_variant.variant_name if item.product_variant.present?
+        desc_parts << (item.product.product_code.presence || 'S/K')
+
         @invoice.invoice_items.build(
           product_id: item.product_id,
-          description: "#{item.product.name} - #{item.product.product_code.presence || 'S/K'}", # Guardar la descripción concatenada
+          product_variant_id: item.product_variant_id,
+          description: desc_parts.compact_blank.join(" - "),
           quantity: item.quantity,
           unit_price: item.unit_price,
           total: item.subtotal
@@ -81,7 +86,10 @@ class InvoicesController < ApplicationController
     # Asignar descripción y total_usd a cada item de la factura
     @invoice.invoice_items.each do |invoice_item|
       if invoice_item.product.present?
-        invoice_item.description ||= "#{invoice_item.product.name} - #{invoice_item.product.product_code.presence || 'S/K'}"
+        desc_parts = [invoice_item.product.name]
+        desc_parts << invoice_item.product_variant.variant_name if invoice_item.product_variant.present?
+        desc_parts << (invoice_item.product.product_code.presence || 'S/K')
+        invoice_item.description ||= desc_parts.compact_blank.join(" - ")
       end
       if invoice_item.total.present? && @invoice.exchange_rate.present? && @invoice.exchange_rate > 0
         invoice_item.total_usd = (invoice_item.total / @invoice.exchange_rate).round(2)
@@ -109,6 +117,12 @@ class InvoicesController < ApplicationController
           warehouse_id: @invoice.warehouse_id,
           invoice: @invoice
         )
+      end
+
+      # Disminuir stock de la variante si existe
+      if invoice_item.product_variant_id.present?
+        variant = ProductVariant.unscoped.find_by(id: invoice_item.product_variant_id, tenant_id: @invoice.tenant_id)
+        variant&.decrease_stock!(invoice_item.quantity)
       end
     end
 
@@ -147,6 +161,12 @@ class InvoicesController < ApplicationController
           warehouse_id: @invoice.warehouse_id,
           invoice: @invoice
         )
+      end
+
+      # Revertir stock de la variante si existe
+      if invoice_item.product_variant_id.present?
+        variant = ProductVariant.unscoped.find_by(id: invoice_item.product_variant_id, tenant_id: @invoice.tenant_id)
+        variant&.increase_stock!(invoice_item.quantity)
       end
     end
     
@@ -283,7 +303,7 @@ class InvoicesController < ApplicationController
       params.require(:invoice).permit(
         :customer_id, :order_id, :customer_name_snapshot, :invoice_date, :invoice_type, :price_list_id, :payment_term_id,
         :total_items, :subtotal_amount, :tax_amount, :total_local_amount, :notes, :exchange_rate, :total_usd,
-        invoice_items_attributes: [:id, :product_id, :description, :quantity, :unit_price, :total, :total_usd, :_destroy],
+        invoice_items_attributes: [:id, :product_id, :product_variant_id, :description, :quantity, :unit_price, :total, :total_usd, :_destroy],
         invoice_payments_attributes: [:id, :payment_method_id, :amount, :bank_account_id, :currency, :exchange_rate, :_destroy]
       )
     end

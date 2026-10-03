@@ -1,7 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["basePrice", "priceListItem", "typeSelect", "costContainer", "priceContainer", "stockContainer", "warehouseStockContainer", "supplierContainer"]
+    static targets = [
+        "basePrice", "priceListItem", "typeSelect", "costContainer",
+        "priceContainer", "stockContainer", "warehouseStockContainer",
+        "supplierContainer", "imagePreview", "imagePlaceholder",
+        "variantsContainer", "variantTemplate"
+    ]
 
     connect() {
         this.syncPrices()
@@ -13,21 +18,11 @@ export default class extends Controller {
 
         // VISIBILITY RULES
         // ==========================================
-
-        // Stock, U/M and Supplier: raw_material / finished_product
         const showInventory = (type === 'raw_material' || type === 'finished_product')
-
-        // Cost: raw_material / finished_product
         const showCost = (type === 'raw_material' || type === 'finished_product' || type === 'service')
-
-        // Price: service / kit / finished_product
         const showPrice = (type === 'service' || type === 'kit' || type === 'finished_product')
 
-        // APPLY VISIBILITY
-        // ------------------------------------------
-        //  this.toggleElement(this.stockContainerTarget, showInventory)
         this.toggleElement(this.warehouseStockContainerTarget, showInventory)
-        // this.toggleElement(this.supplierContainerTarget, showInventory)
 
         if (this.hasCostContainerTarget) {
             this.toggleElement(this.costContainerTarget, showCost)
@@ -61,5 +56,45 @@ export default class extends Controller {
         this.priceListItemTargets.forEach(input => {
             input.value = basePrice.toFixed(2)
         })
+    }
+
+    // Image preview
+    previewImage(event) {
+        const input = event.target
+        if (input.files && input.files[0]) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                if (this.hasImagePreviewTarget) {
+                    this.imagePreviewTarget.src = e.target.result
+                    this.imagePreviewTarget.classList.remove('hidden')
+                }
+                if (this.hasImagePlaceholderTarget) {
+                    this.imagePlaceholderTarget.classList.add('hidden')
+                }
+            }
+            reader.readAsDataURL(input.files[0])
+        }
+    }
+
+    // Dynamic product variants
+    addVariant(event) {
+        event.preventDefault()
+        if (!this.hasVariantsContainerTarget || !this.hasVariantTemplateTarget) return
+        const uniqueId = new Date().getTime()
+        const content = this.variantTemplateTarget.innerHTML.replace(/NEW_VARIANT_RECORD/g, uniqueId)
+        this.variantsContainerTarget.insertAdjacentHTML('beforeend', content)
+    }
+
+    removeVariant(event) {
+        event.preventDefault()
+        const row = event.target.closest('[data-role="variant-row"]')
+        if (!row) return
+        const destroyInput = row.querySelector('input[name*="[_destroy]"]')
+        if (destroyInput) {
+            destroyInput.value = "1"
+            row.style.display = "none"
+        } else {
+            row.remove()
+        }
     }
 }

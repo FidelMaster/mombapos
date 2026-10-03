@@ -37,7 +37,7 @@ class Invoice < ApplicationRecord
 
   attr_accessor :amount_tendered
   
-  default_scope { where(tenant_id: Current.tenant.id) }
+  default_scope { where(tenant_id: Current.tenant&.id) }
 
   validates :tenant, presence: true
 

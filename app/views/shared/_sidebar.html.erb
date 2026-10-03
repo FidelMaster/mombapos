@@ -51,6 +51,10 @@
         🍔 Menú / Productos
       <% end %>
 
+      <%= link_to orders_path, class: nav_class(orders_path) do %>
+        💍 Pedidos y Taller
+      <% end %>
+
       <%= link_to stock_warehouses_path, class: nav_class(stock_warehouses_path) do %>
         📦 Control Existencias
       <% end %>

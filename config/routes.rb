@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     resources :customers
     resources :products do
       resource :product_composition, only: [:edit, :update, :show]
+      resources :product_variants, path: "variants"
     end
     resources :product_categories
     resources :unit_measures
@@ -89,6 +90,10 @@ Rails.application.routes.draw do
       collection do
         get :history
       end
+      member do
+        patch :transition
+      end
+      resources :order_advances, only: [:create, :destroy], path: "advances"
     end
     get '/pos', to: 'pos#index', as: :pos_index
     get '/pos/pickup', to: 'pos#pickup', as: :pos_pickup

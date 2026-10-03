@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_03_070000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -27,6 +27,34 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["document_account_receivable_id"], name: "idx_on_document_account_receivable_id_0d8ea6e663"
+  end
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "app_modules", force: :cascade do |t|
@@ -248,8 +276,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
     t.datetime "updated_at", null: false
     t.string "description"
     t.decimal "total_usd"
+    t.bigint "product_variant_id"
     t.index ["invoice_id"], name: "index_invoice_items_on_invoice_id"
     t.index ["product_id"], name: "index_invoice_items_on_product_id"
+    t.index ["product_variant_id"], name: "index_invoice_items_on_product_variant_id"
     t.index ["unit_measure_id"], name: "index_invoice_items_on_unit_measure_id"
   end
 
@@ -366,6 +396,28 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
     t.index ["tenant_id"], name: "index_objectives_on_tenant_id"
   end
 
+  create_table "order_advances", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "order_id", null: false
+    t.bigint "payment_method_id", null: false
+    t.bigint "bank_account_id"
+    t.bigint "received_by_id"
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.decimal "exchange_rate", precision: 10, scale: 4, default: "1.0"
+    t.string "reference_number"
+    t.datetime "payment_date", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bank_account_id"], name: "index_order_advances_on_bank_account_id"
+    t.index ["order_id"], name: "index_order_advances_on_order_id"
+    t.index ["payment_method_id"], name: "index_order_advances_on_payment_method_id"
+    t.index ["received_by_id"], name: "index_order_advances_on_received_by_id"
+    t.index ["tenant_id", "payment_date"], name: "index_order_advances_on_tenant_id_and_payment_date"
+    t.index ["tenant_id"], name: "index_order_advances_on_tenant_id"
+    t.check_constraint "amount > 0::numeric", name: "order_advances_amount_positive"
+  end
+
   create_table "order_items", force: :cascade do |t|
     t.bigint "order_id", null: false
     t.bigint "product_id", null: false
@@ -375,8 +427,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
     t.string "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "product_variant_id"
+    t.string "engraving_text"
+    t.text "custom_specifications"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["product_variant_id"], name: "index_order_items_on_product_variant_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -395,8 +451,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
     t.string "customer_phone"
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
+    t.string "order_kind", default: "standard", null: false
+    t.decimal "advance_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "balance_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.date "promised_delivery_date"
+    t.text "workshop_notes"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["dining_table_id"], name: "index_orders_on_dining_table_id"
+    t.index ["tenant_id", "order_kind"], name: "index_orders_on_tenant_id_and_order_kind"
+    t.index ["tenant_id", "promised_delivery_date"], name: "index_orders_on_tenant_id_and_promised_delivery_date"
+    t.index ["tenant_id", "status"], name: "index_orders_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_orders_on_tenant_id"
   end
 
@@ -551,6 +615,27 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
     t.datetime "updated_at", null: false
     t.index ["product_id"], name: "index_product_compositions_on_product_id"
     t.index ["tenant_id"], name: "index_product_compositions_on_tenant_id"
+  end
+
+  create_table "product_variants", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "product_id", null: false
+    t.string "sku", null: false
+    t.string "variant_name"
+    t.string "metal_type"
+    t.string "karat"
+    t.string "size"
+    t.decimal "weight_grams", precision: 8, scale: 3, default: "0.0", null: false
+    t.decimal "cost", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "price", precision: 12, scale: 2, default: "0.0", null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "stock_quantity", precision: 10, scale: 2, default: "0.0", null: false
+    t.index ["product_id", "is_active"], name: "index_product_variants_on_product_id_and_is_active"
+    t.index ["product_id"], name: "index_product_variants_on_product_id"
+    t.index ["tenant_id", "sku"], name: "index_product_variants_on_tenant_id_and_sku", unique: true
+    t.index ["tenant_id"], name: "index_product_variants_on_tenant_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -819,6 +904,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
   end
 
   add_foreign_key "account_receivable_details", "document_account_receivables"
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "app_modules_menu_items", "app_modules"
   add_foreign_key "app_modules_menu_items", "menu_items"
   add_foreign_key "areas", "tenants"
@@ -845,6 +932,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
   add_foreign_key "groups", "tenants"
   add_foreign_key "groups", "trainers"
   add_foreign_key "invoice_items", "invoices"
+  add_foreign_key "invoice_items", "product_variants"
   add_foreign_key "invoice_items", "products"
   add_foreign_key "invoice_items", "unit_measures"
   add_foreign_key "invoice_payments", "bank_accounts"
@@ -863,7 +951,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
   add_foreign_key "menu_items", "menu_items", column: "parent_id"
   add_foreign_key "municipalities", "departments"
   add_foreign_key "objectives", "tenants"
+  add_foreign_key "order_advances", "bank_accounts"
+  add_foreign_key "order_advances", "orders"
+  add_foreign_key "order_advances", "payment_methods"
+  add_foreign_key "order_advances", "tenants"
+  add_foreign_key "order_advances", "users", column: "received_by_id"
   add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "product_variants"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "dining_tables"
@@ -887,6 +981,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_16_173324) do
   add_foreign_key "product_composition_items", "unit_measures"
   add_foreign_key "product_compositions", "products"
   add_foreign_key "product_compositions", "tenants"
+  add_foreign_key "product_variants", "products"
+  add_foreign_key "product_variants", "tenants"
   add_foreign_key "products", "product_categories"
   add_foreign_key "products", "suppliers"
   add_foreign_key "products", "tenants"

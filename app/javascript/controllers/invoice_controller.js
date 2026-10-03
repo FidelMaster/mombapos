@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 // IF INVOICE PAYMENT IS CREDIT HIDE PAYMENT METHODS
 export default class extends Controller {
     static targets = [
-        "item", "product", "quantity", "price", "lineTotal",
+        "item", "product", "variant", "quantity", "price", "lineTotal",
         "subtotal", "tax", "total", "tendered", "change",
         "invoiceType", "priceList", "itemsContainer", "template",
         "subtotalInput", "taxInput", "totalInput",
@@ -85,6 +85,7 @@ export default class extends Controller {
         const row = event.target.closest("tr") || event.target.closest('[data-invoice-target="item"]')
         const productSelect = row.querySelector('[data-invoice-target="product"]')
         const productId = productSelect ? productSelect.value : ''
+        const variantSelect = row.querySelector('[data-invoice-target="variant"]')
         const priceListId = this.hasPriceListTarget ? this.priceListTarget.value : 0
 
         // 1. Guardar la descripción/nombre del producto en el input hidden de la línea
@@ -105,6 +106,97 @@ export default class extends Controller {
         const priceField = row.querySelector('[data-invoice-target="price"]')
         if (priceField) {
             priceField.value = price.toFixed(2)
+        }
+
+        // 3. Cargar dinámicamente las variantes del producto
+        if (variantSelect) {
+            if (productId) {
+                variantSelect.innerHTML = '<option value="">Cargando variantes...</option>'
+                variantSelect.disabled = true
+
+                fetch(`/products/${productId}/variants.json`)
+                    .then(res => res.json())
+                    .then(data => {
+                        variantSelect.innerHTML = ''
+                        const variants = data.variants || []
+                        if (variants.length > 0) {
+                            const defaultOpt = document.createElement('option')
+                            defaultOpt.value = ''
+                            defaultOpt.textContent = 'Sin variante (Estándar)'
+                            variantSelect.appendChild(defaultOpt)
+
+                            variants.forEach(v => {
+                                const opt = document.createElement('option')
+                                opt.value = v.id
+                                const stockVal = Math.round(v.stock_available || 0)
+                                opt.textContent = `${v.label} (Stock: ${stockVal})`
+                                if (v.price && parseFloat(v.price) > 0) {
+                                    opt.dataset.price = v.price
+                                }
+                                opt.dataset.stock = v.stock_available
+                                opt.dataset.variantName = v.name || v.label
+                                variantSelect.appendChild(opt)
+                            })
+                            variantSelect.disabled = false
+                        } else {
+                            const opt = document.createElement('option')
+                            opt.value = ''
+                            opt.textContent = 'N/A'
+                            variantSelect.appendChild(opt)
+                            variantSelect.disabled = false
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error al cargar variantes:", err)
+                        variantSelect.innerHTML = '<option value="">N/A</option>'
+                        variantSelect.disabled = false
+                    })
+            } else {
+                variantSelect.innerHTML = '<option value="">N/A</option>'
+            }
+        }
+
+        this.calculateLineTotal(row)
+    }
+
+    updateVariant(event) {
+        const row = event.target.closest("tr") || event.target.closest('[data-invoice-target="item"]')
+        const variantSelect = row.querySelector('[data-invoice-target="variant"]')
+        const priceField = row.querySelector('[data-invoice-target="price"]')
+        const descriptionInput = row.querySelector('[data-invoice-target="itemDescriptionInput"]')
+        const productSelect = row.querySelector('[data-invoice-target="product"]')
+        const productId = productSelect ? productSelect.value : ''
+        const priceListId = this.hasPriceListTarget ? this.priceListTarget.value : 0
+
+        if (variantSelect && variantSelect.selectedIndex >= 0) {
+            const selectedOption = variantSelect.options[variantSelect.selectedIndex]
+
+            if (selectedOption && selectedOption.dataset.price && parseFloat(selectedOption.dataset.price) > 0) {
+                if (priceField) {
+                    priceField.value = parseFloat(selectedOption.dataset.price).toFixed(2)
+                }
+            } else {
+                // Revertir a precio base del producto
+                let basePrice = 0
+                if (this.priceMapValue[priceListId] && this.priceMapValue[priceListId][productId]) {
+                    basePrice = parseFloat(this.priceMapValue[priceListId][productId])
+                } else if (this.priceMapValue[0] && this.priceMapValue[0][productId]) {
+                    basePrice = parseFloat(this.priceMapValue[0][productId])
+                }
+                if (priceField) {
+                    priceField.value = basePrice.toFixed(2)
+                }
+            }
+
+            // Actualizar descripción de la línea
+            if (descriptionInput && productSelect && productSelect.selectedIndex >= 0) {
+                const prodText = productSelect.options[productSelect.selectedIndex].text.trim()
+                if (selectedOption.value && selectedOption.dataset.variantName) {
+                    descriptionInput.value = `${prodText} - ${selectedOption.dataset.variantName}`
+                } else {
+                    descriptionInput.value = prodText
+                }
+            }
         }
 
         this.calculateLineTotal(row)
@@ -200,7 +292,15 @@ export default class extends Controller {
 
             if (productSelect && productSelect.selectedIndex >= 0 && productSelect.value) {
                 hasRows = true
-                const productName = productSelect.options[productSelect.selectedIndex].text.split(' - ')[0] // Toma el nombre limpio
+                const baseName = productSelect.options[productSelect.selectedIndex].text.split(' - ')[0]
+                const variantSelect = row.querySelector('[data-invoice-target="variant"]')
+                let variantLabel = ''
+                if (variantSelect && variantSelect.value && variantSelect.selectedIndex >= 0) {
+                    const varOpt = variantSelect.options[variantSelect.selectedIndex]
+                    const varClean = (varOpt.dataset.variantName || varOpt.text.split(' (Stock')[0]).trim()
+                    if (varClean) variantLabel = ` (${varClean})`
+                }
+                const productName = `${baseName}${variantLabel}`
                 const qty = qtyInput ? qtyInput.value : 1
                 const total = totalInput ? parseFloat(totalInput.value).toFixed(2) : '0.00'
 
