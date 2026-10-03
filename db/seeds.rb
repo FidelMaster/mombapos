@@ -161,24 +161,25 @@ if Tenant.count == 0
     license_id: 1
   )
 
-
-  puts "Inserting  roles..."
-  
-  %w(owner admin manager staff cashier waiter waiteress).each do |role_name|
-    Role.create!(
-      tenant: tenant,
-      name: role_name
-    )
-  end
-
-  puts "user.."
-  User.create!(
+ 
+  puts "Inserting roles..."
+roles = {}
+%w(owner admin manager staff cashier waiter waitress).each do |role_name|
+  roles[role_name] = Role.create!(
     tenant: tenant,
-    email: "admin@demo.com",
-    password: "password123",
-    role_id: Role.where(name: "owner").first.id,
-    role: :owner
+    name: role_name
   )
+end
+
+puts "Inserting admin user..."
+User.create!(
+  tenant: tenant,
+  email: "admin@demo.com",
+  password: "password123",
+  password_confirmation: "password123",
+  role_id: roles["owner"].id,
+  role: :owner # o 0 si no tienes enum configurado en User
+)
 else 
   tenant = Tenant.first
 end
