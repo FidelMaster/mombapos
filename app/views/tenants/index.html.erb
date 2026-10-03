@@ -4,21 +4,33 @@
       title: "Tenants", 
       collection: @tenants,
       new_path: new_tenant_path, 
-      headers: ["Uuid", "Name", "Subdomain", "Logo url", "Email", "Módulos"] do |tenant| %>
+      headers: ["Logo", "Empresa", "Subdominio", "Ciudad / Tel", "Email", "Módulos"] do |tenant| %>
 
     <tr class="hover:bg-slate-50 transition-colors duration-200 group">
       <%# Dynamic fields %>
       <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900"><%= tenant.uuid %></div>
+        <div class="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+          <% if tenant.logo.attached? %>
+            <%= image_tag tenant.logo, class: "w-full h-full object-contain p-0.5" %>
+          <% elsif tenant.logo_url.present? %>
+            <img src="<%= tenant.logo_url %>" class="w-full h-full object-contain p-0.5" onerror="this.style.display='none'">
+          <% else %>
+            <img src="/logo.jpg" class="w-full h-full object-contain p-0.5 grayscale" onerror="this.style.display='none'">
+          <% end %>
+        </div>
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900"><%= tenant.name %></div>
+        <div class="text-sm font-semibold text-gray-900"><%= tenant.name %></div>
+        <div class="text-xs text-gray-400 font-mono"><%= tenant.uuid %></div>
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900"><%= tenant.subdomain %></div>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium bg-slate-100 text-slate-700">
+          <%= tenant.subdomain %>
+        </span>
       </td>
-      <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900"><%= tenant.logo_url %></div>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+        <div><%= tenant.city.presence || "—" %></div>
+        <div class="text-xs text-gray-400"><%= tenant.phone.presence || "" %></div>
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
         <div class="text-sm text-gray-900"><%= tenant.email %></div>

@@ -1,46 +1,56 @@
-<div id="<%= dom_id tenant %>" class="w-full sm:w-auto my-5 space-y-5">
-  <div>
-    <strong class="block font-medium mb-1">Uuid:</strong>
-    <%= tenant.uuid %>
+<div id="<%= dom_id tenant %>" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm my-6 space-y-6">
+  <div class="flex items-center gap-5 border-b border-slate-100 pb-5">
+    <div class="w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+      <% if tenant.logo.attached? %>
+        <%= image_tag tenant.logo, class: "w-full h-full object-contain p-1" %>
+      <% elsif tenant.logo_url.present? %>
+        <img src="<%= tenant.logo_url %>" class="w-full h-full object-contain p-1" onerror="this.style.display='none'">
+      <% else %>
+        <img src="/logo.jpg" class="w-full h-full object-contain p-1 grayscale" onerror="this.style.display='none'">
+      <% end %>
+    </div>
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900"><%= tenant.name %></h2>
+      <p class="text-sm text-slate-500 font-mono"><%= tenant.subdomain %>.mombapos.com</p>
+      <span class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold <%= tenant.is_active? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+        <%= tenant.is_active? ? 'Activo' : 'Inactivo' %>
+      </span>
+    </div>
   </div>
-  <div>
-    <strong class="block font-medium mb-1">Name:</strong>
-    <%= tenant.name %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Subdomain:</strong>
-    <%= tenant.subdomain %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Logo url:</strong>
-    <%= tenant.logo_url %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Max users:</strong>
-    <%= tenant.max_users %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Max invoices:</strong>
-    <%= tenant.max_invoices %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Max branches:</strong>
-    <%= tenant.max_branches %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Max products:</strong>
-    <%= tenant.max_products %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Default currency:</strong>
-    <%= tenant.default_currency %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Timezone:</strong>
-    <%= tenant.timezone %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Is active:</strong>
-    <%= tenant.is_active? ? "Yes" : "No" %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+    <div class="p-3 bg-slate-50 rounded-xl">
+      <strong class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Dirección:</strong>
+      <p class="text-slate-800"><%= tenant.address.presence || "No registrada" %></p>
+    </div>
+
+    <div class="p-3 bg-slate-50 rounded-xl">
+      <strong class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ciudad:</strong>
+      <p class="text-slate-800"><%= tenant.city.presence || "No registrada" %></p>
+    </div>
+
+    <div class="p-3 bg-slate-50 rounded-xl">
+      <strong class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Teléfono:</strong>
+      <p class="text-slate-800"><%= tenant.phone.presence || "No registrado" %></p>
+    </div>
+
+    <div class="p-3 bg-slate-50 rounded-xl">
+      <strong class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email:</strong>
+      <p class="text-slate-800"><%= tenant.email.presence || "No registrado" %></p>
+    </div>
+
+    <div class="p-3 bg-slate-50 rounded-xl">
+      <strong class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Moneda y Zona:</strong>
+      <p class="text-slate-800"><%= tenant.default_currency %> • <%= tenant.timezone %></p>
+    </div>
+
+    <div class="p-3 bg-slate-50 rounded-xl">
+      <strong class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Límites:</strong>
+      <p class="text-slate-800">
+        <%= tenant.max_users || '∞' %> Usuarios • 
+        <%= tenant.max_branches || '∞' %> Sucursales • 
+        <%= tenant.max_products || '∞' %> Productos
+      </p>
+    </div>
   </div>
 </div>

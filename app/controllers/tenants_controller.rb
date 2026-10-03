@@ -68,6 +68,11 @@ class TenantsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def tenant_params
-      params.require(:tenant).permit(:uuid, :name, :email, :subdomain, :logo_url, :max_users, :max_invoices, :max_branches, :max_products, :default_currency, :timezone, :is_active, :license_id)
+      params.require(:tenant).permit(
+        :uuid, :name, :email, :subdomain, :logo, :logo_url,
+        :address, :phone, :city,
+        :max_users, :max_invoices, :max_branches, :max_products,
+        :default_currency, :timezone, :is_active, :license_id
+      )
     end
 end

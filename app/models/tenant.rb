@@ -16,11 +16,23 @@ class Tenant < ApplicationRecord
   has_many :tenant_modules, dependent: :destroy
   has_many :app_modules, through: :tenant_modules
 
+  has_one_attached :logo
+
   enum default_currency: { NIO: "NIO", USD: "USD" }
 
   after_create :initialize_tenant
 
   validates_presence_of :email, :name, :subdomain, :license_id
+
+  def logo_source
+    if logo.attached?
+      logo
+    elsif logo_url.present?
+      logo_url
+    else
+      "/logo.jpg"
+    end
+  end
 
   private
 

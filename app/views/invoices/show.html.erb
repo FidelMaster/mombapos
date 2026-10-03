@@ -76,11 +76,25 @@
       
       <%# Logo y Encabezado %>
       <div class="text-center border-b border-dashed border-slate-300 pb-3">
-        <img src="/logo.jpg" alt="Logo" class="h-12 mx-auto mb-2 object-contain grayscale" onerror="this.style.display='none'">
-        <h2 class="font-black text-sm uppercase">Mishell Display</h2>
-        <p class="text-[11px]">Los robles frente a plaza Loza</p>
-        <p class="text-[11px]">Managua, Nicaragua</p>
-        <p class="text-[11px]">Tel: +505 5774-2754</p>
+        <% ticket_tenant = current_tenant || current_user&.tenant %>
+        <% if ticket_tenant&.logo&.attached? %>
+          <%= image_tag ticket_tenant.logo, alt: "Logo", class: "h-12 mx-auto mb-2 object-contain grayscale", onerror: "this.style.display='none'" %>
+        <% elsif ticket_tenant&.logo_url.present? %>
+          <img src="<%= ticket_tenant.logo_url %>" alt="Logo" class="h-12 mx-auto mb-2 object-contain grayscale" onerror="this.style.display='none'">
+        <% else %>
+          <img src="/logo.jpg" alt="Logo" class="h-12 mx-auto mb-2 object-contain grayscale" onerror="this.style.display='none'">
+        <% end %>
+
+        <h2 class="font-black text-sm uppercase"><%= ticket_tenant&.name %></h2>
+        <% if ticket_tenant&.address.present? %>
+          <p class="text-[11px]"><%= ticket_tenant.address %></p>
+        <% end %>
+        <% if ticket_tenant&.city.present? %>
+          <p class="text-[11px]"><%= ticket_tenant.city %>, Nicaragua</p>
+        <% end %>
+        <% if ticket_tenant&.phone.present? %>
+          <p class="text-[11px]">Tel: <%= ticket_tenant.phone %></p>
+        <% end %>
       </div>
 
       <%# Datos de la Factura %>
