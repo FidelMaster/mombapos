@@ -191,16 +191,19 @@ puts "Inserting banks..."
 puts "Bank count: #{Bank.count}"
 if Bank.count == 0
   Bank.create!(
+    tenant: tenant,
     name: "Banpro",
     code: "BANPRO",
   )
 
   Bank.create!(
+    tenant: tenant,
     name: "BAC",
     code: "BAC",
   )
 
   Bank.create!(
+    tenant: tenant,
     name: "LAFISE",
     code: "LAFISE",
   )
