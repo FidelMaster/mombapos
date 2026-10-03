@@ -163,10 +163,10 @@ if Tenant.count == 0
 
  
   puts "Inserting roles..."
-roles = {}
-%w(owner admin manager staff cashier waiter waitress).each do |role_name|
-  roles[role_name] = Role.create!(
-    tenant: tenant,
+  roles = {}
+  %w(owner admin manager staff cashier waiter waitress).each do |role_name|
+    roles[role_name] = Role.create!(
+      tenant: tenant,
     name: role_name
   )
 end
