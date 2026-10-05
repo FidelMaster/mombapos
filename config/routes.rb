@@ -57,6 +57,11 @@ Rails.application.routes.draw do
       member do
         get :manage_modules
         post :update_modules
+        get :manage_users
+        post :create_user
+        patch :toggle_user_status
+        delete :destroy_user
+        patch :toggle_active
       end
     end
     resources :plan_extra_controls

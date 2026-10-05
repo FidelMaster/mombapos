@@ -15,6 +15,7 @@ class Tenant < ApplicationRecord
   has_many :exchange_rates
   has_many :tenant_modules, dependent: :destroy
   has_many :app_modules, through: :tenant_modules
+  has_many :roles, dependent: :destroy
 
   has_one_attached :logo
 
@@ -23,6 +24,47 @@ class Tenant < ApplicationRecord
   after_create :initialize_tenant
 
   validates_presence_of :email, :name, :subdomain, :license_id
+
+  def ensure_default_roles
+    return roles if roles.any?
+
+    # 1. Owner
+    owner_role = roles.create(name: "owner")
+    owner_role.permissions.create(action: "manage", subject_class: "all") if owner_role.persisted?
+
+    # 2. Admin
+    admin_role = roles.create(name: "admin")
+    admin_role.permissions.create(action: "manage", subject_class: "all") if admin_role.persisted?
+
+    # 3. Accountant
+    accountant_role = roles.create(name: "accountant")
+    if accountant_role.persisted?
+      [
+        ["read", "Invoice"], ["read", "BankAccount"], ["read", "Bank"], 
+        ["read", "DocumentAccountReceivable"], ["read", "Receipt"], ["read", "ExchangeRate"],
+        ["manage", "BankAccount"], ["manage", "DocumentAccountReceivable"], ["manage", "Receipt"],
+        ["read", "Product"], ["read", "Customer"], ["read", "Branch"], ["read", "Warehouse"],
+        ["read", "dashboard"], ["read", "reports"]
+      ].each do |action, subject|
+        accountant_role.permissions.create(action: action, subject_class: subject)
+      end
+    end
+
+    # 4. Seller
+    seller_role = roles.create(name: "seller")
+    if seller_role.persisted?
+      [
+        ["manage", "Order"], ["manage", "Customer"],
+        ["read", "Invoice"], ["create", "Invoice"], ["new", "Invoice"],
+        ["read", "Product"], ["read", "ProductCategory"], ["read", "DiningTable"],
+        ["read", "dashboard"]
+      ].each do |action, subject|
+        seller_role.permissions.create(action: action, subject_class: subject)
+      end
+    end
+
+    roles
+  end
 
   def logo_source
     if logo.attached?
