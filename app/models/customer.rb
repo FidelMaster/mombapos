@@ -1,7 +1,7 @@
 class Customer < ApplicationRecord
   belongs_to :tenant
-  belongs_to :department
-  belongs_to :municipality
+  belongs_to :department, optional: true
+  belongs_to :municipality, optional: true
 
   has_many :customer_addresses, dependent: :destroy
   has_many :invoices, dependent: :destroy
