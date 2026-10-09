@@ -6,6 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Controla inventarios, ventas, cotizaciones de taller y comprobantes fiscales desde cualquier dispositivo en Nicaragua.">
 
+     <!-- 2. Meta Descripción para motores de búsqueda -->
+    <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "MombaPos es el software de punto de venta y facturación en la nube para comercios, restaurantes y empresas en Nicaragua. Controla ventas e inventarios con rapidez." %>">
+    
+    <!-- 3. Control de Indexación (Evita indexar logins y paneles internos si se pasa :noindex) -->
+    <% if content_for?(:noindex) %>
+      <meta name="robots" content="noindex, nofollow">
+    <% else %>
+      <meta name="robots" content="index, follow">
+    <% end %>
+
+    <!-- 4. URL Canónica para evitar duplicidad -->
+    <link rel="canonical" href="<%= request.base_url + request.path %>">
+
+    <!-- 5. Open Graph (Tarjetas sociales para WhatsApp, Facebook, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MombaPos">
+    <meta property="og:title" content="<%= content_for?(:title) ? yield(:title) : "MombaPos | Facturación y Punto de Venta en la Nube" %>">
+    <meta property="og:description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "Gestiona tus ventas, inventarios y comprobantes fiscales desde cualquier dispositivo en Nicaragua." %>">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:image" content="<%= asset_url('logo-mombapos.png') %>">
+    <meta property="og:locale" content="es_NI">
+
+    <!-- 6. Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= content_for?(:title) ? yield(:title) : "MombaPos | Sistema POS en Nicaragua" %>">
+    <meta name="twitter:description" content="Software ágil de facturación e inventario en la nube.">
+    <meta name="twitter:image" content="<%= asset_url('logo-mombapos.png') %>">
+
+    <!-- 7. Favicon e Iconos de Dispositivos -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_url('logo-mombapos.png') %>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= asset_url('logo-mombapos.png') %>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= asset_url('logo-mombapos.png') %>">
+    <link rel="manifest" href="<%= asset_url('logo-mombapos.png') %>">
+    <meta name="theme-color" content="#F97316">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
