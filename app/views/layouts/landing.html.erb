@@ -38,7 +38,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_url('logo-mombapos.png') %>">
     <link rel="icon" type="image/png" sizes="32x32" href="<%= asset_url('logo-mombapos.png') %>">
     <link rel="icon" type="image/png" sizes="16x16" href="<%= asset_url('logo-mombapos.png') %>">
-    <link rel="manifest" href="<%= asset_url('logo-mombapos.png') %>">
+    
+    <!-- Favicon e Iconos de Dispositivos -->
+    <%= favicon_link_tag 'logo-mombapos.png', rel: 'icon', type: 'image/png' %>
+    <%= favicon_link_tag 'logo-mombapos.png', rel: 'apple-touch-icon', type: 'image/png' %>
     <meta name="theme-color" content="#F97316">
 
     <%= csrf_meta_tags %>
