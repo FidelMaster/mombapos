@@ -65,3 +65,6 @@ gem 'cancancan'
 
 # Active Storage -> AWS S3 (fotos de variantes de producto)
 gem "aws-sdk-s3", require: false
+
+gem "wicked_pdf", "~> 2.8"
+gem "wkhtmltopdf-binary", "~> 0.12.6"

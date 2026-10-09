@@ -1,0 +1,332 @@
+<%
+  @tenant = current_tenant || Current.tenant || @order.tenant
+  logo_uri = tenant_logo_data_uri(@tenant)
+  total_pieces = @order_items.sum { |item| (item.quantity || 1).to_f }
+  total_pieces_formatted = (total_pieces % 1 == 0) ? total_pieces.to_i : sprintf("%.2f", total_pieces)
+  advance_paid = @order.advance_amount.to_d > 0 ? @order.advance_amount.to_d : @order_advances.sum { |a| a.amount.to_d }
+  balance_due = [@order.total.to_d - advance_paid, 0].max
+  notes_content = @order.workshop_notes.presence || (@order.respond_to?(:notes) ? @order.notes : nil)
+%>
+
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; font-size: 11.5px; line-height: 1.45;">
+  
+  <!-- ========================================== -->
+  <!-- 1. ENCABEZADO (BRANDING & TÍTULO) -->
+  <!-- ========================================== -->
+  <table style="width: 100%; border-bottom: 2px solid #0f172a; padding-bottom: 14px; margin-bottom: 16px;">
+    <tr>
+      <!-- Esquina Superior Izquierda: Branding Taller -->
+      <td style="width: 58%; vertical-align: top;">
+        <% if logo_uri.present? %>
+          <div style="margin-bottom: 6px;">
+            <img src="<%= logo_uri %>" alt="<%= @tenant&.name %>" style="max-height: 55px; max-width: 190px; object-fit: contain; display: block;" />
+          </div>
+        <% end %>
+        <div style="font-size: 15px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.02em;">
+          <%= @tenant&.name.presence || "TALLER DE JOYERÍA" %>
+        </div>
+        <% if @tenant&.business_dni.present? %>
+          <div style="font-size: 11px; color: #475569; font-weight: 600; margin-top: 1px;">
+            <strong>RUC:</strong> <%= @tenant.business_dni %>
+          </div>
+        <% end %>
+        <% if @tenant&.address.present? %>
+          <div style="font-size: 10.5px; color: #64748b; margin-top: 1px;">
+            <%= @tenant.address %>
+          </div>
+        <% end %>
+        <div style="font-size: 10.5px; color: #64748b; margin-top: 1px;">
+          <% if @tenant&.city.present? %>
+            <span><%= @tenant.city %>, Nicaragua</span>
+          <% else %>
+            <span>Nicaragua</span>
+          <% end %>
+          <% if @tenant&.phone.present? %>
+            <span style="margin-left: 8px;">• <strong>Tel:</strong> <%= @tenant.phone %></span>
+          <% end %>
+        </div>
+      </td>
+
+      <!-- Esquina Superior Derecha: Título y Folio -->
+      <td style="width: 42%; vertical-align: top; text-align: right;">
+        <div style="display: inline-block; text-align: right;">
+          <div style="font-size: 18px; font-weight: 900; color: #0f172a; letter-spacing: 0.04em;">
+            COTIZACIÓN / TALLER
+          </div>
+          <div style="font-family: ui-monospace, Menlo, monospace; font-size: 16px; font-weight: 800; color: #0284c7; margin-top: 3px;">
+            <%= @order.order_code.start_with?("#") ? @order.order_code : "##{@order.order_code}" %>
+          </div>
+
+          <div style="margin-top: 8px;">
+            <span style="display: inline-block; padding: 4px 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 9999px;
+                         background-color: <%= @order.draft? ? '#f1f5f9' : (@order.completed? ? '#ecfdf5' : '#fef3c7') %>;
+                         color: <%= @order.draft? ? '#475569' : (@order.completed? ? '#065f46' : '#92400e') %>;
+                         border: 1px solid <%= @order.draft? ? '#cbd5e1' : (@order.completed? ? '#a7f3d0' : '#fde68a') %>;">
+              ● <%= @order.status_label %>
+            </span>
+          </div>
+
+          <% if @order.order_kind == "custom_order" %>
+            <div style="margin-top: 4px;">
+              <span style="font-size: 9.5px; font-weight: 700; color: #b45309; text-transform: uppercase;">
+                ⚒ Servicio Técnico / Encargo
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ========================================== -->
+  <!-- 2. BLOQUE DE INFORMACIÓN (2 COLUMNAS) -->
+  <!-- ========================================== -->
+  <table style="width: 100%; margin-bottom: 16px;" cellpadding="0" cellspacing="0">
+    <tr>
+      <!-- Tarjeta Izquierda: Información del Cliente -->
+      <td style="width: 49%; vertical-align: top;">
+        <table style="width: 100%; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
+          <tr>
+            <td style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1;">
+              INFORMACIÓN DEL CLIENTE
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 6px;">
+              <div style="font-size: 13px; font-weight: 800; color: #0f172a;">
+                <%= @order.customer&.name.presence || @order.customer_name.presence || "Cliente Genérico" %>
+              </div>
+              
+              <% phone = @order.customer_phone.presence || @order.customer&.contact_phone.presence %>
+              <% if phone.present? %>
+                <div style="font-size: 11px; color: #334155; margin-top: 3px;">
+                  <strong style="color: #64748b;">Teléfono:</strong> <%= phone %>
+                </div>
+              <% end %>
+
+              <% email = @order.customer&.contact_email.presence %>
+              <% if email.present? %>
+                <div style="font-size: 11px; color: #334155; margin-top: 2px;">
+                  <strong style="color: #64748b;">Email:</strong> <%= email %>
+                </div>
+              <% end %>
+
+              <% address = @order.delivery_address.presence || @order.customer&.address.presence %>
+              <% if address.present? %>
+                <div style="font-size: 10.5px; color: #475569; margin-top: 3px; line-height: 1.35;">
+                  <strong style="color: #64748b;">Dirección:</strong> <%= address %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        </table>
+      </td>
+
+      <td style="width: 2%;"></td>
+
+      <!-- Tarjeta Derecha: Detalles del Encargo -->
+      <td style="width: 49%; vertical-align: top;">
+        <table style="width: 100%; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
+          <tr>
+            <td style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1;">
+              DETALLES DEL ENCARGO
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 6px;">
+              <table style="width: 100%; font-size: 11px;">
+                <tr>
+                  <td style="color: #64748b; padding-bottom: 3px; width: 45%;">Fecha de Emisión:</td>
+                  <td style="font-weight: 700; color: #0f172a; text-align: right; padding-bottom: 3px;">
+                    <%= @order.created_at.strftime("%d/%m/%Y %I:%M %p") %>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b; padding-bottom: 3px;">Promesa de Entrega:</td>
+                  <td style="font-weight: 800; color: #b45309; text-align: right; padding-bottom: 3px;">
+                    <%= @order.promised_delivery_date.present? ? @order.promised_delivery_date.strftime("%d/%m/%Y") : "Por definir" %>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b; padding-bottom: 3px;">Total Piezas:</td>
+                  <td style="font-weight: 800; color: #0f172a; text-align: right; padding-bottom: 3px;">
+                    <%= total_pieces_formatted %> <%= total_pieces.to_i == 1 ? 'pieza' : 'piezas' %>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b;">Tipo de Trabajo:</td>
+                  <td style="font-weight: 700; color: #334155; text-align: right;">
+                    <%= @order.kind_label %>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ========================================== -->
+  <!-- 3. TABLA DE PIEZAS Y SERVICIOS -->
+  <!-- ========================================== -->
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px; border: 1px solid #cbd5e1;" cellpadding="0" cellspacing="0">
+    <thead>
+      <tr style="background-color: #0f172a; color: #ffffff;">
+        <th style="padding: 7px 10px; font-size: 10.5px; font-weight: 800; text-align: center; width: 10%; text-transform: uppercase; letter-spacing: 0.04em;">Cant.</th>
+        <th style="padding: 7px 10px; font-size: 10.5px; font-weight: 800; text-align: left; width: 54%; text-transform: uppercase; letter-spacing: 0.04em;">Descripción / Pieza</th>
+        <th style="padding: 7px 10px; font-size: 10.5px; font-weight: 800; text-align: right; width: 18%; text-transform: uppercase; letter-spacing: 0.04em;">Precio Unit.</th>
+        <th style="padding: 7px 10px; font-size: 10.5px; font-weight: 800; text-align: right; width: 18%; text-transform: uppercase; letter-spacing: 0.04em;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @order_items.empty? %>
+        <tr>
+          <td colspan="4" style="padding: 16px; text-align: center; color: #64748b; font-style: italic;">
+            No hay piezas ni servicios registrados en esta orden.
+          </td>
+        </tr>
+      <% else %>
+        <% @order_items.each_with_index do |item, idx| %>
+          <%
+            row_bg = idx.even? ? "#ffffff" : "#f8fafc"
+            item_title = item.product&.name.presence || item.notes.presence || "Pieza de Taller"
+            details = []
+            details << "Grabado: \"#{item.engraving_text}\"" if item.respond_to?(:engraving_text) && item.engraving_text.present?
+            details << item.custom_specifications if item.respond_to?(:custom_specifications) && item.custom_specifications.present?
+            details << item.notes if item.notes.present? && item.product.present?
+            details << "Variante: #{item.product_variant.name}" if item.product_variant.present?
+          %>
+          <tr style="background-color: <%= row_bg %>; border-top: 1px solid #e2e8f0; page-break-inside: avoid;">
+            <!-- Cantidad -->
+            <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #0f172a; vertical-align: top;">
+              <%= (item.quantity.to_f % 1 == 0) ? item.quantity.to_i : item.quantity %>
+            </td>
+
+            <!-- Descripción / Pieza -->
+            <td style="padding: 8px 10px; vertical-align: top;">
+              <div style="margin-bottom: 2px;">
+                <span style="display: inline-block; font-size: 9px; font-weight: 800; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px 6px; margin-right: 4px; vertical-align: middle;">
+                  Pieza #<%= idx + 1 %>
+                </span>
+                <span style="font-size: 12px; font-weight: 800; color: #0f172a; vertical-align: middle;">
+                  <%= item_title %>
+                </span>
+              </div>
+
+              <% if details.any? %>
+                <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.35; padding-left: 2px;">
+                  <% details.each do |detail| %>
+                    <div>• <%= detail %></div>
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+
+            <!-- Precio Unitario -->
+            <td style="padding: 8px 10px; text-align: right; font-family: ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 600; color: #334155; vertical-align: top;">
+              <%= order_money(item.unit_price) %>
+            </td>
+
+            <!-- Total -->
+            <td style="padding: 8px 10px; text-align: right; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; font-weight: 800; color: #0f172a; vertical-align: top;">
+              <%= order_money(item.subtotal) %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <!-- ========================================== -->
+  <!-- 4. SECCIÓN INFERIOR (NOTAS & RESUMEN FINANCIERO) -->
+  <!-- ========================================== -->
+  <table style="width: 100%; margin-bottom: 20px; page-break-inside: avoid;" cellpadding="0" cellspacing="0">
+    <tr>
+      <!-- Lado Izquierdo: Observaciones y Condiciones Legales -->
+      <td style="width: 58%; vertical-align: top; padding-right: 14px;">
+        <!-- Observaciones del Encargo -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #0284c7; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;">
+          <div style="font-size: 9.5px; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+            Observaciones del Taller / Especificaciones
+          </div>
+          <div style="font-size: 10.5px; color: #334155; line-height: 1.4;">
+            <%= notes_content.present? ? simple_format(notes_content, {}, wrapper_tag: "span") : "Sin observaciones adicionales registradas para este encargo." %>
+          </div>
+        </div>
+
+        <!-- Condiciones Legales / Políticas -->
+        <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 8px 10px;">
+          <div style="font-size: 9.5px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
+            Términos y Condiciones de la Cotización
+          </div>
+          <ul style="margin: 0; padding-left: 14px; font-size: 9.5px; color: #78350f; line-height: 1.4;">
+            <li>Esta cotización tiene una vigencia legal de <strong>15 días calendario</strong> a partir de su emisión.</li>
+            <li>Para iniciar la elaboración o trabajo en taller se requiere un anticipo mínimo del <strong>50%</strong>.</li>
+            <li>El saldo restante se cancela en su totalidad contra la entrega formal de la pieza.</li>
+          </ul>
+        </div>
+      </td>
+
+      <!-- Lado Derecho: Desglose Financiero -->
+      <td style="width: 42%; vertical-align: top;">
+        <table style="width: 100%; border-collapse: collapse;" cellpadding="0" cellspacing="0">
+          <!-- Subtotal -->
+          <tr>
+            <td style="padding: 5px 8px; font-size: 11px; color: #64748b; font-weight: 600;">Subtotal:</td>
+            <td style="padding: 5px 8px; text-align: right; font-family: ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 700; color: #0f172a;">
+              <%= order_money(@order.total) %>
+            </td>
+          </tr>
+
+          <!-- Anticipo Recibido -->
+          <tr>
+            <td style="padding: 5px 8px; font-size: 11px; color: #065f46; font-weight: 700;">Anticipo Pagado:</td>
+            <td style="padding: 5px 8px; text-align: right; font-family: ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 700; color: #065f46;">
+              <%= order_money(advance_paid) %>
+            </td>
+          </tr>
+
+          <!-- Divisor -->
+          <tr>
+            <td colspan="2" style="border-bottom: 1px dashed #cbd5e1; padding-top: 4px; margin-bottom: 4px;"></td>
+          </tr>
+
+          <!-- Saldo Restante (Destacado) -->
+          <tr>
+            <td colspan="2" style="padding-top: 8px;">
+              <table style="width: 100%; background-color: #0f172a; border-radius: 8px; color: #ffffff; padding: 9px 12px;" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="vertical-align: middle;">
+                    <div style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+                      SALDO RESTANTE
+                    </div>
+                    <div style="font-size: 8.5px; color: #cbd5e1;">A cancelar en entrega</div>
+                  </td>
+                  <td style="text-align: right; vertical-align: middle;">
+                    <div style="font-family: ui-monospace, Menlo, monospace; font-size: 16px; font-weight: 900; color: <%= balance_due > 0 ? '#38bdf8' : '#34d399' %>;">
+                      <%= order_money(balance_due) %>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ========================================== -->
+  <!-- 5. PIE DE PÁGINA INSTITUCIONAL -->
+  <!-- ========================================== -->
+  <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px; text-align: center; color: #94a3b8; font-size: 9px; line-height: 1.4; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #64748b; letter-spacing: 0.02em;">
+      Generado vía MombaPOS • Sistema de Facturación y POS
+    </div>
+    <div style="margin-top: 2px;">
+      Documento emitido el <%= Time.current.strftime("%d/%m/%Y a las %I:%M %p") %> • Este documento no constituye una factura fiscal definitiva.
+    </div>
+  </div>
+
+</div>

@@ -106,4 +106,34 @@ module OrdersHelper
       content_tag(:span, text, class: "font-semibold text-slate-700")
     end
   end
+
+  def tenant_logo_data_uri(tenant = current_tenant)
+    target_tenant = tenant || Current.tenant
+    if target_tenant&.logo&.attached?
+      begin
+        blob = target_tenant.logo.blob
+        data = blob.download
+        content_type = blob.content_type
+        return "data:#{content_type};base64,#{Base64.strict_encode64(data)}"
+      rescue => e
+        Rails.logger.warn("Error loading tenant logo blob: #{e.message}")
+      end
+    end
+
+    local_candidates = [
+      Rails.root.join("public", "logo.jpg"),
+      Rails.root.join("app", "assets", "images", "logo-mombapos.png"),
+      Rails.root.join("public", "logo-mombapos.png")
+    ]
+
+    local_candidates.each do |path|
+      if File.exist?(path)
+        ext = File.extname(path).delete(".").downcase
+        content_type = ext == "png" ? "image/png" : "image/jpeg"
+        return "data:#{content_type};base64,#{Base64.strict_encode64(File.read(path))}"
+      end
+    end
+
+    nil
+  end
 end

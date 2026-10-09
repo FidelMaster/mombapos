@@ -121,10 +121,25 @@
                 <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-black <%= order.balance_amount.to_d.positive? ? 'text-rose-600' : 'text-slate-300' %>">
                   <%= order_money(order.balance_amount) %>
                 </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm"><%= promised_date_label(order) %></td>
-                <td class="whitespace-nowrap px-6 py-4"><%= order_status_badge(order.status) %></td>
+                <td class="whitespace-nowrap px-6 py-4">
+                  <div><%= order_status_badge(order.status) %></div>
+                  <% if order.invoiced? %>
+                    <div class="mt-1">
+                      <%= link_to invoice_path(order.linked_invoice), class: "inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-black text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition" do %>
+                        🧾 <%= order.linked_invoice.invoice_number %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </td>
                 <td class="whitespace-nowrap px-6 py-4 text-right">
-                  <%= link_to "Ver ficha →", order, class: "rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100" %>
+                  <div class="flex items-center justify-end gap-1.5">
+                    <% unless order.invoiced? %>
+                      <%= link_to "Facturar", new_invoice_path(order_id: order.id), 
+                            class: "rounded-full bg-amber-400 px-3 py-1.5 text-xs font-black text-slate-900 hover:bg-amber-300 transition shadow-2xs",
+                            title: "Convertir en Factura" %>
+                    <% end %>
+                    <%= link_to "Ver ficha →", order, class: "rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800" %>
+                  </div>
                 </td>
               </tr>
             <% end %>

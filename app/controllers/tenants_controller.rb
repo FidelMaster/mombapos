@@ -128,7 +128,7 @@ class TenantsController < ApplicationController
     def tenant_params
       params.require(:tenant).permit(
         :uuid, :name, :email, :subdomain, :logo, :logo_url,
-        :address, :phone, :city,
+        :address, :phone, :city, :business_dni,
         :max_users, :max_invoices, :max_branches, :max_products,
         :default_currency, :timezone, :is_active, :license_id
       )

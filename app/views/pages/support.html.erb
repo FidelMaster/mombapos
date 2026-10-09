@@ -1,0 +1,146 @@
+
+<%= render "public_header" %>
+
+<main class="min-h-screen bg-slate-50">
+
+  <section class="overflow-hidden border-b border-slate-200 bg-white">
+    <div class="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+
+        <div>
+          <p class="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold text-orange-700">
+            <span class="h-2 w-2 rounded-full bg-orange-500"></span>
+            Centro de ayuda
+          </p>
+
+          <h1 class="mt-5 text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
+            ¿Cómo podemos ayudarte?
+          </h1>
+
+          <p class="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
+            Estamos aquí para ayudarte con tus consultas sobre MombaPOS,
+            sus funcionalidades y el uso diario de tu sistema.
+          </p>
+
+          <%= link_to "https://wa.me/50585817060?text=Hola%2C%20necesito%20soporte%20con%20MombaPOS",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              class: "mt-8 inline-flex items-center justify-center gap-3 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700" do %>
+
+            <svg class="h-5 w-5" viewBox="0 0 24 24"
+                 fill="currentColor" aria-hidden="true">
+              <path d="M20.52 3.48A11.87 11.87 0 0 0 12.06 0C5.5 0 .16 5.33.15 11.9c0 2.1.55 4.15 1.61 5.96L.05 24l6.3-1.65a11.9 11.9 0 0 0 5.7 1.45h.01c6.56 0 11.9-5.34 11.9-11.9 0-3.18-1.24-6.17-3.44-8.42ZM12.06 21.8h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.74.98 1-3.65-.24-.38a9.86 9.86 0 0 1-1.52-5.26C2.15 6.45 6.4 2.2 12.06 2.2a9.8 9.8 0 0 1 6.99 2.9 9.8 9.8 0 0 1 2.9 6.99c0 5.36-4.36 9.71-9.89 9.71Zm5.43-7.27c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.48-1.77-1.65-2.07-.17-.3-.02-.46.13-.61.14-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/>
+            </svg>
+
+            Contactar por WhatsApp
+          <% end %>
+
+          <p class="mt-4 text-xs leading-5 text-slate-400">
+            No compartas contraseñas ni códigos de acceso por mensajería.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+            <svg class="h-6 w-6" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.8"
+                 aria-hidden="true">
+              <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 4a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.4Z"/>
+            </svg>
+          </div>
+
+          <h2 class="mt-5 text-xl font-bold text-slate-900">
+            Para atenderte mejor
+          </h2>
+
+          <p class="mt-2 text-sm leading-6 text-slate-600">
+            Cuando nos contactes, incluye la siguiente información:
+          </p>
+
+          <ul class="mt-5 space-y-4">
+            <% [
+              ["Tu empresa", "Nombre de tu negocio o cuenta."],
+              ["La funcionalidad", "Facturación, cobros, cotizaciones, pedidos o reportes."],
+              ["El inconveniente", "Qué intentabas hacer y qué ocurrió."]
+            ].each do |title, description| %>
+              <li class="flex gap-3">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 24 24"
+                       fill="none" stroke="currentColor" stroke-width="2.5"
+                       aria-hidden="true">
+                    <path d="m5 12 4 4L19 6"/>
+                  </svg>
+                </span>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800"><%= title %></p>
+                  <p class="mt-1 text-sm leading-5 text-slate-500"><%= description %></p>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="text-sm font-bold uppercase tracking-wider text-orange-600">
+        Ayuda con tu sistema
+      </p>
+
+      <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">
+        ¿Sobre qué necesitas ayuda?
+      </h2>
+
+      <p class="mt-4 leading-7 text-slate-600">
+        Estos son algunos de los temas que puedes consultar con nuestro equipo.
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+      <% [
+        ["Facturación", "Consultas sobre emisión de comprobantes y operaciones de venta."],
+        ["Cuentas por cobrar", "Ayuda para revisar saldos pendientes y el seguimiento de cobros."],
+        ["Cotizaciones", "Orientación sobre la preparación y gestión de cotizaciones."],
+        ["Gestión de pedidos", "Consultas sobre el registro y seguimiento de pedidos."],
+        ["Reportes gerenciales", "Ayuda para localizar e interpretar los reportes disponibles."],
+        ["Acceso a tu cuenta", "Orientación sobre el inicio de sesión y la recuperación de acceso."]
+      ].each do |title, description| %>
+        <article class="rounded-xl border border-slate-200 bg-white p-6 transition hover:border-orange-200 hover:shadow-md">
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
+            <span class="text-lg font-bold text-orange-600" aria-hidden="true">?</span>
+          </div>
+
+          <h3 class="mt-4 font-bold text-slate-900"><%= title %></h3>
+
+          <p class="mt-2 text-sm leading-6 text-slate-600">
+            <%= description %>
+          </p>
+        </article>
+      <% end %>
+
+    </div>
+
+    <div class="mt-10 rounded-2xl bg-slate-950 px-6 py-8 text-center sm:px-10 sm:py-10">
+      <h2 class="text-2xl font-bold text-white">
+        ¿No encuentras lo que buscas?
+      </h2>
+
+      <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">
+        Escríbenos y cuéntanos qué necesitas. Te ayudaremos a identificar
+        el siguiente paso.
+      </p>
+
+      <%= link_to "Hablar con soporte →",
+          "https://wa.me/50585817060?text=Hola%2C%20necesito%20ayuda%20con%20MombaPOS",
+          target: "_blank",
+          rel: "noopener noreferrer",
+          class: "mt-6 inline-flex rounded-lg bg-orange-600 px-6 py-3 font-semibold text-white transition hover:bg-orange-700" %>
+    </div>
+  </section>
+</main>
+
+<%= render "public_footer" %>

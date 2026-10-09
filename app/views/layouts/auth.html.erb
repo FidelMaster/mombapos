@@ -1,7 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" class="h-full">
   <head>
-    <title>Billing SaaS</title>
+    <!-- 1. Título dinámico optimizado con propuesta de valor y ubicación -->
+    <title><%= content_for?(:title) ? yield(:title) : "MombaPos | Facturación Electrónica y Sistema POS en Nicaragua" %></title>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- 2. Meta Descripción para motores de búsqueda -->
+    <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "MombaPos es el software de punto de venta y facturación en la nube para comercios, restaurantes y empresas en Nicaragua. Controla ventas e inventarios con rapidez." %>">
+    
+    <!-- 3. Control de Indexación (Evita indexar logins y paneles internos si se pasa :noindex) -->
+    <% if content_for?(:noindex) %>
+      <meta name="robots" content="noindex, nofollow">
+    <% else %>
+      <meta name="robots" content="index, follow">
+    <% end %>
+
+    <!-- 4. URL Canónica para evitar duplicidad -->
+    <link rel="canonical" href="<%= request.base_url + request.path %>">
+
+    <!-- 5. Open Graph (Tarjetas sociales para WhatsApp, Facebook, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MombaPos">
+    <meta property="og:title" content="<%= content_for?(:title) ? yield(:title) : "MombaPos | Facturación y Punto de Venta en la Nube" %>">
+    <meta property="og:description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "Gestiona tus ventas, inventarios y comprobantes fiscales desde cualquier dispositivo en Nicaragua." %>">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:image" content="<%= asset_url('logo-mombapos.png') %>">
+    <meta property="og:locale" content="es_NI">
+
+    <!-- 6. Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= content_for?(:title) ? yield(:title) : "MombaPos | Sistema POS en Nicaragua" %>">
+    <meta name="twitter:description" content="Software ágil de facturación e inventario en la nube.">
+    <meta name="twitter:image" content="<%= asset_url('logo-mombapos.png') %>">
+
+    <!-- 7. Favicon e Iconos de Dispositivos -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_url('logo-mombapos.png') %>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= asset_url('logo-mombapos.png') %>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= asset_url('logo-mombapos.png') %>">
+    <link rel="manifest" href="<%= asset_url('logo-mombapos.png') %>">
+    <meta name="theme-color" content="#F97316">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -9,23 +49,31 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 h-screen w-full flex items-center justify-center antialiased font-sans selection:bg-primary-100 selection:text-primary-700">
-    <div class="w-full h-full flex items-center justify-center p-4">
-      <div class="fixed top-4 right-4 z-50 space-y-2">
-        <% flash.each do |key, value| %>
-          <% 
-            color_class = case key.to_s
-              when 'notice' then 'bg-green-100 text-green-800 border-green-200'
-              when 'alert', 'error' then 'bg-red-100 text-red-800 border-red-200'
-              else 'bg-blue-100 text-blue-800 border-blue-200'
-            end
-          %>
-          <div class="<%= color_class %> px-4 py-3 rounded-xl border shadow-sm text-sm font-medium flex items-center gap-2 animate-fade-in-down" role="alert">
-            <%= value %>
-          </div>
-        <% end %>
-      </div>
+  <body class="bg-slate-50 min-h-screen w-full flex flex-col justify-between antialiased font-sans text-slate-800 selection:bg-orange-100 selection:text-orange-700">
+    
+    <!-- Contenedor de Alertas / Mensajes Flash -->
+    <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full pointer-events-none">
+      <% flash.each do |key, value| %>
+        <% 
+          color_class = case key.to_s
+            when 'notice' then 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            when 'alert', 'error' then 'bg-rose-50 text-rose-800 border-rose-200'
+            else 'bg-sky-50 text-sky-800 border-sky-200'
+          end
+        %>
+        <div class="<%= color_class %> pointer-events-auto px-4 py-3 rounded-2xl border shadow-lg text-sm font-medium flex items-center gap-3 transition-all animate-in fade-in slide-in-from-top-2" role="alert">
+          <span class="flex-1"><%= value %></span>
+          <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 focus:outline-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="flex-1 w-full flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <%= yield %>
     </div>
+
   </body>
 </html>

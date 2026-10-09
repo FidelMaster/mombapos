@@ -16,16 +16,32 @@ class InvoicesController < ApplicationController
     
     if params[:order_id].present?
       @order = Order.find(params[:order_id])
+
+      if @order.invoiced?
+        redirect_to @order.linked_invoice, alert: "Este pedido ya cuenta con una factura generada (#{@order.linked_invoice.invoice_number})."
+        return
+      end
+
       @invoice.order = @order
       @invoice.customer = @order.customer
-      @invoice.customer_name_snapshot = @order.customer_name
+      @invoice.customer_name_snapshot = @order.customer_name.presence || @order.customer&.name
       @invoice.subtotal_amount = @order.total
       @invoice.total_local_amount = @order.total
+      @invoice.notes = "Factura generada a partir del pedido #{@order.order_code}"
+      
+      # Si el pedido tiene saldo pendiente o anticipos registrados, sugerir crédito para generar cuenta por cobrar
+      if @order.balance_amount.to_d.positive? && @order.advance_amount.to_d.positive?
+        @invoice.invoice_type = :credit
+      else
+        @invoice.invoice_type = :cash
+      end
       
       @order.order_items.each do |item|
-        desc_parts = [item.product.name]
-        desc_parts << item.product_variant.variant_name if item.product_variant.present?
-        desc_parts << (item.product.product_code.presence || 'S/K')
+        desc_parts = [item.product&.name]
+        desc_parts << item.product_variant&.variant_name if item.product_variant.present?
+        desc_parts << (item.product&.product_code.presence || 'S/K')
+        desc_parts << "Grabado: #{item.engraving_text}" if item.engraving_text.present?
+        desc_parts << "Esp: #{item.custom_specifications}" if item.custom_specifications.present?
 
         @invoice.invoice_items.build(
           product_id: item.product_id,
@@ -128,10 +144,24 @@ class InvoicesController < ApplicationController
 
     if @invoice.save
       if @invoice.order_id.present?
-        @invoice.order.update(status: :closed)
-        @invoice.order.dining_table.update(status: :free) if @invoice.order.dining_table.present?
+        order = Order.unscoped.find_by(id: @invoice.order_id)
+        if order
+          # Guardar la referencia mutua de la factura en el pedido
+          order.update_columns(invoice_id: @invoice.id)
+
+          # Cerrar comandas si era pedido de POS restaurante
+          if order.open?
+            order.update_columns(status: "closed")
+            order.dining_table&.update_columns(status: "free")
+          end
+
+          # Sincronizar anticipos si la factura generó cuenta por cobrar
+          if @invoice.credit? && order.order_advances.any?
+            order.order_advances.each(&:sync_account_receivable_credit)
+          end
+        end
       end
-      redirect_to @invoice, notice: "Invoice was successfully created."
+      redirect_to @invoice, notice: "Factura #{@invoice.invoice_number} creada exitosamente."
     else
       load_form_collections
       render :new, status: :unprocessable_entity

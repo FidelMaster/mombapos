@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= content_for?(:title) ? yield(:title) : "Cotización #{@order&.order_code}" %></title>
+    <style>
+      @page {
+        size: letter portrait;
+        margin: 12mm;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0f172a;
+        background-color: #ffffff;
+        font-size: 12px;
+        line-height: 1.45;
+        padding: 0;
+        margin: 0;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+      }
+
+      /* Utilities */
+      .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .text-xs { font-size: 11px; }
+      .text-sm { font-size: 12px; }
+      .text-base { font-size: 14px; }
+      .text-lg { font-size: 16px; }
+      .text-xl { font-size: 18px; }
+      .text-2xl { font-size: 22px; }
+      .font-bold { font-weight: 700; }
+      .font-black { font-weight: 800; }
+      .uppercase { text-transform: uppercase; }
+      .tracking-wider { letter-spacing: 0.05em; }
+      .tracking-tight { letter-spacing: -0.025em; }
+
+      .text-left { text-align: left; }
+      .text-center { text-align: center; }
+      .text-right { text-align: right; }
+
+      .text-slate-400 { color: #94a3b8; }
+      .text-slate-500 { color: #64748b; }
+      .text-slate-600 { color: #475569; }
+      .text-slate-700 { color: #334155; }
+      .text-slate-800 { color: #1e293b; }
+      .text-slate-900 { color: #0f172a; }
+      .text-amber-800 { color: #92400e; }
+      .text-emerald-700 { color: #047857; }
+      .text-emerald-800 { color: #065f46; }
+      .text-rose-600 { color: #e11d48; }
+
+      .bg-slate-50 { background-color: #f8fafc; }
+      .bg-slate-100 { background-color: #f1f5f9; }
+      .bg-slate-900 { background-color: #0f172a; }
+      .bg-amber-50 { background-color: #fffbeb; }
+      .bg-amber-100 { background-color: #fef3c7; }
+      .bg-emerald-50 { background-color: #ecfdf5; }
+      .bg-emerald-100 { background-color: #d1fae5; }
+
+      .border { border: 1px solid #e2e8f0; }
+      .border-t { border-top: 1px solid #e2e8f0; }
+      .border-b { border-bottom: 1px solid #e2e8f0; }
+      .border-dashed { border-style: dashed; }
+      .border-slate-200 { border-color: #e2e8f0; }
+      .border-slate-300 { border-color: #cbd5e1; }
+      .border-amber-300 { border-color: #fcd34d; }
+      .border-emerald-300 { border-color: #6ee7b7; }
+
+      .rounded-lg { border-radius: 8px; }
+      .rounded-xl { border-radius: 12px; }
+      .rounded-full { border-radius: 9999px; }
+
+      /* Table layout */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        vertical-align: top;
+      }
+
+      .table-striped tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+      }
+
+      .page-break-avoid {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <%= yield %>
+    </div>
+  </body>
+</html>

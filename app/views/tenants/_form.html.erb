@@ -67,6 +67,11 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="md:col-span-2">
+        <%= form.label :business_dni, "Cédula / RUC", class: "block text-sm font-medium leading-6 text-gray-900 mb-1.5" %>
+        <%= form.text_field :business_dni, placeholder: "Ej. 1234567890123", class: ["block w-full rounded-xl border-0 px-3.5 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:business_dni].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:business_dni].any?}] %>
+      </div>
+
+      <div class="md:col-span-2">
         <%= form.label :address, "Dirección Física", class: "block text-sm font-medium leading-6 text-gray-900 mb-1.5" %>
         <%= form.text_field :address, placeholder: "Ej. Costado Este de Catedral 2c al Norte", class: ["block w-full rounded-xl border-0 px-3.5 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6", {"ring-gray-300 focus:ring-indigo-600": tenant.errors[:address].none?, "ring-red-300 focus:ring-red-500": tenant.errors[:address].any?}] %>
       </div>

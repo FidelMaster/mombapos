@@ -24,8 +24,48 @@ class OrderAdvance < ApplicationRecord
   after_save    :refresh_order_balances
   after_destroy :refresh_order_balances
 
+  # Sincronizar abono en la Cuenta por Cobrar generada por la factura del pedido si existe
+  after_commit :sync_account_receivable_credit, on: [:create, :update]
+  after_commit :remove_account_receivable_credit, on: :destroy
+
   def requires_bank_account?
     BANK_PAYMENT_CODES.include?(payment_method&.code)
+  end
+
+  def sync_account_receivable_credit
+    return if destroyed? || amount.blank? || amount <= 0
+
+    target_invoice = order&.linked_invoice
+    return unless target_invoice
+
+    target_ar = DocumentAccountReceivable.unscoped.find_by(document_id: target_invoice.id, document_type: "Invoice") ||
+                DocumentAccountReceivable.unscoped.find_by(document_id: target_invoice.id)
+    return unless target_ar
+
+    detail = target_ar.document_account_receivable_details.find_or_initialize_by(
+      document_type: :order_advance,
+      document_id: id
+    )
+    detail.document_number = "ANT-#{id} (#{order.order_code})"
+    detail.movement_type = :credit
+    detail.amount = amount
+    detail.date = payment_date || Date.current
+    detail.exchange_rate = exchange_rate
+    detail.save!
+
+    target_ar.recalculate_balance!
+  end
+
+  def remove_account_receivable_credit
+    details = DocumentAccountReceivableDetail.where(
+      document_type: :order_advance,
+      document_id: id
+    )
+    details.each do |detail|
+      target_ar = detail.document_account_receivable
+      detail.destroy
+      target_ar&.recalculate_balance!
+    end
   end
 
   private

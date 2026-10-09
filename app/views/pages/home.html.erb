@@ -1,0 +1,280 @@
+
+<!-- Navbar -->
+<header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+  <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8"
+       aria-label="Navegación principal">
+
+    <%= link_to root_path, class: "flex items-center gap-2.5" do %>
+      <%= image_tag "logo-mombapos.png",
+          alt: "MombaPOS",
+          class: "h-9 w-auto object-contain" %>
+    <% end %>
+
+    <div class="hidden items-center gap-8 md:flex">
+      <%= link_to "Funcionalidades", "#funcionalidades",
+          class: "text-sm font-medium text-slate-600 hover:text-orange-600" %>
+      <%= link_to "Cómo funciona", "#como-funciona",
+          class: "text-sm font-medium text-slate-600 hover:text-orange-600" %>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <%= link_to "Iniciar sesión", new_user_session_path,
+          class: "hidden text-sm font-semibold text-slate-700 hover:text-orange-600 sm:block" %>
+
+      <%= link_to "Solicitar demo", "#contacto",
+          class: "rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2" %>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="overflow-hidden bg-white">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-24">
+
+      <div class="max-w-xl">
+        <p class="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-700">
+          <span class="h-2 w-2 rounded-full bg-orange-500"></span>
+          Gestión empresarial para negocios en Nicaragua
+        </p>
+
+        <h1 class="text-4xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+          Tu negocio bajo control.
+          <span class="text-orange-600">Cada decisión, mejor informada.</span>
+        </h1>
+
+        <p class="mt-6 max-w-lg text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+          Gestiona tu facturación, cuentas por cobrar, cotizaciones y
+          pedidos desde un solo lugar. Consulta tus resultados y mantén
+          una visión más clara de tu negocio.
+        </p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <%= link_to "#contacto",
+              class: "inline-flex items-center justify-center rounded-lg bg-orange-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-orange-700" do %>
+            Solicitar una demostración
+            <span class="ml-2" aria-hidden="true">→</span>
+          <% end %>
+
+          <%= link_to "#funcionalidades",
+              class: "inline-flex items-center justify-center rounded-lg border border-slate-300 px-6 py-3.5 font-semibold text-slate-800 transition hover:bg-slate-50" do %>
+            Explorar funcionalidades
+          <% end %>
+        </div>
+
+        <p class="mt-5 text-sm text-slate-500">
+          Diseñado para acompañar la operación diaria de tu empresa.
+        </p>
+      </div>
+
+      <!-- Vista ilustrativa del sistema -->
+      <div class="relative mx-auto w-full max-w-xl lg:max-w-none">
+        <div class="absolute -inset-5 -z-10 rounded-3xl bg-orange-50/80"></div>
+
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
+          <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <p class="text-sm font-bold text-slate-900">Panel de gestión</p>
+              <p class="mt-1 text-xs text-slate-500">Vista ilustrativa</p>
+            </div>
+            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+              Resumen
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 p-4 sm:gap-4 sm:p-6">
+            <div class="rounded-xl border border-slate-200 p-4">
+              <p class="text-xs text-slate-500">Facturación</p>
+              <div class="mt-3 h-2 w-16 rounded bg-orange-500"></div>
+              <p class="mt-3 text-xs text-slate-400">Comprobantes emitidos</p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 p-4">
+              <p class="text-xs text-slate-500">Cuentas por cobrar</p>
+              <div class="mt-3 h-2 w-20 rounded bg-slate-800"></div>
+              <p class="mt-3 text-xs text-slate-400">Saldos pendientes</p>
+            </div>
+
+            <div class="col-span-2 rounded-xl border border-slate-200 p-4">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-sm font-semibold text-slate-800">Actividad comercial</p>
+                <span class="text-xs text-slate-400">Ejemplo visual</span>
+              </div>
+              <div class="mt-5 flex h-24 items-end gap-2 sm:h-32 sm:gap-3">
+                <% [35, 55, 42, 75, 52, 88, 65, 95, 70, 82, 58, 100].each do |height| %>
+                  <div class="flex-1 rounded-t bg-orange-500/80 transition hover:bg-orange-600"
+                       style="height: <%= height %>%"></div>
+                <% end %>
+              </div>
+              <div class="mt-3 flex justify-between text-xs text-slate-400">
+                <span>Periodo inicial</span>
+                <span>Periodo final</span>
+              </div>
+            </div>
+
+            <div class="col-span-2 rounded-xl bg-slate-50 p-4">
+              <p class="text-sm font-semibold text-slate-800">Operaciones del negocio</p>
+              <div class="mt-4 space-y-3">
+                <% ["Facturación", "Cotizaciones", "Gestión de pedidos"].each do |item| %>
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm text-slate-600"><%= item %></span>
+                    <span class="text-xs font-medium text-slate-500">Gestionar →</span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Funcionalidades -->
+  <section id="funcionalidades" class="scroll-mt-20 border-t border-slate-100 bg-slate-50 py-20 sm:py-24">
+    <div class="mx-auto max-w-7xl px-5 sm:px-8">
+
+      <div class="max-w-2xl">
+        <p class="text-sm font-bold uppercase tracking-wider text-orange-600">
+          Funcionalidades
+        </p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          Las herramientas que tu negocio necesita.
+        </h2>
+        <p class="mt-4 leading-7 text-slate-600">
+          Organiza tus operaciones, da seguimiento a tus ventas y accede
+          a la información que necesitas para gestionar tu empresa.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+        <% features = [
+          {
+            number: "01",
+            title: "Facturación",
+            description: "Emite comprobantes y mantén tus ventas organizadas en un mismo sistema."
+          },
+          {
+            number: "02",
+            title: "Cuentas por cobrar",
+            description: "Da seguimiento a los saldos pendientes y consulta el estado de tus cobros."
+          },
+          {
+            number: "03",
+            title: "Cotizaciones",
+            description: "Prepara propuestas comerciales y organiza las cotizaciones de tus clientes."
+          },
+          {
+            number: "04",
+            title: "Gestión de pedidos",
+            description: "Centraliza los pedidos y facilita el seguimiento de tus operaciones."
+          },
+          {
+            number: "05",
+            title: "Reportes gerenciales",
+            description: "Consulta información consolidada para evaluar los resultados de tu negocio."
+          }
+        ] %>
+
+        <% features.each do |feature| %>
+          <article class="rounded-xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg hover:shadow-slate-900/5">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-sm font-bold text-orange-600">
+              <%= feature[:number] %>
+            </span>
+
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              <%= feature[:title] %>
+            </h3>
+
+            <p class="mt-3 text-sm leading-6 text-slate-600">
+              <%= feature[:description] %>
+            </p>
+          </article>
+        <% end %>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Cómo funciona -->
+  <section id="como-funciona" class="scroll-mt-20 bg-white py-20 sm:py-24">
+    <div class="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:items-center">
+
+      <div class="max-w-xl">
+        <p class="text-sm font-bold uppercase tracking-wider text-orange-600">
+          Una gestión más clara
+        </p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          Menos información dispersa. Más control de tu empresa.
+        </h2>
+        <p class="mt-5 leading-7 text-slate-600">
+          Reúne los procesos comerciales de tu negocio y consulta la
+          información que necesitas sin depender de múltiples registros
+          separados.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <% [
+          ["01", "Registra tus operaciones", "Organiza las ventas, cotizaciones y pedidos."],
+          ["02", "Da seguimiento a tus cobros", "Consulta las cuentas pendientes de tus clientes."],
+          ["03", "Revisa tus resultados", "Utiliza los reportes disponibles para conocer el desempeño de tu negocio."]
+        ].each do |number, title, description| %>
+          <div class="flex gap-4 rounded-xl border border-slate-200 p-5">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white">
+              <%= number %>
+            </span>
+            <div>
+              <h3 class="font-bold text-slate-900"><%= title %></h3>
+              <p class="mt-1 text-sm leading-6 text-slate-600"><%= description %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="contacto" class="scroll-mt-20 bg-slate-950 px-5 py-16 sm:px-8 sm:py-20">
+    <div class="mx-auto flex max-w-5xl flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
+      <div class="max-w-2xl">
+        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Conoce una forma más clara de gestionar tu negocio.
+        </h2>
+        <p class="mt-4 leading-7 text-slate-300">
+          Solicita una demostración de MombaPOS y descubre cómo se adapta
+          a las operaciones de tu empresa.
+        </p>
+      </div>
+
+      <%= link_to "https://wa.me/50585817060?text=Hola%2C%20deseo%20una%20demostraci%C3%B3n%20de%20MombaPOS",
+          target: "_blank",
+          rel: "noopener noreferrer",
+          class: "inline-flex shrink-0 items-center justify-center rounded-lg bg-orange-600 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-700" do %>
+        Solicitar una demo →
+      <% end %>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-slate-200 bg-white">
+  <div class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between">
+    <div>
+      <p class="text-sm font-bold text-slate-900">MombaPOS</p>
+      <p class="mt-1 text-xs text-slate-500">Gestión empresarial en Nicaragua.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
+      <%= link_to "Términos", terms_path, class: "hover:text-orange-600" %>
+      <%= link_to "Privacidad", privacy_path, class: "hover:text-orange-600" %>
+      <%= link_to "Soporte", support_path, class: "hover:text-orange-600" %>
+    </div>
+
+    <p class="text-xs text-slate-400">
+      © <%= Time.current.year %> MombaPOS · Managua, Nicaragua
+    </p>
+  </div>
+</footer>

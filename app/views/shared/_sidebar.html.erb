@@ -29,9 +29,18 @@
         ⚡ Operaciones rápidas
       </div>
 
-         <%= link_to authenticated_root_path, class: nav_class(authenticated_root_path) do %>
+      <%= link_to authenticated_root_path, class: nav_class(authenticated_root_path) do %>
         🏦 Panel de Control
       <% end %>
+
+       <%= link_to account_receivables_path, class: nav_class(account_receivables_path) do %>
+        📄 Cuentas Por Cobrar
+      <% end %>
+
+      <%= link_to new_receipt_path, class: nav_class(new_receipt_path) do %>
+        📄 Registro Abonos
+      <% end %>
+
 
      <%= link_to invoices_path, class: nav_class(invoices_path) do %>
         📄 Facturas
@@ -52,7 +61,7 @@
       <% end %>
 
       <%= link_to orders_path, class: nav_class(orders_path) do %>
-        💍 Pedidos y Taller
+        💍 Pedidos y Cotizaciones
       <% end %>
 
       <%= link_to stock_warehouses_path, class: nav_class(stock_warehouses_path) do %>

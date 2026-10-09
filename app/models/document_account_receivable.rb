@@ -16,4 +16,10 @@ class DocumentAccountReceivable < ApplicationRecord
     credits = document_account_receivable_details.where(movement_type: :credit).sum(:amount)
     debits - credits
   end
+
+  def recalculate_balance!
+    current_balance = balance
+    update_columns(balance: current_balance)
+    current_balance
+  end
 end

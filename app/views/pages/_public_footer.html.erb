@@ -1,0 +1,31 @@
+<footer class="border-t border-slate-200 bg-white">
+  <div class="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <%= link_to root_path, class: "text-lg font-black tracking-tight text-slate-900" do %>
+          Momba<span class="text-orange-600">POS</span>
+        <% end %>
+
+        <p class="mt-1 text-sm text-slate-500">
+          Gestión empresarial en Nicaragua.
+        </p>
+      </div>
+
+      <nav class="flex flex-wrap gap-x-5 gap-y-3 text-sm text-slate-500"
+           aria-label="Enlaces legales">
+        <%= link_to "Términos y condiciones", terms_path,
+            class: "hover:text-orange-600" %>
+
+        <%= link_to "Privacidad", privacy_path,
+            class: "hover:text-orange-600" %>
+
+        <%= link_to "Soporte", support_path,
+            class: "hover:text-orange-600" %>
+      </nav>
+    </div>
+
+    <div class="mt-7 border-t border-slate-100 pt-5 text-xs text-slate-400">
+      © <%= Time.current.year %> MombaPOS · Managua, Nicaragua
+    </div>
+  </div>
+</footer>

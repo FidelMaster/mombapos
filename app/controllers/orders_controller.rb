@@ -1,7 +1,7 @@
 class OrdersController < ApplicationController
   PER_PAGE = 25
 
-  before_action :set_order, only: %i[ show edit update destroy transition ]
+  before_action :set_order, only: %i[ show edit update destroy transition quotation ]
   before_action :ensure_workflow_editable, only: %i[ edit update ]
 
   # GET /orders — Pedidos de joyería (vitrina / taller)
@@ -55,6 +55,19 @@ class OrdersController < ApplicationController
         load_advance_collections
       end
       format.json { render json: @order.as_json(include: { order_items: { include: :product } }) }
+      format.pdf  { render_quotation_pdf }
+    end
+  end
+
+  # GET /orders/1/quotation
+  def quotation
+    respond_to do |format|
+      format.html do
+        @order_items = @order.order_items.includes(:product, :product_variant)
+        @order_advances = @order.order_advances.includes(:payment_method)
+        render :quotation, layout: "pdf"
+      end
+      format.pdf { render_quotation_pdf }
     end
   end
 
@@ -205,6 +218,24 @@ class OrdersController < ApplicationController
   def load_advance_collections
     @payment_methods = PaymentMethod.order(:id)
     @bank_accounts   = BankAccount.includes(:bank).order(:account_name)
+  end
+
+  def render_quotation_pdf
+    @order_items = @order.order_items.includes(:product, :product_variant)
+    @order_advances = @order.order_advances.includes(:payment_method)
+    clean_code = (@order.order_code.presence || "ORD-#{@order.id}").tr("#", "")
+    filename = "Cotizacion_#{clean_code}.pdf"
+
+    render pdf: filename,
+           template: "orders/quotation",
+           layout: "pdf",
+           formats: [:html, :pdf],
+           disposition: "inline",
+           page_size: "Letter",
+           orientation: "Portrait",
+           margin: { top: "12mm", bottom: "12mm", left: "12mm", right: "12mm" },
+           encoding: "UTF-8",
+           print_media_type: true
   end
 
   # status / totales / tenant se calculan en servidor: no se aceptan del cliente.

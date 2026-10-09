@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+  <head>
+    <title>MombaPOS | Sistema POS y Facturación en la Nube en Nicaragua</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Controla inventarios, ventas, cotizaciones de taller y comprobantes fiscales desde cualquier dispositivo en Nicaragua.">
+
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-white text-slate-800 antialiased font-sans selection:bg-orange-100 selection:text-orange-700">
+    <%= yield %>
+  </body>
+</html>

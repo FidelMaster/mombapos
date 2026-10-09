@@ -11,7 +11,8 @@ class DocumentAccountReceivableDetail < ApplicationRecord
   enum document_type: {
     invoice: "invoice",
     receipt: "receipt",
-    credit_note: "credit_note"
+    credit_note: "credit_note",
+    order_advance: "order_advance"
   }
 
   validates :amount, presence: true, numericality: { greater_than: 0 }

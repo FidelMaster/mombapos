@@ -71,9 +71,17 @@ class Order < ApplicationRecord
 
   has_many :order_items, dependent: :destroy
   has_many :order_advances, -> { order(payment_date: :desc, id: :desc) }, dependent: :restrict_with_error
-  has_one :invoice, dependent: :nullify
+  belongs_to :invoice, optional: true
   accepts_nested_attributes_for :order_items, allow_destroy: true,
                                 reject_if: ->(attrs) { attrs["id"].blank? && attrs["product_id"].blank? && attrs["product_variant_id"].blank? }
+
+  def linked_invoice
+    invoice || Invoice.unscoped.find_by(order_id: id)
+  end
+
+  def invoiced?
+    linked_invoice.present?
+  end
 
   default_scope { where(tenant_id: Current.tenant.id) }
 

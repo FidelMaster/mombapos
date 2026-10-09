@@ -71,17 +71,27 @@ class Invoice < ApplicationRecord
       customer: customer,
       payment_term: payment_term,
       document: self,
+      document_id: id,
+      document_type: "Invoice",
+      document_number: invoice_number,
       date: invoice_date,
       amount: total_local_amount,
+      balance: total_local_amount,
       exchange_rate: exchange_rate
     )
 
     ar.document_account_receivable_details.create!(
       document_type: :invoice,
       document_id: id,
+      document_number: invoice_number,
       movement_type: :debit,
       amount: total_local_amount,
       date: invoice_date
     )
+
+    # Si la factura proviene de una orden con anticipos previos, sincronizarlos
+    if order.present? && order.order_advances.any?
+      order.order_advances.each(&:sync_account_receivable_credit)
+    end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_03_170750) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_08_232647) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -154,7 +154,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_03_170750) do
     t.string "name"
     t.string "tax_id"
     t.string "address"
-    t.bigint "municipality_id", null: false
+    t.bigint "municipality_id"
     t.string "contact_name"
     t.string "contact_email"
     t.string "contact_phone"
@@ -456,8 +456,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_03_170750) do
     t.decimal "balance_amount", precision: 12, scale: 2, default: "0.0", null: false
     t.date "promised_delivery_date"
     t.text "workshop_notes"
+    t.bigint "invoice_id"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["dining_table_id"], name: "index_orders_on_dining_table_id"
+    t.index ["invoice_id"], name: "index_orders_on_invoice_id"
     t.index ["tenant_id", "order_kind"], name: "index_orders_on_tenant_id_and_order_kind"
     t.index ["tenant_id", "promised_delivery_date"], name: "index_orders_on_tenant_id_and_promised_delivery_date"
     t.index ["tenant_id", "status"], name: "index_orders_on_tenant_id_and_status"
@@ -826,6 +828,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_03_170750) do
     t.string "address"
     t.string "phone"
     t.string "city"
+    t.string "business_dni"
     t.index ["currency_id"], name: "index_tenants_on_currency_id"
     t.index ["license_id"], name: "index_tenants_on_license_id"
   end
@@ -964,6 +967,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_03_170750) do
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "dining_tables"
+  add_foreign_key "orders", "invoices"
   add_foreign_key "orders", "tenants"
   add_foreign_key "permissions", "roles", on_delete: :cascade
   add_foreign_key "plan_detail_objectives", "plan_details"

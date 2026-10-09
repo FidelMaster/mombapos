@@ -33,6 +33,22 @@
                 id: "order_customer_id", class: "w-full rounded-2xl border-slate-200 text-sm", data: { controller: "select" } %>
         </div>
 
+        <div>
+          <%= f.label :customer_name, "Cliente", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+          <%= f.text_field :customer_name, class: "w-full rounded-2xl border-slate-200 text-sm", placeholder: "Nombre del cliente" %>
+        </div>
+
+        <div>
+          <%= f.label :delivery_address, "Direccion de entrega", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+          <%= f.text_field :delivery_address, class: "w-full rounded-2xl border-slate-200 text-sm", placeholder: "Direccion de entrega" %>
+        </div>
+
+
+        <div>
+          <%= f.label :customer_phone, "Telefono del cliente", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+          <%= f.text_field :customer_phone, class: "w-full rounded-2xl border-slate-200 text-sm", placeholder: "Telefono del cliente" %>
+        </div>
+
         <fieldset>
           <legend class="mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400">Tipo de pedido</legend>
           <div class="grid grid-cols-2 gap-2">
@@ -55,11 +71,36 @@
       </div>
     </section>
 
+        <!-- 3. Entrega y taller -->
+    <section class="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-7" data-order-form-target="workshopSection">
+      <div class="mb-5 flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">2</span>
+        <h2 class="text-lg font-black tracking-tight text-slate-900">Entrega y notas de taller</h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div>
+          <%= f.label :promised_delivery_date, class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" do %>
+            Fecha promesa de entrega
+            <span class="text-amber-600" data-order-form-target="dateRequired">*</span>
+          <% end %>
+          <%= f.date_field :promised_delivery_date, min: (Date.current if order.new_record?),
+                class: "w-full rounded-2xl border-slate-200 py-2.5 text-sm font-semibold text-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
+          <p class="mt-1 text-[11px] text-slate-400" data-order-form-target="dateHint">Obligatoria para encargos de taller.</p>
+        </div>
+        <div class="md:col-span-2">
+          <%= f.label :workshop_notes, "Observaciones generales del encargo", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
+          <%= f.text_area :workshop_notes, rows: 3, placeholder: "Ej: Cliente trae su propio diamante; verificar talla en prueba previa…",
+                class: "w-full rounded-2xl border-slate-200 text-sm text-slate-700 placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
+        </div>
+      </div>
+    </section>
+
     <!-- 2. Piezas -->
     <section class="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-7">
       <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">2</span>
+          <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">3</span>
           <div>
             <h2 class="text-lg font-black tracking-tight text-slate-900">Piezas del pedido</h2>
             <p class="text-xs text-slate-500" data-order-form-target="itemsHint">Selecciona la pieza base y su variante. En encargos de taller agrega grabado y especificaciones.</p>
@@ -90,30 +131,7 @@
       </template>
     </section>
 
-    <!-- 3. Entrega y taller -->
-    <section class="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-7" data-order-form-target="workshopSection">
-      <div class="mb-5 flex items-center gap-3">
-        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">3</span>
-        <h2 class="text-lg font-black tracking-tight text-slate-900">Entrega y notas de taller</h2>
-      </div>
 
-      <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <div>
-          <%= f.label :promised_delivery_date, class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" do %>
-            Fecha promesa de entrega
-            <span class="text-amber-600" data-order-form-target="dateRequired">*</span>
-          <% end %>
-          <%= f.date_field :promised_delivery_date, min: (Date.current if order.new_record?),
-                class: "w-full rounded-2xl border-slate-200 py-2.5 text-sm font-semibold text-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
-          <p class="mt-1 text-[11px] text-slate-400" data-order-form-target="dateHint">Obligatoria para encargos de taller.</p>
-        </div>
-        <div class="md:col-span-2">
-          <%= f.label :workshop_notes, "Observaciones generales del encargo", class: "mb-1.5 block text-[11px] font-black uppercase tracking-wider text-slate-400" %>
-          <%= f.text_area :workshop_notes, rows: 3, placeholder: "Ej: Cliente trae su propio diamante; verificar talla en prueba previa…",
-                class: "w-full rounded-2xl border-slate-200 text-sm text-slate-700 placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" %>
-        </div>
-      </div>
-    </section>
   </div>
 
   <!-- Resumen (sticky) -->
