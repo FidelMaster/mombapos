@@ -3,7 +3,7 @@ class InvoicesController < ApplicationController
 
   # GET /invoices
   def index
-    @invoices = manage_resource(Invoice.includes(:customer))
+    @invoices = manage_resource(Invoice.includes(:customer).includes(:branch))
   end
 
   # GET /invoices/1

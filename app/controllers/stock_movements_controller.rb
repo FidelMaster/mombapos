@@ -1,6 +1,6 @@
 class StockMovementsController < ApplicationController
   def index
-    @movements = StockMovement.order(created_at: :desc).limit(50)
+    @movements = StockMovement.order(created_at: :desc).includes(:product, :warehouse).limit(50)
   end
 
   def new

@@ -4,7 +4,7 @@ class ProductsController < ApplicationController
   # GET /products
   def index
     # Base query with optional filters
-    @products = Product.all
+    @products = Product.all.includes(:product_category)
     @products = apply_filters(@products)
     @products = apply_search(@products)
     @products = apply_sorting(@products)
