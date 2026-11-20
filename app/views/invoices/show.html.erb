@@ -73,11 +73,16 @@
 
     <%# CONTENIDO DEL TICKET 80MM (Con scroll si es muy largo) %>
     <div id="thermal-receipt" class="font-mono text-xs text-slate-900 leading-tight space-y-3 overflow-y-auto flex-1 pr-1 print:overflow-visible">
-      
+       <% ticket_tenant = current_tenant || current_user&.tenant %>
       <%# Logo y Encabezado %>
       <div class="text-center border-b border-dashed border-slate-300 pb-3">
-        <img src="/logo.jpg" alt="Logo" class="h-12 mx-auto mb-2 object-contain grayscale" onerror="this.style.display='none'">
-        <h2 class="font-black text-sm uppercase">Mishell Display</h2>
+        <% if ticket_tenant&.name == "Mishell Display" %>
+          <img src="/logo.jpg" alt="Logo" class="h-12 mx-auto mb-2 object-contain grayscale" onerror="this.style.display='none'">
+        <% else %>
+          <img src="/logo2.jpeg" alt="Logo" class="h-12 mx-auto mb-2 object-contain grayscale" onerror="this.style.display='none'">
+        <% end %>
+
+        <h2 class="font-black text-sm uppercase"><%= ticket_tenant&.name %></h2>
         <p class="text-[11px]">Los robles frente a plaza Loza</p>
         <p class="text-[11px]">Managua, Nicaragua</p>
         <p class="text-[11px]">Tel: +505 5774-2754</p>

@@ -91,6 +91,9 @@ class InvoicesController < ApplicationController
     # Reducción de inventario
     @invoice.invoice_items.each do |invoice_item|
       main_product = Product.find(invoice_item.product_id)
+
+      #Verificar si la cantidad es mayor al stock disponible 
+      
       
       if main_product.kit? && main_product.product_composition.present?
         main_product.product_composition.product_composition_items.each do |comp_item|
